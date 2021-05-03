@@ -1,0 +1,92 @@
+#pragma once
+
+#include "GASExtAbilityTypesBase.h"
+
+#include <Abilities/GameplayAbilityTargetActor.h>
+#include <CoreMinimal.h>
+
+#include "GASExtGameplayAbilityTargetActor.generated.h"
+
+UCLASS()
+class GASEXTENSIONS_API AGASExtGameplayAbilityTargetActor : public AGameplayAbilityTargetActor
+{
+    GENERATED_BODY()
+
+public:
+    AGASExtGameplayAbilityTargetActor();
+
+    UFUNCTION( BlueprintCallable, DisplayName = "ConfirmTargeting" )
+    void K2_ConfirmTargeting();
+
+    UFUNCTION( BlueprintCallable )
+    virtual void StopTargeting();
+
+    UFUNCTION( BlueprintCallable )
+    void BP_CancelTargeting();
+
+    void BeginPlay() override;
+    void StartTargeting( UGameplayAbility * ability ) override;
+    void Tick( float delta_seconds ) override;
+    void CancelTargeting() override;
+    void EndPlay( EEndPlayReason::Type end_play_reason ) override;
+    void ConfirmTargetingAndContinue() override;
+
+protected:
+    UFUNCTION( BlueprintImplementableEvent )
+    void ReceiveTargetAdded( const FHitResult & hit_result );
+
+    UFUNCTION( BlueprintImplementableEvent )
+    void ReceiveDestroyAllReticles();
+
+    UFUNCTION( BlueprintImplementableEvent )
+    void ReceiveTargetRemoved( const FHitResult & hit_result );
+
+    virtual void ComputeTraceEnd( FVector & trace_end, const FVector & trace_start, const FCollisionQueryParams & collision_query_params );
+    virtual void FillActorsToIgnore( TArray< AActor * > actors_to_ignore ) const;
+    virtual FVector ComputeTraceStart( FVector & trace_start ) const;
+    virtual void PerformTrace( float delta_seconds );
+    virtual AActor * GetSourceActor();
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    float TraceMaxRange;
+
+    UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Trace" )
+    FGASExtCollisionDetectionInfo CollisionInfo;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    FGameplayTargetDataFilterHandle TargetDataFilterHandle;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    int MaxHitResults;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    uint8 TraceComplex : 1;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    uint8 IgnoreBlockingHits : 1;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    uint8 AllowEmptyHitResult : 1;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    uint8 UsePersistentHitResults : 1;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    uint8 DrawDebug : 1;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    float TraceSphereRadius;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Trace" )
+    EGASExtTargetTraceType TraceType;
+
+private:
+    void ClearPersistentHitResults();
+    void RemoveTargetFromPersistentResult( int target_index );
+    void AddTargetToPersistentResult( const FHitResult & hit_result );
+
+    TArray< FHitResult > PersistentHitResults;
+    // :NOTE: When tracing, give this much extra height to avoid start-in-ground problems. Dealing with thick placement actors while standing near walls may be trickier.
+    float CollisionHeightOffset;
+    FCollisionShape GroundTraceCollisionShape;
+};
