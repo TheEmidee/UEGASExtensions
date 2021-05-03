@@ -14,13 +14,13 @@ AGASExtGameplayAbilityTargetActor::AGASExtGameplayAbilityTargetActor()
     PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 
     bDestroyOnConfirmation = false;
-    TraceComplex = false;
-    IgnoreBlockingHits = false;
+    bTraceComplex = false;
+    bIgnoreBlockingHits = false;
     TraceMaxRange = 9999999.0f;
     MaxHitResults = 1;
-    AllowEmptyHitResult = false;
-    UsePersistentHitResults = true;
-    DrawDebug = false;
+    bAllowEmptyHitResult = false;
+    bUsePersistentHitResults = true;
+    bDrawDebug = false;
     CollisionHeightOffset = 0.0f;
 }
 
@@ -153,10 +153,10 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
     TArray< AActor * > actors_to_ignore;
     FillActorsToIgnore( actors_to_ignore );
 
-    FCollisionQueryParams collision_query_params( SCENE_QUERY_STAT( AGASExtGameplayAbilityTargetActor_Trace ), TraceComplex );
+    FCollisionQueryParams collision_query_params( SCENE_QUERY_STAT( AGASExtGameplayAbilityTargetActor_Trace ), bTraceComplex );
     collision_query_params.bReturnPhysicalMaterial = true;
     collision_query_params.AddIgnoredActors( actors_to_ignore );
-    collision_query_params.bIgnoreBlocks = IgnoreBlockingHits;
+    collision_query_params.bIgnoreBlocks = bIgnoreBlockingHits;
 
     FVector trace_start;
     ComputeTraceStart( trace_start );
@@ -195,7 +195,7 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
     }
 
 #if ENABLE_DRAW_DEBUG
-    if ( DrawDebug )
+    if ( bDrawDebug )
     {
         auto has_hit_results = hit_results.Num() > 0;
 
@@ -222,7 +222,7 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
 
     if ( hit_results.Num() == 0 )
     {
-        if ( AllowEmptyHitResult )
+        if ( bAllowEmptyHitResult )
         {
             hit_results.Emplace( FHitResult { trace_start, trace_end } );
             for ( const auto & hit_result : hit_results )
@@ -234,7 +234,7 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
     }
     else
     {
-        if ( UsePersistentHitResults )
+        if ( bUsePersistentHitResults )
         {
             // For persistent hits, loop backwards so that further objects from player are added first to the queue.
             // This results in closer actors taking precedence as the further actors will get bumped out of the TArray.
@@ -264,7 +264,7 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
             // Loop forward and use the first valid hit
             for ( const auto & hit_result : hit_results )
             {
-                if ( hit_result.Actor.IsValid() || AllowEmptyHitResult )
+                if ( hit_result.Actor.IsValid() || bAllowEmptyHitResult )
                 {
                     ClearPersistentHitResults();
                     AddTargetToPersistentResult( hit_result );

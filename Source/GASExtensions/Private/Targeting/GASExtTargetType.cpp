@@ -26,7 +26,7 @@ UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHit
     SphereRadius = 100.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
-    ItDrawsDebug = false;
+    bDrawsDebug = false;
 }
 
 FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const
@@ -37,7 +37,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
 
     UKismetSystemLibrary::SphereOverlapActors( ability_owner, actor_location, SphereRadius.GetValue(), ObjectTypes, nullptr, TArray< AActor * >(), hit_actors );
 
-    if ( ItMustHaveLineOfSight )
+    if ( bMustHaveLineOfSight )
     {
         auto ignore_actors = hit_actors;
         ignore_actors.Remove( ability_owner->GetAttachParentActor() );
@@ -57,7 +57,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
                 UEngineTypes::ConvertToTraceType( ECC_Visibility ),
                 false,
                 ignore_actors,
-                ItDrawsDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
+                bDrawsDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
                 line_trace_hit,
                 true,
                 FLinearColor::Red,
@@ -71,7 +71,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
         }
     }
 
-    if ( ItDrawsDebug )
+    if ( bDrawsDebug )
     {
         UKismetSystemLibrary::DrawDebugSphere( ability_owner, hit_result.ImpactPoint, SphereRadius.GetValue(), 12, FLinearColor::Red, 1.0f, 1.0f );
     }

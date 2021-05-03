@@ -35,9 +35,9 @@ struct FGASExtCollisionDetectionInfo
         DetectionType = EGASExtCollisionDetectionType::UsingCollisionChannel;
         TraceProfile = UCollisionProfile::BlockAll_ProfileName;
         TraceChannel = ECollisionChannel::ECC_WorldStatic;
-        ItUsesTraceComplex = true;
-        IgnoreBlockingHits = false;
-        ItReturnsPhysicalMaterial = true;
+        bUsesTraceComplex = true;
+        bIgnoreBlockingHits = false;
+        bReturnsPhysicalMaterial = true;
     }
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
@@ -50,13 +50,13 @@ struct FGASExtCollisionDetectionInfo
     TEnumAsByte< ECollisionChannel > TraceChannel;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 ItUsesTraceComplex : 1;
+    uint8 bUsesTraceComplex : 1;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 IgnoreBlockingHits : 1;
+    uint8 bIgnoreBlockingHits : 1;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 ItReturnsPhysicalMaterial : 1;
+    uint8 bReturnsPhysicalMaterial : 1;
 };
 
 USTRUCT( BlueprintType )

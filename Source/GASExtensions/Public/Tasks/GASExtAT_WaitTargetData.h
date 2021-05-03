@@ -16,10 +16,10 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataReplicationOptions
     FGASExtWaitTargetDataReplicationOptions();
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 ShouldProduceTargetDataOnServer : 1;
+    uint8 bShouldProduceTargetDataOnServer : 1;
 
     // In GASShooter this is an editable property, but always set to true in the ability blueprints. Let's keep this here in case we need to set it to false one day
-    uint8 CreateKeyIfNotValidForMorePredicting : 1;
+    uint8 bCreateKeyIfNotValidForMorePredicting : 1;
 };
 
 UCLASS( Abstract )

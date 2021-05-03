@@ -86,7 +86,7 @@ protected:
     FGASExtGameplayEffectContainerSpec GameplayEffectContainerSpec;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile" )
-    uint8 ItShouldApplyGameplayEffectsOnDestroyed : 1;
+    uint8 bShouldApplyGameplayEffectsOnDestroyed : 1;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile", meta = ( AllowPrivateAccess = true ) )
     EGASExtProjectileImpactDetectionType ImpactDetectionType;
@@ -107,7 +107,7 @@ private:
     UGASExtProjectileMovementComponent * ProjectileMovementComponent;
 
     UPROPERTY( EditDefaultsOnly, Category = "Projectile", meta = ( EditCondition = "ImpactDetectionType == EGASExtProjectileImpactDetectionType::Overlap" ) )
-    uint8 IgnoreImpactWithInstigator : 1;
+    uint8 bIgnoreImpactWithInstigator : 1;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile", meta = ( AllowPrivateAccess = true ) )
     FGameplayTag FireGameplayCue;
@@ -119,7 +119,7 @@ private:
     FGameplayTag DestroyedGameplayCue;
 
     UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
-    uint8 ItShouldBeDestroyedOnImpact : 1;
+    uint8 bShouldBeDestroyedOnImpact : 1;
 
     UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
     TSubclassOf< AActor > ImpactSpawnActorClass;

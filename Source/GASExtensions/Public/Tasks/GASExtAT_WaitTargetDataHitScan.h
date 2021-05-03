@@ -17,7 +17,7 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
     FGASExtWaitTargetDataHitScanOptions();
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 AimFromPlayerViewPoint : 1;
+    uint8 bAimFromPlayerViewPoint : 1;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     EGASExtTargetTraceType TargetTraceType;
@@ -35,25 +35,25 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
     FScalableFloat NumberOfTraces;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 MaxHitResultsPerTrace;
+    uint8 bMaxHitResultsPerTrace;
 
     // In degrees
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     FScalableFloat TargetingSpread;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 TraceAffectsAimPitch : 1;
+    uint8 bTraceAffectsAimPitch : 1;
 
     // :TODO: Remove? Don't we always want to trace from player viewpoint? Including for AI, which will return what the possessed pawn returns?
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 TraceFromPlayerViewPoint : 1;
+    uint8 bTraceFromPlayerViewPoint : 1;
 
     /* If greater than zero, will generate a sphere cast. Otherwise, a line cast */
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, meta = ( EditCondition = "TargetTraceType == EGASExtTargetTraceType::Sphere" ) )
     float TraceSphereRadius;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 ShowDebugTraces : 1;
+    uint8 bShowDebugTraces : 1;
 };
 
 UCLASS()

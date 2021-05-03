@@ -63,8 +63,8 @@ public:
     TArray< TEnumAsByte< EObjectTypeQuery > > ObjectTypes;
 
     UPROPERTY( EditAnywhere )
-    uint8 ItMustHaveLineOfSight : 1;
+    uint8 bMustHaveLineOfSight : 1;
 
     UPROPERTY( EditAnywhere )
-    uint8 ItDrawsDebug : 1;
+    uint8 bDrawsDebug : 1;
 };

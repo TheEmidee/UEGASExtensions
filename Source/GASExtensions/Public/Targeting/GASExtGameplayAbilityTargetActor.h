@@ -60,19 +60,19 @@ protected:
     int MaxHitResults;
 
     UPROPERTY( EditDefaultsOnly, Category = "Trace" )
-    uint8 TraceComplex : 1;
+    uint8 bTraceComplex : 1;
 
     UPROPERTY( EditDefaultsOnly, Category = "Trace" )
-    uint8 IgnoreBlockingHits : 1;
+    uint8 bIgnoreBlockingHits : 1;
 
     UPROPERTY( EditDefaultsOnly, Category = "Trace" )
-    uint8 AllowEmptyHitResult : 1;
+    uint8 bAllowEmptyHitResult : 1;
 
     UPROPERTY( EditDefaultsOnly, Category = "Trace" )
-    uint8 UsePersistentHitResults : 1;
+    uint8 bUsePersistentHitResults : 1;
 
     UPROPERTY( EditDefaultsOnly, Category = "Trace" )
-    uint8 DrawDebug : 1;
+    uint8 bDrawDebug : 1;
 
     UPROPERTY( EditDefaultsOnly, Category = "Trace" )
     float TraceSphereRadius;

@@ -22,8 +22,8 @@ FGameplayAbilityTargetDataHandle UGASExtAT_WaitTargetDataWeaponMuzzle::ProduceTa
     auto trace_start = muzzle_socket_transform.GetLocation();
     FVector trace_end;
 
-    FCollisionQueryParams collision_query_params( SCENE_QUERY_STAT( USWAT_WaitTargetDataWeaponMuzzle ), WeaponMuzzleOptions.CollisionInfo.ItUsesTraceComplex );
-    collision_query_params.bReturnPhysicalMaterial = WeaponMuzzleOptions.CollisionInfo.ItReturnsPhysicalMaterial;
+    FCollisionQueryParams collision_query_params( SCENE_QUERY_STAT( USWAT_WaitTargetDataWeaponMuzzle ), WeaponMuzzleOptions.CollisionInfo.bUsesTraceComplex );
+    collision_query_params.bReturnPhysicalMaterial = WeaponMuzzleOptions.CollisionInfo.bReturnsPhysicalMaterial;
 
     TArray< FSWTargetingLocationInfo > location_infos;
 

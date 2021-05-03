@@ -8,15 +8,15 @@
 
 FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions()
 {
-    AimFromPlayerViewPoint = true;
+    bAimFromPlayerViewPoint = true;
     TargetTraceType = EGASExtTargetTraceType::Line;
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
-    MaxHitResultsPerTrace = 1;
+    bMaxHitResultsPerTrace = 1;
     TargetingSpread.Value = 0.0f;
-    TraceAffectsAimPitch = true;
-    ShowDebugTraces = false;
-    TraceFromPlayerViewPoint = true;
+    bTraceAffectsAimPitch = true;
+    bShowDebugTraces = false;
+    bTraceFromPlayerViewPoint = true;
     TraceSphereRadius = 10.0f;
 }
 
@@ -73,15 +73,15 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
 
     actors_to_ignore.Add( actor_info->AvatarActor.Get() );
 
-    FCollisionQueryParams collision_query_params( SCENE_QUERY_STAT( USWAT_WaitTargetDataHitScan ), Options.CollisionInfo.ItUsesTraceComplex );
-    collision_query_params.bReturnPhysicalMaterial = Options.CollisionInfo.ItReturnsPhysicalMaterial;
+    FCollisionQueryParams collision_query_params( SCENE_QUERY_STAT( USWAT_WaitTargetDataHitScan ), Options.CollisionInfo.bUsesTraceComplex );
+    collision_query_params.bReturnPhysicalMaterial = Options.CollisionInfo.bReturnsPhysicalMaterial;
     collision_query_params.AddIgnoredActors( actors_to_ignore );
-    collision_query_params.bIgnoreBlocks = Options.CollisionInfo.IgnoreBlockingHits;
+    collision_query_params.bIgnoreBlocks = Options.CollisionInfo.bIgnoreBlockingHits;
 
     auto trace_start = StartLocationInfo.GetTargetingTransform().GetLocation();
     FVector trace_end;
 
-    auto trace_from_player_view_point = Options.TraceFromPlayerViewPoint;
+    auto trace_from_player_view_point = Options.bTraceFromPlayerViewPoint;
     if ( trace_from_player_view_point )
     {
         // :TODO: Fix aiming for AI
@@ -138,10 +138,10 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
         TArray< FHitResult > trace_hit_results;
         DoTrace( trace_hit_results, world, Options.TargetDataFilterHandle, trace_start, trace_end, Options.CollisionInfo, collision_query_params );
 
-        if ( Options.MaxHitResultsPerTrace >= 0 && trace_hit_results.Num() + 1 > Options.MaxHitResultsPerTrace )
+        if ( Options.bMaxHitResultsPerTrace >= 0 && trace_hit_results.Num() + 1 > Options.bMaxHitResultsPerTrace )
         {
             // Trim to MaxHitResults
-            trace_hit_results.SetNum( Options.MaxHitResultsPerTrace );
+            trace_hit_results.SetNum( Options.bMaxHitResultsPerTrace );
         }
 
         if ( trace_hit_results.Num() < 1 )
@@ -159,7 +159,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
         }
 
 #if ENABLE_DRAW_DEBUG
-        if ( Options.ShowDebugTraces )
+        if ( Options.bShowDebugTraces )
         {
             ShowDebugTraces( trace_hit_results, trace_start, trace_end, EDrawDebugTrace::Type::ForDuration, 2.0f );
         }

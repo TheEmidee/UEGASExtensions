@@ -24,7 +24,7 @@ AGASExtProjectile::AGASExtProjectile()
     ProjectileMovementComponent->SetIsReplicated( true );
     ProjectileMovementComponent->bRotationRemainsVertical = false;
 
-    ItShouldBeDestroyedOnImpact = true;
+    bShouldBeDestroyedOnImpact = true;
 
     bReplicates = true;
     SetReplicatingMovement( true );
@@ -32,9 +32,9 @@ AGASExtProjectile::AGASExtProjectile()
     NetUpdateFrequency = 100.0f;
 
     ImpactDetectionType = EGASExtProjectileImpactDetectionType::Hit;
-    IgnoreImpactWithInstigator = true;
+    bIgnoreImpactWithInstigator = true;
     IsInOverlap = false;
-    ItShouldApplyGameplayEffectsOnDestroyed = false;
+    bShouldApplyGameplayEffectsOnDestroyed = false;
 }
 
 void AGASExtProjectile::PostInitializeComponents()
@@ -89,7 +89,7 @@ void AGASExtProjectile::Destroyed()
         projectile->UpdateDestroyedGameplayCueParameters( gameplay_cue_parameters );
     } );
 
-    if ( ItShouldApplyGameplayEffectsOnDestroyed )
+    if ( bShouldApplyGameplayEffectsOnDestroyed )
     {
         ApplyGameplayEffects();
     }
@@ -156,17 +156,17 @@ bool AGASExtProjectile::ShouldIgnoreHit_Implementation( AActor * other_actor, UP
 {
     const auto * instigator = GetInstigator();
 
-    return instigator == nullptr || IgnoreImpactWithInstigator && other_actor == instigator;
+    return instigator == nullptr || bIgnoreImpactWithInstigator && other_actor == instigator;
 }
 
 void AGASExtProjectile::PostProcessHit_Implementation( const FHitResult & /*hit_result*/ )
 {
-    if ( !ItShouldApplyGameplayEffectsOnDestroyed )
+    if ( !bShouldApplyGameplayEffectsOnDestroyed )
     {
         ApplyGameplayEffects();
     }
 
-    if ( ItShouldBeDestroyedOnImpact )
+    if ( bShouldBeDestroyedOnImpact )
     {
         Destroy();
     }

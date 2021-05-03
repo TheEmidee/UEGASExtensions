@@ -4,8 +4,8 @@
 
 FGASExtWaitTargetDataReplicationOptions::FGASExtWaitTargetDataReplicationOptions()
 {
-    ShouldProduceTargetDataOnServer = false;
-    CreateKeyIfNotValidForMorePredicting = true;
+    bShouldProduceTargetDataOnServer = false;
+    bCreateKeyIfNotValidForMorePredicting = true;
 }
 
 void UGASExtAT_WaitTargetData::Activate()
@@ -22,7 +22,7 @@ void UGASExtAT_WaitTargetData::Activate()
     if ( !Ability->GetCurrentActorInfo()->IsLocallyControlled() )
     {
         // Register with the TargetData callbacks if we are expecting client to send them
-        if ( !ReplicationOptions.ShouldProduceTargetDataOnServer )
+        if ( !ReplicationOptions.bShouldProduceTargetDataOnServer )
         {
             const auto spec_handle = GetAbilitySpecHandle();
             const auto activation_prediction_key = GetActivationPredictionKey();
@@ -90,11 +90,11 @@ void UGASExtAT_WaitTargetData::SendTargetData( const FGameplayAbilityTargetDataH
 
     FScopedPredictionWindow scoped_prediction(
         AbilitySystemComponent,
-        ShouldReplicateDataToServer() && ( ReplicationOptions.CreateKeyIfNotValidForMorePredicting && !AbilitySystemComponent->ScopedPredictionKey.IsValidForMorePrediction() ) );
+        ShouldReplicateDataToServer() && ( ReplicationOptions.bCreateKeyIfNotValidForMorePredicting && !AbilitySystemComponent->ScopedPredictionKey.IsValidForMorePrediction() ) );
 
     if ( IsPredictingClient() )
     {
-        if ( !ReplicationOptions.ShouldProduceTargetDataOnServer )
+        if ( !ReplicationOptions.bShouldProduceTargetDataOnServer )
         {
             static const FGameplayTag ApplicationTag; // Fixme: where would this be useful?
 
@@ -129,5 +129,5 @@ bool UGASExtAT_WaitTargetData::ShouldReplicateDataToServer() const
 bool UGASExtAT_WaitTargetData::ShouldProduceTargetData() const
 {
     // return true if we are locally owned, or (we are the server and this is a gameplay target ability that can produce target data server side)
-    return Ability->GetCurrentActorInfo()->IsLocallyControlled() || ReplicationOptions.ShouldProduceTargetDataOnServer;
+    return Ability->GetCurrentActorInfo()->IsLocallyControlled() || ReplicationOptions.bShouldProduceTargetDataOnServer;
 }

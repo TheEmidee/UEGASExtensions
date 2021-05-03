@@ -10,7 +10,7 @@ UGASExtGameplayAbility::UGASExtGameplayAbility()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-    ActivateAbilityOnGranted = false;
+    bActivateAbilityOnGranted = false;
 }
 
 bool UGASExtGameplayAbility::K2_IsLocallyControlled() const
@@ -32,7 +32,7 @@ void UGASExtGameplayAbility::OnAvatarSet( const FGameplayAbilityActorInfo * acto
 {
     Super::OnAvatarSet( actor_info, spec );
 
-    if ( ActivateAbilityOnGranted )
+    if ( bActivateAbilityOnGranted )
     {
         actor_info->AbilitySystemComponent->TryActivateAbility( spec.Handle, false );
     }

@@ -49,7 +49,7 @@ public:
     UFUNCTION( BlueprintPure )
     UGASExtAbilitySystemComponent * GetSWAbilitySystemComponent() const;
 
-    // If an ability is marked as 'ActivateAbilityOnGranted', activate them immediately when given here
+    // If an ability is marked as 'bActivateAbilityOnGranted', activate them immediately when given here
     // Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.
     void OnAvatarSet( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) override;
 
@@ -78,7 +78,7 @@ protected:
 
     // Tells an ability to activate immediately when its granted. Used for passive abilities and abilities forced on others.
     UPROPERTY( BlueprintReadOnly, EditDefaultsOnly, Category = "Ability" )
-    uint8 ActivateAbilityOnGranted : 1;
+    uint8 bActivateAbilityOnGranted : 1;
 
 private:
     bool FindAbilityMeshMontage( FGASExtAbilityMeshMontage & ability_mesh_montage, USkeletalMeshComponent * mesh ) const;
