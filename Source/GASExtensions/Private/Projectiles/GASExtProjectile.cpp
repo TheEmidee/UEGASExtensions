@@ -1,7 +1,6 @@
 #include "Projectiles/GASExtProjectile.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
-#include "DataValidation/GBFDataValidationMacros.h"
 #include "GASExtAbilitySystemFunctionLibrary.h"
 #include "Projectiles/GASExtProjectileMovementComponent.h"
 #include "Targeting/GASExtTargetType.h"
@@ -101,16 +100,6 @@ void AGASExtProjectile::Destroyed()
 void AGASExtProjectile::Release( float /*time_held*/ )
 {
 }
-
-#if WITH_EDITOR
-EDataValidationResult AGASExtProjectile::IsDataValid( TArray< FText > & validation_errors )
-{
-    DATA_VALIDATION_IS_VALID_AUTO_MESSAGE( FireGameplayCue )
-    DATA_VALIDATION_IS_VALID_AUTO_MESSAGE( ImpactGameplayCue )
-    DATA_VALIDATION_NOT_NULL_AUTO_MESSAGE( TargetTypeClass )
-    DATA_VALIDATION_RETURN()
-}
-#endif
 
 void AGASExtProjectile::ProcessHit_Implementation( const FHitResult & hit_result )
 {

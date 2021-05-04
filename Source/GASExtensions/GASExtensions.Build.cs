@@ -17,8 +17,7 @@ namespace UnrealBuildTool.Rules
                     "Engine",
                     "GameplayAbilities",
                     "GameplayTasks",
-                    "GameplayTags",
-                    "GameBaseFramework"
+                    "GameplayTags"
                 }
             );
         }

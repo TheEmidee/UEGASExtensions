@@ -43,10 +43,6 @@ public:
     UFUNCTION( BlueprintCallable, meta = ( AllowPrivateAccess = true ) )
     virtual void Release( float time_held );
 
-#if WITH_EDITOR
-    EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
-#endif
-
 protected:
     UFUNCTION( BlueprintImplementableEvent, meta = ( AllowPrivateAccess = true ) )
     void UpdateFireGameplayCueParameters( FGameplayCueParameters & gameplay_cue_parameters );
