@@ -7,6 +7,7 @@ namespace UnrealBuildTool.Rules
         {
             PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
             bEnforceIWYU = true;
+            PrivatePCHHeaderFile = "Private/GASExtensionsPCH.h";
 
             PrivateIncludePaths.Add("GASExtensions/Private");
             
