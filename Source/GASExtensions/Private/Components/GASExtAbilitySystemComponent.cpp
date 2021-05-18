@@ -510,32 +510,28 @@ void UGASExtAbilitySystemComponent::K2_AddGameplayCueWithParameters( const FGame
 
 FGameplayAbilityLocalAnimMontageForMesh & UGASExtAbilitySystemComponent::GetLocalAnimMontageInfoForMesh( USkeletalMeshComponent * mesh )
 {
-    for ( auto & montage_info : LocalAnimMontageInfoForMeshes )
+    if ( auto * montage_info = LocalAnimMontageInfoForMeshes.FindByPredicate( [ mesh ]( const auto & item ) {
+             return item.Mesh == mesh;
+         } ) )
     {
-        if ( montage_info.Mesh == mesh )
-        {
-            return montage_info;
-        }
+        return *montage_info;
     }
 
     const auto montage_info = FGameplayAbilityLocalAnimMontageForMesh( mesh );
-    LocalAnimMontageInfoForMeshes.Add( montage_info );
-    return LocalAnimMontageInfoForMeshes.Last();
+    return LocalAnimMontageInfoForMeshes.Add_GetRef( montage_info );
 }
 
 FGameplayAbilityRepAnimMontageForMesh & UGASExtAbilitySystemComponent::GetGameplayAbilityRepAnimMontageForMesh( USkeletalMeshComponent * mesh )
 {
-    for ( auto & rep_montage_info : RepAnimMontageInfoForMeshes )
+    if ( auto * rep_montage_info = RepAnimMontageInfoForMeshes.FindByPredicate( [ mesh ]( const auto & item ) {
+             return item.Mesh == mesh;
+         } ) )
     {
-        if ( rep_montage_info.Mesh == mesh )
-        {
-            return rep_montage_info;
-        }
+        return *rep_montage_info;
     }
 
     const auto rep_montage_info = FGameplayAbilityRepAnimMontageForMesh( mesh );
-    RepAnimMontageInfoForMeshes.Add( rep_montage_info );
-    return RepAnimMontageInfoForMeshes.Last();
+    return RepAnimMontageInfoForMeshes.Add_GetRef( rep_montage_info );
 }
 
 void UGASExtAbilitySystemComponent::OnPredictiveMontageRejectedForMesh( USkeletalMeshComponent * mesh, UAnimMontage * predictive_montage ) const
