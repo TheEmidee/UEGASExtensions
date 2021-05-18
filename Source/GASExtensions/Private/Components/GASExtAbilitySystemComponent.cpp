@@ -483,27 +483,27 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionTimeLeftForMesh( US
     return -1.f;
 }
 
-void UGASExtAbilitySystemComponent::K2_RemoveGameplayCue( FGameplayTag gameplay_cue_tag )
+void UGASExtAbilitySystemComponent::K2_RemoveGameplayCue( const FGameplayTag gameplay_cue_tag )
 {
     RemoveGameplayCue( gameplay_cue_tag );
 }
 
-void UGASExtAbilitySystemComponent::K2_ExecuteGameplayCueWithEffectContext( FGameplayTag gameplay_cue_tag, FGameplayEffectContextHandle effect_context )
+void UGASExtAbilitySystemComponent::K2_ExecuteGameplayCueWithEffectContext( const FGameplayTag gameplay_cue_tag, const FGameplayEffectContextHandle effect_context )
 {
     ExecuteGameplayCue( gameplay_cue_tag, effect_context );
 }
 
-void UGASExtAbilitySystemComponent::K2_ExecuteGameplayCueWithParameters( FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
+void UGASExtAbilitySystemComponent::K2_ExecuteGameplayCueWithParameters( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
 {
     ExecuteGameplayCue( gameplay_cue_tag, parameters );
 }
 
-void UGASExtAbilitySystemComponent::K2_AddGameplayCueWithEffectContext( FGameplayTag gameplay_cue_tag, FGameplayEffectContextHandle effect_context )
+void UGASExtAbilitySystemComponent::K2_AddGameplayCueWithEffectContext( const FGameplayTag gameplay_cue_tag, const FGameplayEffectContextHandle effect_context )
 {
     AddGameplayCue( gameplay_cue_tag, effect_context );
 }
 
-void UGASExtAbilitySystemComponent::K2_AddGameplayCueWithParameters( FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
+void UGASExtAbilitySystemComponent::K2_AddGameplayCueWithParameters( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
 {
     AddGameplayCue( gameplay_cue_tag, parameters );
 }
