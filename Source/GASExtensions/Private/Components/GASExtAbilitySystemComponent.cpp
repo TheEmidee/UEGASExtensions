@@ -565,7 +565,7 @@ void UGASExtAbilitySystemComponent::AnimMontage_UpdateReplicatedDataForMesh( FGa
 
     auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( rep_anim_montage_info.Mesh );
 
-    if ( anim_instance && anim_montage_info.LocalMontageInfo.AnimMontage )
+    if ( anim_instance != nullptr && anim_montage_info.LocalMontageInfo.AnimMontage )
     {
         rep_anim_montage_info.RepMontageInfo.AnimMontage = anim_montage_info.LocalMontageInfo.AnimMontage;
 
@@ -605,7 +605,7 @@ void UGASExtAbilitySystemComponent::AnimMontage_UpdateReplicatedDataForMesh( FGa
                 ABILITY_LOG( Error, TEXT( "AnimMontage_UpdateReplicatedData. NextSectionID = %d.  RepAnimMontageInfo.Position: %.2f, CurrentSectionID: %d. LocalAnimMontageInfo.AnimMontage %s" ), next_section_id, rep_anim_montage_info.RepMontageInfo.Position, current_section_id, *GetNameSafe( anim_montage_info.LocalMontageInfo.AnimMontage ) );
                 ensure( next_section_id < ( 256 - 1 ) );
             }
-            rep_anim_montage_info.RepMontageInfo.NextSectionID = uint8( next_section_id + 1 );
+            rep_anim_montage_info.RepMontageInfo.NextSectionID = static_cast< uint8 >( next_section_id + 1 );
         }
         else
         {
@@ -699,7 +699,7 @@ void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
                 else if ( !new_rep_montage_info_for_mesh.RepMontageInfo.SkipPositionCorrection )
                 {
                     const auto rep_section_id = anim_montage_info.LocalMontageInfo.AnimMontage->GetSectionIndexFromPosition( new_rep_montage_info_for_mesh.RepMontageInfo.Position );
-                    const auto rep_next_section_id = int32( new_rep_montage_info_for_mesh.RepMontageInfo.NextSectionID ) - 1;
+                    const auto rep_next_section_id = static_cast< int32 >( new_rep_montage_info_for_mesh.RepMontageInfo.NextSectionID ) - 1;
 
                     // And NextSectionID for the replicated SectionID.
                     if ( rep_section_id != INDEX_NONE )
