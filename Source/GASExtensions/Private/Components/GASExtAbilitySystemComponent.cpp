@@ -7,6 +7,38 @@
 #include <GameplayCueManager.h>
 #include <Net/UnrealNetwork.h>
 
+namespace
+{
+    UAnimInstance * GetMeshAnimInstance( USkeletalMeshComponent * mesh )
+    {
+        return IsValid( mesh )
+                   ? mesh->GetAnimInstance()
+                   : nullptr;
+    }
+
+    bool HasParentEqualToActor( const FGameplayAbilityRepAnimMontageForMesh & rep_anim_montage_info, AActor * actor )
+    {
+        if ( actor == nullptr )
+        {
+            return false;
+        }
+
+        auto * owner = rep_anim_montage_info.Mesh->GetOwner();
+
+        while ( owner != nullptr )
+        {
+            if ( owner == actor )
+            {
+                return true;
+            }
+
+            owner = owner->GetOwner();
+        }
+
+        return false;
+    }
+}
+
 static TAutoConsoleVariable< float > CVarReplayMontageErrorThreshold( TEXT( "replay.MontageErrorThresholdSW" ), 0.5f, TEXT( "Tolerance level for when montage playback position correction occurs in replays" ) );
 
 // ReSharper disable once CppInconsistentNaming
@@ -476,13 +508,6 @@ void UGASExtAbilitySystemComponent::K2_AddGameplayCueWithParameters( FGameplayTa
     AddGameplayCue( gameplay_cue_tag, parameters );
 }
 
-UAnimInstance * UGASExtAbilitySystemComponent::GetMeshAnimInstance( USkeletalMeshComponent * mesh ) const
-{
-    return IsValid( mesh )
-               ? mesh->GetAnimInstance()
-               : nullptr;
-}
-
 FGameplayAbilityLocalAnimMontageForMesh & UGASExtAbilitySystemComponent::GetLocalAnimMontageInfoForMesh( USkeletalMeshComponent * mesh )
 {
     for ( auto & montage_info : LocalAnimMontageInfoForMeshes )
@@ -538,7 +563,7 @@ void UGASExtAbilitySystemComponent::AnimMontage_UpdateReplicatedDataForMesh( USk
 
 void UGASExtAbilitySystemComponent::AnimMontage_UpdateReplicatedDataForMesh( FGameplayAbilityRepAnimMontageForMesh & rep_anim_montage_info )
 {
-    auto * anim_instance = IsValid( rep_anim_montage_info.Mesh ) && rep_anim_montage_info.Mesh->GetOwner() == AbilityActorInfo->AvatarActor
+    auto * anim_instance = IsValid( rep_anim_montage_info.Mesh ) && HasParentEqualToActor( rep_anim_montage_info, AbilityActorInfo->AvatarActor.Get() )
                                ? rep_anim_montage_info.Mesh->GetAnimInstance()
                                : nullptr;
 
@@ -619,7 +644,7 @@ void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
                                                        ? CVarReplayMontageErrorThreshold.GetValueOnGameThread()
                                                        : 0.1f;
 
-        auto * anim_instance = IsValid( new_rep_montage_info_for_mesh.Mesh ) && new_rep_montage_info_for_mesh.Mesh->GetOwner() == AbilityActorInfo->AvatarActor
+        auto * anim_instance = IsValid( new_rep_montage_info_for_mesh.Mesh ) && HasParentEqualToActor( new_rep_montage_info_for_mesh, AbilityActorInfo->AvatarActor.Get() )
                                    ? new_rep_montage_info_for_mesh.Mesh->GetAnimInstance()
                                    : nullptr;
         if ( anim_instance == nullptr || !IsReadyForReplicatedMontageForMesh() )

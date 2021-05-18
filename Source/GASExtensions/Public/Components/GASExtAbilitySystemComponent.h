@@ -186,8 +186,6 @@ private:
     UPROPERTY( ReplicatedUsing = OnRep_ReplicatedAnimMontageForMesh )
     TArray< FGameplayAbilityRepAnimMontageForMesh > RepAnimMontageInfoForMeshes;
 
-    UAnimInstance * GetMeshAnimInstance( USkeletalMeshComponent * mesh ) const;
-
     // Finds the existing FGameplayAbilityLocalAnimMontageForMesh for the mesh or creates one if it doesn't exist
     FGameplayAbilityLocalAnimMontageForMesh & GetLocalAnimMontageInfoForMesh( USkeletalMeshComponent * mesh );
     // Finds the existing FGameplayAbilityRepAnimMontageForMesh for the mesh or creates one if it doesn't exist
