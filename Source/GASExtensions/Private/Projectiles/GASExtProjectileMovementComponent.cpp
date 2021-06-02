@@ -11,7 +11,48 @@ UGASExtProjectileMovementComponent::UGASExtProjectileMovementComponent() :
 
 void UGASExtProjectileMovementComponent::InitializeComponent()
 {
-    Super::InitializeComponent();
+    UMovementComponent::InitializeComponent();
+    
+    if ( Velocity.SizeSquared() > 0.f )
+    {
+        // InitialSpeed > 0 overrides initial velocity magnitude.
+        if ( InitialSpeed > 0.f )
+        {
+            Velocity = Velocity.GetSafeNormal() * InitialSpeed;
+        }
+
+        if ( bInitialVelocityInLocalSpace )
+        {
+            SetVelocityInLocalSpace( Velocity );
+        }
+
+        // This code is commented because this makes sure the actor's rotation will always be reset at the start of the game
+        // when its velocity is still 0. This makes for unwanted re-orientating of certain actors.
+        //
+        // if ( bRotationFollowsVelocity )
+        // {
+        //     if ( UpdatedComponent )
+        //     {
+        //         FRotator DesiredRotation = Velocity.Rotation();
+        //         if ( bRotationRemainsVertical )
+        //         {
+        //             DesiredRotation.Pitch = 0.0f;
+        //             DesiredRotation.Yaw = FRotator::NormalizeAxis( DesiredRotation.Yaw );
+        //             DesiredRotation.Roll = 0.0f;
+        //         }
+        //
+        //         UpdatedComponent->SetWorldRotation( DesiredRotation );
+        //     }
+        // }
+
+        UpdateComponentVelocity();
+
+        if ( UpdatedPrimitive && UpdatedPrimitive->IsSimulatingPhysics() )
+        {
+            UpdatedPrimitive->SetPhysicsLinearVelocity( Velocity );
+        }
+    }
+
     SetHomingType( HomingType );
 }
 
