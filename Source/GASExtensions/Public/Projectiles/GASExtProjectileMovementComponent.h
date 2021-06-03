@@ -35,6 +35,9 @@ public:
     void SetTargetLocation( const FVector & new_target_location );
     void SetHomingType( EGASExtProjectileHomingType homing_type );
 
+    UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
+    uint8 bInitRotationFollowVelocity : 1;
+
 private:
     bool IsHomingValid() const;
 
@@ -45,7 +48,7 @@ private:
     EGASExtProjectileHomingType HomingType;
 
     UPROPERTY()
-    bool UseTargetLocation;
+    bool bUseTargetLocation;
 };
 
 FORCEINLINE void UGASExtProjectileMovementComponent::SetTargetLocation( const FVector & new_target_location )
@@ -58,5 +61,5 @@ FORCEINLINE void UGASExtProjectileMovementComponent::SetHomingType( const EGASEx
     HomingType = homing_type;
 
     bIsHomingProjectile = homing_type != EGASExtProjectileHomingType::NoHoming;
-    UseTargetLocation = homing_type == EGASExtProjectileHomingType::HomeToLocation;
+    bUseTargetLocation = homing_type == EGASExtProjectileHomingType::HomeToLocation;
 }
