@@ -6,13 +6,14 @@ UGASExtProjectileMovementComponent::UGASExtProjectileMovementComponent() :
     UProjectileMovementComponent()
 {
     HomingType = EGASExtProjectileHomingType::NoHoming;
-    UseTargetLocation = false;
+    bUseTargetLocation = false;
+    bInitRotationFollowVelocity = true;
 }
 
 void UGASExtProjectileMovementComponent::InitializeComponent()
 {
     UMovementComponent::InitializeComponent();
-    
+
     if ( Velocity.SizeSquared() > 0.f )
     {
         // InitialSpeed > 0 overrides initial velocity magnitude.
@@ -26,24 +27,25 @@ void UGASExtProjectileMovementComponent::InitializeComponent()
             SetVelocityInLocalSpace( Velocity );
         }
 
-        // This code is commented because this makes sure the actor's rotation will always be reset at the start of the game
-        // when its velocity is still 0. This makes for unwanted re-orientating of certain actors.
+        // Copied this code here to add the boolean bInitRotationFollowVelocity
+        // Without it the actor's rotation would always be reset at the start of the game if its velocity is 0.
+        // This makes for unwanted re-orientating of certain actors.
         //
-        // if ( bRotationFollowsVelocity )
-        // {
-        //     if ( UpdatedComponent )
-        //     {
-        //         FRotator DesiredRotation = Velocity.Rotation();
-        //         if ( bRotationRemainsVertical )
-        //         {
-        //             DesiredRotation.Pitch = 0.0f;
-        //             DesiredRotation.Yaw = FRotator::NormalizeAxis( DesiredRotation.Yaw );
-        //             DesiredRotation.Roll = 0.0f;
-        //         }
-        //
-        //         UpdatedComponent->SetWorldRotation( DesiredRotation );
-        //     }
-        // }
+        if ( bRotationFollowsVelocity && bInitRotationFollowVelocity )
+        {
+            if ( UpdatedComponent )
+            {
+                FRotator DesiredRotation = Velocity.Rotation();
+                if ( bRotationRemainsVertical )
+                {
+                    DesiredRotation.Pitch = 0.0f;
+                    DesiredRotation.Yaw = FRotator::NormalizeAxis( DesiredRotation.Yaw );
+                    DesiredRotation.Roll = 0.0f;
+                }
+
+                UpdatedComponent->SetWorldRotation( DesiredRotation );
+            }
+        }
 
         UpdateComponentVelocity();
 
@@ -74,7 +76,7 @@ FVector UGASExtProjectileMovementComponent::ComputeAcceleration( const FVector &
 
 FVector UGASExtProjectileMovementComponent::ComputeHomingAcceleration( const FVector & /*in_velocity*/, float /*delta_time*/ ) const
 {
-    const auto target_location = UseTargetLocation
+    const auto target_location = bUseTargetLocation
                                      ? TargetLocation
                                      : HomingTargetComponent->GetComponentLocation();
     const auto direction = ( target_location - UpdatedComponent->GetComponentLocation() ).GetSafeNormal();
@@ -98,5 +100,5 @@ void UGASExtProjectileMovementComponent::GetLifetimeReplicatedProps( TArray< FLi
 
 bool UGASExtProjectileMovementComponent::IsHomingValid() const
 {
-    return bIsHomingProjectile && ( UseTargetLocation || HomingTargetComponent.IsValid() );
+    return bIsHomingProjectile && ( bUseTargetLocation || HomingTargetComponent.IsValid() );
 }
