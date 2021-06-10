@@ -64,7 +64,7 @@ public:
 };
 
 UCLASS()
-class GASEXTENSIONS_API UGASExtAbilitySystemComponent final : public UAbilitySystemComponent
+class GASEXTENSIONS_API UGASExtAbilitySystemComponent : public UAbilitySystemComponent
 {
     GENERATED_BODY()
 
