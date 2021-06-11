@@ -16,7 +16,6 @@ FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions()
     TargetingSpread.Value = 0.0f;
     bTraceAffectsAimPitch = true;
     bShowDebugTraces = false;
-    bTraceFromPlayerViewPoint = true;
     TraceSphereRadius = 10.0f;
 }
 
@@ -81,7 +80,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     auto trace_start = StartLocationInfo.GetTargetingTransform().GetLocation();
     FVector trace_end;
 
-    auto trace_from_player_view_point = Options.bTraceFromPlayerViewPoint;
+    auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint;
     if ( trace_from_player_view_point )
     {
         // :TODO: Fix aiming for AI
