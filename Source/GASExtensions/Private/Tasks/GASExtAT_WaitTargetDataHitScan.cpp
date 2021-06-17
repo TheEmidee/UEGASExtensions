@@ -1,5 +1,6 @@
 #include "Tasks/GASExtAT_WaitTargetDataHitScan.h"
 
+#include "BlueprintLibraries/CoreExtTraceBlueprintLibrary.h"
 #include "Targeting/GASExtTargetingHelperLibrary.h"
 
 #include <AbilitySystemComponent.h>
@@ -45,11 +46,11 @@ void UGASExtAT_WaitTargetDataHitScan::ShowDebugTraces( const TArray< FHitResult 
 #if ENABLE_DRAW_DEBUG
     if ( Options.TargetTraceType == EGASExtTargetTraceType::Sphere )
     {
-        //UGBFTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceSphereRadius, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        UCoreExtTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceSphereRadius, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
     }
     else
     {
-        //UGBFTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        UCoreExtTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
     }
 #endif
 }

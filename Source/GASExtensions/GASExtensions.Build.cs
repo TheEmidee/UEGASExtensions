@@ -18,7 +18,8 @@ namespace UnrealBuildTool.Rules
                     "Engine",
                     "GameplayAbilities",
                     "GameplayTasks",
-                    "GameplayTags"
+                    "GameplayTags",
+                    "CoreExtensions"
                 }
             );
         }
