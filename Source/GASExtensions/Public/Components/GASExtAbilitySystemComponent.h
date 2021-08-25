@@ -150,6 +150,9 @@ public:
     // Returns amount of time left in current section
     float GetCurrentMontageSectionTimeLeftForMesh( USkeletalMeshComponent * mesh ) const;
 
+    template < typename _ATTRIBUTE_SET_CLASS_ >
+    _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
+
 protected:
     UFUNCTION( BlueprintCallable )
     void K2_RemoveGameplayCue( FGameplayTag gameplay_cue_tag );
@@ -225,6 +228,21 @@ private:
     void ServerCurrentMontageSetPlayRateForMesh_Implementation( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
     bool ServerCurrentMontageSetPlayRateForMesh_Validate( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
 };
+
+template < typename _ATTRIBUTE_SET_CLASS_ >
+_ATTRIBUTE_SET_CLASS_ * UGASExtAbilitySystemComponent::GetAttributeSet()
+{
+    auto & attributes = GetSpawnedAttributes_Mutable();
+    for ( auto * attribute_set : attributes )
+    {
+        if ( auto * swarms_attribute_set = Cast< _ATTRIBUTE_SET_CLASS_ >( attribute_set ) )
+        {
+            return swarms_attribute_set;
+        }
+    }
+
+    return nullptr;
+}
 
 FORCEINLINE bool UGASExtAbilitySystemComponent::ShouldDoServerAbilityRPCBatch() const
 {
