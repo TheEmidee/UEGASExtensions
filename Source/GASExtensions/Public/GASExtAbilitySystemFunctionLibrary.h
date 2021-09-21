@@ -22,6 +22,9 @@ public:
     static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data );
 
     UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects" )
+    static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainerAndHitResult( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data, FHitResult hit_result );
+
+    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects" )
     static TArray< FActiveGameplayEffectHandle > ApplyGameplayEffectContainerSpec( const FGASExtGameplayEffectContainerSpec & effect_container_spec );
 
     UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects" )
