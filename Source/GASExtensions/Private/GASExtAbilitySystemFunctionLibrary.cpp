@@ -88,6 +88,12 @@ FGameplayEffectSpecHandle UGASExtAbilitySystemFunctionLibrary::MakeGameplayEffec
     return FGameplayEffectSpecHandle( effect_spec );
 }
 
+FGameplayAbilitySpecHandle UGASExtAbilitySystemFunctionLibrary::GiveAbilityAndActivateOnce( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level /*= 1*/, UObject * source_object /*= nullptr*/ )
+{
+    FGameplayAbilitySpec spec( ability, level, INDEX_NONE, source_object );
+    return asc->GiveAbilityAndActivateOnce( spec );
+}
+
 float UGASExtAbilitySystemFunctionLibrary::GetScalableFloatValue( const FScalableFloat & scalable_float )
 {
     return scalable_float.GetValue();
