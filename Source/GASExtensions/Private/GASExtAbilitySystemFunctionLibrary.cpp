@@ -9,6 +9,11 @@
 
 FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data )
 {
+    return MakeEffectContainerSpecFromEffectContainerAndHitResult( ability, effect_container, event_data, FHitResult() );
+}
+
+FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainerAndHitResult( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data, FHitResult hit_result )
+{
     FGASExtGameplayEffectContainerSpec container_spec;
     if ( auto * avatar_actor = ability->GetAvatarActorFromActorInfo() )
     {
@@ -26,8 +31,8 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
 
         if ( effect_container.TargetTypeClass != nullptr )
         {
-            auto * cdo = effect_container.TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
-            container_spec.TargetData = cdo->GetTargetData( avatar_actor, FHitResult(), event_data );
+            const auto * cdo = effect_container.TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
+            container_spec.TargetData = cdo->GetTargetData( avatar_actor, hit_result, event_data );
         }
 
         container_spec.EventDataPayload = event_data;
@@ -81,6 +86,12 @@ FGameplayEffectSpecHandle UGASExtAbilitySystemFunctionLibrary::MakeGameplayEffec
     effect_context->SetAbility( ability );
     const auto effect_spec = new FGameplayEffectSpec( effect_class.GetDefaultObject(), FGameplayEffectContextHandle( effect_context ), 0 );
     return FGameplayEffectSpecHandle( effect_spec );
+}
+
+FGameplayAbilitySpecHandle UGASExtAbilitySystemFunctionLibrary::GiveAbilityAndActivateOnce( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level /*= 1*/, UObject * source_object /*= nullptr*/ )
+{
+    FGameplayAbilitySpec spec( ability, level, INDEX_NONE, source_object );
+    return asc->GiveAbilityAndActivateOnce( spec );
 }
 
 float UGASExtAbilitySystemFunctionLibrary::GetScalableFloatValue( const FScalableFloat & scalable_float )
