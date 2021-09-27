@@ -9,12 +9,15 @@ UGASExtBTDecorator_CheckGameplayTagsOnActor::UGASExtBTDecorator_CheckGameplayTag
 {
     NodeName = "GASExt Gameplay Tag Condition";
 
-    bNotifyTick = true;
+    bNotifyTick = false;
 
     bAllowAbortLowerPri = false;
     bAllowAbortNone = false;
     bAllowAbortChildNodes = true;
     FlowAbortMode = EBTFlowAbortMode::Self;
+
+    bNotifyBecomeRelevant = true;
+    bNotifyCeaseRelevant = true;
 }
 
 bool UGASExtBTDecorator_CheckGameplayTagsOnActor::CalculateRawConditionValue( UBehaviorTreeComponent & owner_comp, uint8 * node_memory ) const
@@ -56,5 +59,43 @@ void UGASExtBTDecorator_CheckGameplayTagsOnActor::TickNode( UBehaviorTreeCompone
     if ( !CalculateRawConditionValue( owner_comp, node_memory ) )
     {
         owner_comp.RequestExecution( this );
+    }
+}
+
+void UGASExtBTDecorator_CheckGameplayTagsOnActor::OnBecomeRelevant( UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory )
+{
+    Super::OnBecomeRelevant( OwnerComp, NodeMemory );
+
+    if ( const auto * blackboard_comp = OwnerComp.GetBlackboardComponent() )
+    {
+        if ( auto * asc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(
+                 Cast< AActor >( blackboard_comp->GetValue< UBlackboardKeyType_Object >( ActorToCheck.GetSelectedKeyID() ) ) ) )
+        {
+            OwnerBTComp = &OwnerComp;
+            Handle = asc->RegisterGameplayTagEvent( GameplayTag, Type ).AddUObject( this, &UGASExtBTDecorator_CheckGameplayTagsOnActor::GameplayTagChanged );
+        }
+    }
+}
+
+void UGASExtBTDecorator_CheckGameplayTagsOnActor::OnCeaseRelevant( UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory )
+{
+    Super::OnCeaseRelevant( OwnerComp, NodeMemory );
+
+    if ( const auto * blackboard_comp = OwnerComp.GetBlackboardComponent() )
+    {
+        if ( auto * asc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(
+                 Cast< AActor >( blackboard_comp->GetValue< UBlackboardKeyType_Object >( ActorToCheck.GetSelectedKeyID() ) ) ) )
+        {
+            asc->UnregisterGameplayTagEvent( Handle, GameplayTag, Type );
+            OwnerBTComp = nullptr;
+        }
+    }
+}
+
+void UGASExtBTDecorator_CheckGameplayTagsOnActor::GameplayTagChanged( const FGameplayTag tag, int32 tag_event_type ) const
+{
+    if ( OwnerBTComp.IsValid() )
+    {
+        OwnerBTComp->RequestExecution( this );
     }
 }
