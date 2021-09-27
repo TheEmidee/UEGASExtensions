@@ -18,6 +18,12 @@ UGASExtBTDecorator_CheckGameplayTagsOnActor::UGASExtBTDecorator_CheckGameplayTag
 
     bNotifyBecomeRelevant = true;
     bNotifyCeaseRelevant = true;
+
+    // Accept only actors
+    ActorToCheck.AddObjectFilter( this, GET_MEMBER_NAME_CHECKED( UGASExtBTDecorator_CheckGameplayTagsOnActor, ActorToCheck ), AActor::StaticClass() );
+
+    // Default to using Self Actor
+    ActorToCheck.SelectedKeyName = FBlackboard::KeySelf;
 }
 
 bool UGASExtBTDecorator_CheckGameplayTagsOnActor::CalculateRawConditionValue( UBehaviorTreeComponent & owner_comp, uint8 * node_memory ) const
@@ -52,50 +58,51 @@ bool UGASExtBTDecorator_CheckGameplayTagsOnActor::CalculateRawConditionValue( UB
     }
 }
 
-void UGASExtBTDecorator_CheckGameplayTagsOnActor::TickNode( UBehaviorTreeComponent & owner_comp, uint8 * node_memory, float delta_seconds )
+void UGASExtBTDecorator_CheckGameplayTagsOnActor::OnBecomeRelevant( UBehaviorTreeComponent & owner_comp, uint8 * node_memory )
 {
-    Super::TickNode( owner_comp, node_memory, delta_seconds );
+    Super::OnBecomeRelevant( owner_comp, node_memory );
 
-    if ( !CalculateRawConditionValue( owner_comp, node_memory ) )
-    {
-        owner_comp.RequestExecution( this );
-    }
-}
-
-void UGASExtBTDecorator_CheckGameplayTagsOnActor::OnBecomeRelevant( UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory )
-{
-    Super::OnBecomeRelevant( OwnerComp, NodeMemory );
-
-    if ( const auto * blackboard_comp = OwnerComp.GetBlackboardComponent() )
+    if ( const auto * blackboard_comp = owner_comp.GetBlackboardComponent() )
     {
         if ( auto * asc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(
                  Cast< AActor >( blackboard_comp->GetValue< UBlackboardKeyType_Object >( ActorToCheck.GetSelectedKeyID() ) ) ) )
         {
-            OwnerBTComp = &OwnerComp;
-            Handle = asc->RegisterGameplayTagEvent( GameplayTag, Type ).AddUObject( this, &UGASExtBTDecorator_CheckGameplayTagsOnActor::GameplayTagChanged );
+            OwnerComp = &owner_comp;
+            GameplayTagChangedHandle = asc->RegisterGenericGameplayTagEvent().AddUObject( this, &UGASExtBTDecorator_CheckGameplayTagsOnActor::GameplayTagChanged );
         }
     }
 }
 
-void UGASExtBTDecorator_CheckGameplayTagsOnActor::OnCeaseRelevant( UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory )
+void UGASExtBTDecorator_CheckGameplayTagsOnActor::OnCeaseRelevant( UBehaviorTreeComponent & owner_comp, uint8 * node_memory )
 {
-    Super::OnCeaseRelevant( OwnerComp, NodeMemory );
+    Super::OnCeaseRelevant( owner_comp, node_memory );
 
-    if ( const auto * blackboard_comp = OwnerComp.GetBlackboardComponent() )
+    if ( const auto * blackboard_comp = owner_comp.GetBlackboardComponent() )
     {
         if ( auto * asc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(
                  Cast< AActor >( blackboard_comp->GetValue< UBlackboardKeyType_Object >( ActorToCheck.GetSelectedKeyID() ) ) ) )
         {
-            asc->UnregisterGameplayTagEvent( Handle, GameplayTag, Type );
-            OwnerBTComp = nullptr;
+            asc->RegisterGenericGameplayTagEvent().Remove( GameplayTagChangedHandle );
+            OwnerComp.Reset();
         }
     }
 }
 
 void UGASExtBTDecorator_CheckGameplayTagsOnActor::GameplayTagChanged( const FGameplayTag tag, int32 tag_event_type ) const
 {
-    if ( OwnerBTComp.IsValid() )
+    if ( OwnerComp.IsValid() && GameplayTags.HasTag( tag ) )
     {
-        OwnerBTComp->RequestExecution( this );
+        OwnerComp->RequestExecution( this );
+    }
+}
+
+void UGASExtBTDecorator_CheckGameplayTagsOnActor::InitializeFromAsset( UBehaviorTree & asset )
+{
+    Super::InitializeFromAsset( asset );
+
+    auto * blackboard_asset = GetBlackboardAsset();
+    if ( ensure( blackboard_asset ) )
+    {
+        ActorToCheck.ResolveSelectedKey( *blackboard_asset );
     }
 }
