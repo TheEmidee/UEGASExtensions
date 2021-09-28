@@ -19,7 +19,8 @@ namespace UnrealBuildTool.Rules
                     "GameplayAbilities",
                     "GameplayTasks",
                     "GameplayTags",
-                    "CoreExtensions"
+                    "CoreExtensions",
+                    "AIModule",
                 }
             );
         }
