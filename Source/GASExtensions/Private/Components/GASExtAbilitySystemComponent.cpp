@@ -98,6 +98,33 @@ void UGASExtAbilitySystemComponent::NotifyAbilityEnded( const FGameplayAbilitySp
     ClearAnimatingAbilityForAllMeshes( ability );
 }
 
+void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container )
+{
+    if ( IsOwnerActorAuthoritative() )
+    {
+        const auto was_in_list = HasMatchingGameplayTag( gameplay_cue_tag );
+
+        if ( was_in_list )
+        {
+            for ( auto idx = 0; idx < gameplay_cue_container.GameplayCues.Num(); ++idx )
+            {
+                auto & cue = gameplay_cue_container.GameplayCues[ idx ];
+                if ( cue.GameplayCueTag == gameplay_cue_tag )
+                {
+                    InvokeGameplayCueEvent( gameplay_cue_tag, EGameplayCueEvent::Removed, cue.Parameters );
+                    break;
+                }
+            }
+        }
+
+        gameplay_cue_container.RemoveCue( gameplay_cue_tag );
+    }
+    else if ( ScopedPredictionKey.IsLocalClientKey() )
+    {
+        gameplay_cue_container.PredictiveRemove( gameplay_cue_tag );
+    }
+}
+
 FGameplayAbilitySpecHandle UGASExtAbilitySystemComponent::FindAbilitySpecHandleForClass( const TSubclassOf< UGameplayAbility > & ability_class )
 {
     ABILITYLIST_SCOPE_LOCK();

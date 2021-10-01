@@ -78,6 +78,7 @@ public:
     void TickComponent( float delta_time, enum ELevelTick tick_type, FActorComponentTickFunction * this_tick_function ) override;
     void InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor ) override;
     void NotifyAbilityEnded( FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, bool was_cancelled ) override;
+    void RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container ) override;
 
     UFUNCTION( BlueprintPure )
     FGameplayAbilitySpecHandle FindAbilitySpecHandleForClass( const TSubclassOf< UGameplayAbility > & ability_class );
