@@ -100,6 +100,14 @@ void UGASExtAbilitySystemComponent::NotifyAbilityEnded( const FGameplayAbilitySp
 
 void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container )
 {
+    // This function is overriden because of an issue in singleplayer of losing data passed to the FGameplayCueParameters of the GameplayCue.
+    // This data was lost because the original implementation created a new FGameplayCueParameters if authoritative, and passed that on.
+    // Only the Instigator and Effect Causer were set.
+    // This meant that all other data was being lost in singleplayer, making it impossible to access that data in the OnRemove function in blueprints.
+    // This wasn't a problem in multiplayer, because each client would call PredictiveRemove on the FActiveGameplayCueContainer.
+    // This finds the cue in the GameplayCues array and gets the original FGameplayCueParameters from it, to then pass it along.
+    // Using that method to find and pass the original FGameplayCueParameters for authoritative owners too, allows to access that data perfectly fine in the OnRemove.
+
     if ( IsOwnerActorAuthoritative() )
     {
         const auto was_in_list = HasMatchingGameplayTag( gameplay_cue_tag );
