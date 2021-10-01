@@ -106,6 +106,8 @@ void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayT
 
         if ( was_in_list )
         {
+            // Instead of creating new parameters and calling InitDefaultGameplayCueParameters, find the parameters that were passed with the cue originally
+            // and pass that on to the InvokeGameplayCueEvent
             for ( auto idx = 0; idx < gameplay_cue_container.GameplayCues.Num(); ++idx )
             {
                 auto & cue = gameplay_cue_container.GameplayCues[ idx ];
