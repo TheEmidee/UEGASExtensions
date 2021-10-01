@@ -18,7 +18,7 @@ class GASEXTENSIONS_API UGASExtAT_WaitCharacterLanded final : public UAbilityTas
 
 public:
     UFUNCTION( BlueprintCallable, Category = "Abiltiy|Tasks", meta = ( HidePin = "owning_ability", DefaultToSelf = "owning_ability", BlueprintInternalUseOnly = true ) )
-    static UGASExtAT_WaitCharacterLanded * WaitCharacterLanded( UGameplayAbility * owning_ability, bool b_end_on_landed = true );
+    static UGASExtAT_WaitCharacterLanded * WaitCharacterLanded( UGameplayAbility * owning_ability, bool end_on_landed = true );
 
     void Activate() override;
 

@@ -1,9 +1,9 @@
 #include "Tasks/GASExtAT_WaitCharacterLanded.h"
 
-UGASExtAT_WaitCharacterLanded * UGASExtAT_WaitCharacterLanded::WaitCharacterLanded( UGameplayAbility * owning_ability, bool b_end_on_landed /*= true*/ )
+UGASExtAT_WaitCharacterLanded * UGASExtAT_WaitCharacterLanded::WaitCharacterLanded( UGameplayAbility * owning_ability, bool end_on_landed /*= true*/ )
 {
     auto * my_obj = NewAbilityTask< UGASExtAT_WaitCharacterLanded >( owning_ability );
-    my_obj->bEndOnLanded = b_end_on_landed;
+    my_obj->bEndOnLanded = end_on_landed;
     return my_obj;
 }
 
@@ -13,8 +13,7 @@ void UGASExtAT_WaitCharacterLanded::Activate()
 
     SetWaitingOnAvatar();
 
-    ACharacter * character = Cast< ACharacter >( GetAvatarActor() );
-    if ( character != nullptr )
+    if ( auto * character = Cast< ACharacter >( GetAvatarActor() ) )
     {
         character->LandedDelegate.AddDynamic( this, &UGASExtAT_WaitCharacterLanded::OnCharacterLanded );
     }
@@ -36,8 +35,7 @@ void UGASExtAT_WaitCharacterLanded::OnCharacterLanded( const FHitResult & hit_re
 
 void UGASExtAT_WaitCharacterLanded::OnDestroy( const bool ability_ended )
 {
-    ACharacter * character = Cast< ACharacter >( GetAvatarActor() );
-    if ( character != nullptr )
+    if ( auto * character = Cast< ACharacter >( GetAvatarActor() ) )
     {
         character->LandedDelegate.RemoveDynamic( this, &UGASExtAT_WaitCharacterLanded::OnCharacterLanded );
     }
