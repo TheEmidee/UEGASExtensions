@@ -1,5 +1,9 @@
 #pragma once
 
+#include "GASExtFallOffType.generated.h"
+
+class UCurveFloat;
+
 UCLASS( Blueprintable, HideDropdown )
 class GASEXTENSIONS_API UGASExtFallOffType : public UObject
 {

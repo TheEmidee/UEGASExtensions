@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GASExtFallOffType.h"
+
 #include <Abilities/GameplayAbilityTargetTypes.h>
 #include <Abilities/GameplayAbilityTypes.h>
 #include <CoreMinimal.h>
@@ -80,6 +82,9 @@ struct FGASExtGameplayEffectContainerSpec
     GENERATED_BODY()
 
     UPROPERTY()
+    TSubclassOf< UGASExtFallOffType > FallOffType;
+
+    UPROPERTY()
     FGameplayAbilityTargetDataHandle TargetData;
 
     UPROPERTY()
@@ -99,7 +104,9 @@ USTRUCT( BlueprintType )
 struct FGASExtGameplayEffectContext : public FGameplayEffectContext
 {
     GENERATED_BODY()
-    
+
+public:
+    TSubclassOf< UGASExtFallOffType > FallOffType;
 };
 
 USTRUCT( BlueprintType )
