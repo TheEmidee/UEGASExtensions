@@ -29,11 +29,11 @@ UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHit
     bDrawsDebug = false;
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
 {
     TArray< AActor * > hit_actors;
 
-    const auto actor_location = ability_owner->GetActorLocation() + hit_result.ImpactNormal;
+    const auto actor_location = ability_owner->GetActorLocation();
 
     UKismetSystemLibrary::SphereOverlapActors( ability_owner, actor_location, SphereRadius.GetValue(), ObjectTypes, nullptr, TArray< AActor * >(), hit_actors );
 
@@ -73,7 +73,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
 
     if ( bDrawsDebug )
     {
-        UKismetSystemLibrary::DrawDebugSphere( ability_owner, hit_result.ImpactPoint, SphereRadius.GetValue(), 12, FLinearColor::Red, 1.0f, 1.0f );
+        UKismetSystemLibrary::DrawDebugSphere( ability_owner, actor_location, SphereRadius.GetValue(), 12, FLinearColor::Red, 1.0f, 1.0f );
     }
 
     auto * new_data = new FGameplayAbilityTargetData_ActorArray();
