@@ -96,6 +96,13 @@ struct FGASExtGameplayEffectContainerSpec
 };
 
 USTRUCT( BlueprintType )
+struct FGASExtGameplayEffectContext : public FGameplayEffectContext
+{
+    GENERATED_BODY()
+    
+};
+
+USTRUCT( BlueprintType )
 struct FGASExtGameplayAbilityTargetData_LocationInfo : public FGameplayAbilityTargetData_LocationInfo
 {
     GENERATED_USTRUCT_BODY()
