@@ -25,7 +25,10 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
             if ( ensureAlwaysMsgf( gameplay_effect_class != nullptr, TEXT( "Can not provide a null class in the TargetEffectClasses of the gameplay effect container" ) ) )
             {
                 const auto gameplay_effect_spec_handle = ability->MakeOutgoingGameplayEffectSpec( gameplay_effect_class );
-                static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() )->FallOffTypeClass = effect_container.FallOffTypeClass;
+                if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() ) )
+                {
+                    context->FallOffTypeClass = effect_container.FallOffTypeClass;
+                }
                 container_spec.TargetGameplayEffectSpecs.Emplace( gameplay_effect_spec_handle );
             }
         }

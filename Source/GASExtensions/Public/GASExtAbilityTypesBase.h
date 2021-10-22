@@ -7,10 +7,10 @@
 
 #include "GASExtAbilityTypesBase.generated.h"
 
+class UGASExtFallOffType;
 class ASWSpline;
 class UGameplayEffect;
 class UGASExtTargetType;
-class UGASExtFallOffType;
 
 UENUM( BlueprintType )
 enum class EGASExtTargetTraceType : uint8
@@ -109,10 +109,35 @@ struct FGASExtGameplayEffectContext : public FGameplayEffectContext
         return FGASExtGameplayEffectContext::StaticStruct();
     }
 
+    FGameplayEffectContext * Duplicate() const override
+    {
+        auto * new_context = new FGASExtGameplayEffectContext();
+        *new_context = *this;
+        new_context->AddActors( Actors );
+
+        if ( GetHitResult() )
+        {
+            // Does a deep copy of the hit result
+            new_context->AddHitResult( *GetHitResult(), true );
+        }
+
+        return new_context;
+    }
+
     bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
 
     UPROPERTY()
     TSubclassOf< UGASExtFallOffType > FallOffTypeClass;
+};
+
+template <>
+struct TStructOpsTypeTraits< FGASExtGameplayEffectContext > : public TStructOpsTypeTraitsBase2< FGASExtGameplayEffectContext >
+{
+    enum
+    {
+        WithNetSerializer = true,
+        WithCopy = true // Necessary so that TSharedPtr<FHitResult> Data is copied around
+    };
 };
 
 USTRUCT( BlueprintType )
