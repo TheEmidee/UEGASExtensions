@@ -102,8 +102,16 @@ struct FGASExtGameplayEffectContainerSpec
 USTRUCT( BlueprintType )
 struct FGASExtGameplayEffectContext : public FGameplayEffectContext
 {
-    GENERATED_USTRUCT_BODY()
+    GENERATED_BODY()
 
+    UScriptStruct * GetScriptStruct() const override
+    {
+        return FGASExtGameplayEffectContext::StaticStruct();
+    }
+
+    bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
+
+    UPROPERTY()
     TSubclassOf< UGASExtFallOffType > FallOffTypeClass;
 };
 
