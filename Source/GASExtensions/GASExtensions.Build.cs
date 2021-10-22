@@ -21,6 +21,7 @@ namespace UnrealBuildTool.Rules
                     "GameplayTags",
                     "CoreExtensions",
                     "AIModule",
+                    "DataValidationExtensions",
                 }
             );
         }
