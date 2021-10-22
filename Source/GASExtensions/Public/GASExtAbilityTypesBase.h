@@ -1,7 +1,5 @@
 #pragma once
 
-#include "GASExtFallOffType.h"
-
 #include <Abilities/GameplayAbilityTargetTypes.h>
 #include <Abilities/GameplayAbilityTypes.h>
 #include <CoreMinimal.h>
@@ -12,6 +10,7 @@
 class ASWSpline;
 class UGameplayEffect;
 class UGASExtTargetType;
+class UGASExtFallOffType;
 
 UENUM( BlueprintType )
 enum class EGASExtTargetTraceType : uint8
@@ -67,6 +66,9 @@ struct FGASExtGameplayEffectContainer
     GENERATED_BODY()
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
+    TSubclassOf< UGASExtFallOffType > FallOffTypeClass;
+
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TSubclassOf< UGASExtTargetType > TargetTypeClass;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
@@ -80,9 +82,6 @@ USTRUCT( BlueprintType )
 struct FGASExtGameplayEffectContainerSpec
 {
     GENERATED_BODY()
-
-    UPROPERTY()
-    TSubclassOf< UGASExtFallOffType > FallOffType;
 
     UPROPERTY()
     FGameplayAbilityTargetDataHandle TargetData;
@@ -103,10 +102,9 @@ struct FGASExtGameplayEffectContainerSpec
 USTRUCT( BlueprintType )
 struct FGASExtGameplayEffectContext : public FGameplayEffectContext
 {
-    GENERATED_BODY()
+    GENERATED_USTRUCT_BODY()
 
-public:
-    TSubclassOf< UGASExtFallOffType > FallOffType;
+    TSubclassOf< UGASExtFallOffType > FallOffTypeClass;
 };
 
 USTRUCT( BlueprintType )
