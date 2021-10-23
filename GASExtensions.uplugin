@@ -2,7 +2,7 @@
   "FileVersion": 3,
   "Version": 1.0,
   "VersionName": "1.0",
-  "EngineVersion": "4.26.0",
+  "EngineVersion": "5.0",
   "FriendlyName": "GAS Extensions",
   "Description": "A collection of gameplay abilities, gameplay tasks, to expand on the gameplay ability system",
   "Category": "Gameplay Abilities",
