@@ -459,11 +459,11 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionLengthForMesh( USke
             }
             // Otherwise we are the last section, so take delta with Montage total time.
 
-            return ( current_anim_montage->SequenceLength - composite_sections[ current_section_id ].GetTime() );
+            return ( current_anim_montage->GetPlayLength() - composite_sections[ current_section_id ].GetTime() );
         }
 
         // if we have no sections, just return total length of Montage.
-        return current_anim_montage->SequenceLength;
+        return current_anim_montage->GetPlayLength();
     }
 
     return 0.0f;
