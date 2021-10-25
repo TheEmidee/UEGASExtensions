@@ -66,8 +66,8 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
                     effect_container_spec.TargetData.Clear();
 
                     const auto * cdo = context->TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
-                    // :TODO: Pass the correct Actor *, FHitResult and FGameplayEventData 
-                    effect_container_spec.TargetData.Append( cdo->GetTargetData( nullptr, FHitResult(), FGameplayEventData() ) );
+                    // :TODO: Pass the correct Actor *, FHitResult and FGameplayEventData
+                    effect_container_spec.TargetData.Append( cdo->GetTargetData( context->GetEffectCauser(), FHitResult(), FGameplayEventData() ) );
                 }
             }
 
