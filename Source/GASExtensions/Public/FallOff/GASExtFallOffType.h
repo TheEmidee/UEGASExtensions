@@ -18,7 +18,7 @@ public:
     UFUNCTION( BlueprintPure )
     virtual float GetFallOffMultiplier( const float distance );
 
-    EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
+    void PostEditChangeProperty( FPropertyChangedEvent & property_changed_event ) override;
 
     UPROPERTY( EditAnywhere )
     FScalableFloat Radius;

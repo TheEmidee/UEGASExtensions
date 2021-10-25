@@ -1,6 +1,7 @@
 #include "FallOff/GASExtFallOffType.h"
 
 #include "DVEDataValidator.h"
+#include "Log/CoreExtLog.h"
 
 #include <Curves/CurveFloat.h>
 
@@ -9,18 +10,15 @@ float UGASExtFallOffType::GetFallOffMultiplier( const float /*distance*/ )
     return 0.0f;
 }
 
-EDataValidationResult UGASExtFallOffType::IsDataValid( TArray< FText > & validation_errors )
+void UGASExtFallOffType::PostEditChangeProperty( FPropertyChangedEvent & property_changed_event )
 {
-    Super::IsDataValid( validation_errors );
+    Super::PostEditChangeProperty( property_changed_event );
 
-    return FDVEDataValidator( validation_errors )
-        .CustomValidation< FScalableFloat >( Radius, []( TArray< FText > & errors, FScalableFloat radius ) {
-            if ( radius.GetValue() <= 0.0f )
-            {
-                errors.Add( FText::FromString( TEXT( "Radius cannot be smaller than or equal to 0!" ) ) );
-            }
-        } )
-        .Result();
+    if ( Radius.GetValue() <= 0.0f )
+    {
+        Radius.Value = 1.0f;
+        UE_SLOG( LogTemp, Warning, TEXT( "Radius cannot be smaller than or equal to 0!" ) );
+    }
 }
 
 float UGASExtFallOffType_Linear::GetFallOffMultiplier( const float distance )
