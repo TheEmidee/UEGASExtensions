@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Targeting/GASExtTargetType.h"
+
 #include <Abilities/GameplayAbilityTargetTypes.h>
 #include <Abilities/GameplayAbilityTypes.h>
 #include <CoreMinimal.h>
@@ -7,7 +9,6 @@
 
 #include "GASExtAbilityTypesBase.generated.h"
 
-enum class EGASExtTargetDataExecutionType : uint8;
 class UGASExtFallOffType;
 class ASWSpline;
 class UGameplayEffect;
