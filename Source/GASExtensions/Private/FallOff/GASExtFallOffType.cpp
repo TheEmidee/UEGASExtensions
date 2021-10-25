@@ -15,7 +15,7 @@ EDataValidationResult UGASExtFallOffType::IsDataValid( TArray< FText > & validat
         .CustomValidation< FScalableFloat >( Radius, []( TArray< FText > & errors, FScalableFloat radius ) {
             if ( radius.GetValue() <= 0.0f )
             {
-                errors.Add( FText::FromString( TEXT( "Radius cannot be 0 or smaller" ) ) );
+                errors.Add( FText::FromString( TEXT( "Radius cannot be smaller than or equal to 0!" ) ) );
             }
         } )
         .Result();
@@ -23,25 +23,50 @@ EDataValidationResult UGASExtFallOffType::IsDataValid( TArray< FText > & validat
 
 float UGASExtFallOffType_Linear::GetFallOffMultiplier( const float distance )
 {
-    return 1.0f - distance / Radius.GetValue();
+    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
+    {
+        return 1.0f - distance / Radius.GetValue();
+    }
+
+    return 0.0f;
 }
 
 float UGASExtFallOffType_Inversed::GetFallOffMultiplier( const float distance )
 {
-    return distance / Radius.GetValue();
+    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
+    {
+        return distance / Radius.GetValue();
+    }
+
+    return 0.0f;
 }
 
 float UGASExtFallOffType_Squared::GetFallOffMultiplier( const float distance )
 {
-    return 1.0f - FMath::Square( distance / Radius.GetValue() );
+    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
+    {
+        return 1.0f - FMath::Square( distance / Radius.GetValue() );
+    }
+
+    return 0.0f;
 }
 
 float UGASExtFallOffType_Logarithmic::GetFallOffMultiplier( const float distance )
 {
-    return -FMath::LogX( 10, distance / Radius.GetValue() );
+    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
+    {
+        return -FMath::LogX( 10, distance / Radius.GetValue() );
+    }
+
+    return 0.0f;
 }
 
 float UGASExtFallOffType_Curve::GetFallOffMultiplier( const float distance )
 {
-    return Curve->GetFloatValue( distance / Radius.GetValue() );
+    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
+    {
+        return Curve->GetFloatValue( distance / Radius.GetValue() );
+    }
+
+    return 0.0f;
 }
