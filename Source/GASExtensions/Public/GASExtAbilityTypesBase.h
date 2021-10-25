@@ -65,7 +65,7 @@ struct FGASExtGameplayEffectContainer
 {
     GENERATED_BODY()
 
-    UPROPERTY( EditAnywhere, Instanced )
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced )
     UGASExtFallOffType * FallOffType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )

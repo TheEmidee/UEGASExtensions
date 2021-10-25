@@ -11,6 +11,8 @@ float UGASExtFallOffType::GetFallOffMultiplier( const float /*distance*/ )
 
 EDataValidationResult UGASExtFallOffType::IsDataValid( TArray< FText > & validation_errors )
 {
+    Super::IsDataValid( validation_errors );
+
     return FDVEDataValidator( validation_errors )
         .CustomValidation< FScalableFloat >( Radius, []( TArray< FText > & errors, FScalableFloat radius ) {
             if ( radius.GetValue() <= 0.0f )
