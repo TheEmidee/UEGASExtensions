@@ -4,7 +4,7 @@
 
 class UCurveFloat;
 
-UCLASS( Blueprintable, HideDropdown )
+UCLASS( NotBlueprintable, HideDropdown, EditInlineNew )
 class GASEXTENSIONS_API UGASExtFallOffType : public UObject
 {
     GENERATED_BODY()
@@ -20,7 +20,7 @@ public:
 
     EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
 
-    UPROPERTY( EditAnywhere, meta = ( ClampMin = 1.0f ) )
+    UPROPERTY( EditAnywhere )
     FScalableFloat Radius;
 };
 

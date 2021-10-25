@@ -33,7 +33,7 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
         {
             RepBits |= 1 << 6;
         }
-        if ( IsValid( FallOffTypeClass ) )
+        if ( IsValid( FallOffType ) )
         {
             RepBits |= 1 << 7;
         }
@@ -84,7 +84,7 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
 
     if ( RepBits & ( 1 << 7 ) )
     {
-        ar << FallOffTypeClass;
+        ar << FallOffType;
     }
 
     if ( ar.IsLoading() )

@@ -65,8 +65,8 @@ struct FGASExtGameplayEffectContainer
 {
     GENERATED_BODY()
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
-    TSubclassOf< UGASExtFallOffType > FallOffTypeClass;
+    UPROPERTY( EditAnywhere, Instanced )
+    UGASExtFallOffType * FallOffType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TSubclassOf< UGASExtTargetType > TargetTypeClass;
@@ -127,7 +127,7 @@ struct FGASExtGameplayEffectContext : public FGameplayEffectContext
     bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
 
     UPROPERTY()
-    TSubclassOf< UGASExtFallOffType > FallOffTypeClass;
+    UGASExtFallOffType * FallOffType;
 };
 
 template <>
