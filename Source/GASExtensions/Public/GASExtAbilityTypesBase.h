@@ -7,6 +7,7 @@
 
 #include "GASExtAbilityTypesBase.generated.h"
 
+enum class EGASExtTargetDataExecutionType : uint8;
 class UGASExtFallOffType;
 class ASWSpline;
 class UGameplayEffect;
@@ -71,6 +72,9 @@ struct FGASExtGameplayEffectContainer
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TSubclassOf< UGASExtTargetType > TargetTypeClass;
 
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "TargetTypeClass != nullptr", EditConditionHides ) )
+    EGASExtTargetDataExecutionType TargetDataExecutionType;
+
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TArray< TSubclassOf< UGameplayEffect > > TargetGameplayEffectClasses;
 
@@ -97,6 +101,9 @@ struct FGASExtGameplayEffectContainerSpec
 
     UPROPERTY()
     FGameplayEventData EventDataPayload;
+
+    UPROPERTY()
+    EGASExtTargetDataExecutionType TargetDataExecutionType;
 };
 
 USTRUCT( BlueprintType )
@@ -117,6 +124,9 @@ public:
 protected:
     UPROPERTY()
     UGASExtFallOffType * FallOffType;
+
+    UPROPERTY()
+    TSubclassOf< UGASExtTargetType > TargetTypeClass;
 };
 
 FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const

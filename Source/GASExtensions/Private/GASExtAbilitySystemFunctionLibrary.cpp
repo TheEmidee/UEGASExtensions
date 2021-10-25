@@ -28,23 +28,30 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                 if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() ) )
                 {
                     context->SetFallOffType( effect_container.FallOffType );
+
+                    if ( effect_container.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication )
+                    {
+                        context->TargetTypeClass = effect_container.TargetTypeClass;
+                    }
                 }
                 container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
             }
         }
 
-        if ( effect_container.TargetTypeClass != nullptr )
+        if ( effect_container.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextCreation &&
+             effect_container.TargetTypeClass != nullptr )
         {
             const auto * cdo = effect_container.TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
             container_spec.TargetData = cdo->GetTargetData( avatar_actor, hit_result, event_data );
         }
 
         container_spec.EventDataPayload = event_data;
+        container_spec.TargetDataExecutionType = effect_container.TargetDataExecutionType;
     }
     return container_spec;
 }
 
-TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( const FGASExtGameplayEffectContainerSpec & effect_container_spec )
+TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( FGASExtGameplayEffectContainerSpec & effect_container_spec )
 {
     TArray< FActiveGameplayEffectHandle > applied_gameplay_effect_specs;
 
@@ -52,6 +59,18 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
     {
         if ( spec_handle.IsValid() )
         {
+            if ( effect_container_spec.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication )
+            {
+                if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
+                {
+                    effect_container_spec.TargetData.Clear();
+
+                    const auto * cdo = context->TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
+                    // :TODO: Pass the correct Actor *, FHitResult and FGameplayEventData 
+                    effect_container_spec.TargetData.Append( cdo->GetTargetData( nullptr, FHitResult(), FGameplayEventData() ) );
+                }
+            }
+
             for ( auto target_data : effect_container_spec.TargetData.Data )
             {
                 if ( target_data.IsValid() )
