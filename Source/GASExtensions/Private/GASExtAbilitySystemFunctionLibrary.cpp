@@ -18,7 +18,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
     if ( auto * avatar_actor = ability->GetAvatarActorFromActorInfo() )
     {
         container_spec.GameplayEventTags = effect_container.GameplayEventTags;
-        container_spec.TargetGameplayEffectSpecs.Reserve( effect_container.TargetGameplayEffectClasses.Num() );
+        container_spec.TargetGameplayEffectSpecHandles.Reserve( effect_container.TargetGameplayEffectClasses.Num() );
 
         for ( const auto & gameplay_effect_class : effect_container.TargetGameplayEffectClasses )
         {
@@ -29,7 +29,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                 {
                     context->FallOffType = effect_container.FallOffType;
                 }
-                container_spec.TargetGameplayEffectSpecs.Emplace( gameplay_effect_spec_handle );
+                container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
             }
         }
 
@@ -48,7 +48,7 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
 {
     TArray< FActiveGameplayEffectHandle > applied_gameplay_effect_specs;
 
-    for ( const auto spec_handle : effect_container_spec.TargetGameplayEffectSpecs )
+    for ( const auto spec_handle : effect_container_spec.TargetGameplayEffectSpecHandles )
     {
         if ( spec_handle.IsValid() )
         {

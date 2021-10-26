@@ -87,7 +87,7 @@ struct FGASExtGameplayEffectContainerSpec
     FGameplayAbilityTargetDataHandle TargetData;
 
     UPROPERTY()
-    TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecs;
+    TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecHandles;
 
     UPROPERTY()
     TArray< FGameplayTag > GameplayEventTags;
