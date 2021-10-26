@@ -1,5 +1,30 @@
 #include "GASExtAbilityTypesBase.h"
 
+FGASExtGameplayEffectContext::FGASExtGameplayEffectContext( UGASExtFallOffType * fall_off_type )
+{
+    FallOffType = nullptr;
+}
+
+UScriptStruct * FGASExtGameplayEffectContext::GetScriptStruct() const
+{
+    return FGASExtGameplayEffectContext::StaticStruct();
+}
+
+FGameplayEffectContext * FGASExtGameplayEffectContext::Duplicate() const
+{
+    auto * new_context = new FGASExtGameplayEffectContext();
+    *new_context = *this;
+    new_context->AddActors( Actors );
+
+    if ( GetHitResult() )
+    {
+        // Does a deep copy of the hit result
+        new_context->AddHitResult( *GetHitResult(), true );
+    }
+
+    return new_context;
+}
+
 bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success )
 {
     uint32 RepBits = 0;

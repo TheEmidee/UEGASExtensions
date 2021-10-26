@@ -104,28 +104,13 @@ struct FGASExtGameplayEffectContext : public FGameplayEffectContext
 {
     GENERATED_BODY()
 
-    UScriptStruct * GetScriptStruct() const override
-    {
-        return FGASExtGameplayEffectContext::StaticStruct();
-    }
+    FGASExtGameplayEffectContext( UGASExtFallOffType * fall_off_type );
 
-    FGameplayEffectContext * Duplicate() const override
-    {
-        auto * new_context = new FGASExtGameplayEffectContext();
-        *new_context = *this;
-        new_context->AddActors( Actors );
-
-        if ( GetHitResult() )
-        {
-            // Does a deep copy of the hit result
-            new_context->AddHitResult( *GetHitResult(), true );
-        }
-
-        return new_context;
-    }
-
+    UScriptStruct * GetScriptStruct() const override;
+    FGameplayEffectContext * Duplicate() const override;
     bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
 
+protected:
     UPROPERTY()
     UGASExtFallOffType * FallOffType;
 };
