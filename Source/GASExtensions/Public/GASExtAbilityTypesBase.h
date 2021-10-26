@@ -7,6 +7,7 @@
 
 #include "GASExtAbilityTypesBase.generated.h"
 
+class UGASExtFallOffType;
 class ASWSpline;
 class UGameplayEffect;
 class UGASExtTargetType;
@@ -64,6 +65,9 @@ struct FGASExtGameplayEffectContainer
 {
     GENERATED_BODY()
 
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced )
+    UGASExtFallOffType * FallOffType;
+
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TSubclassOf< UGASExtTargetType > TargetTypeClass;
 
@@ -83,7 +87,7 @@ struct FGASExtGameplayEffectContainerSpec
     FGameplayAbilityTargetDataHandle TargetData;
 
     UPROPERTY()
-    TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecs;
+    TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecHandles;
 
     UPROPERTY()
     TArray< FGameplayTag > GameplayEventTags;
@@ -93,6 +97,41 @@ struct FGASExtGameplayEffectContainerSpec
 
     UPROPERTY()
     FGameplayEventData EventDataPayload;
+};
+
+USTRUCT( BlueprintType )
+struct FGASExtGameplayEffectContext : public FGameplayEffectContext
+{
+    GENERATED_BODY()
+
+public:
+    FGASExtGameplayEffectContext();
+
+    UScriptStruct * GetScriptStruct() const override;
+    FGameplayEffectContext * Duplicate() const override;
+    bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
+
+    UGASExtFallOffType * GetFallOffType() const;
+    void SetFallOffType( UGASExtFallOffType * fall_off_type );
+
+protected:
+    UPROPERTY()
+    UGASExtFallOffType * FallOffType;
+};
+
+FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const
+{
+    return FallOffType;
+}
+
+template <>
+struct TStructOpsTypeTraits< FGASExtGameplayEffectContext > : public TStructOpsTypeTraitsBase2< FGASExtGameplayEffectContext >
+{
+    enum
+    {
+        WithNetSerializer = true,
+        WithCopy = true // Necessary so that TSharedPtr<FHitResult> Data is copied around
+    };
 };
 
 USTRUCT( BlueprintType )

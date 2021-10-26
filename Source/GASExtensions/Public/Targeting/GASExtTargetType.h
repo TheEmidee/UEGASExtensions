@@ -7,7 +7,7 @@
 
 struct FGameplayEventData;
 
-UCLASS( Blueprintable, meta = ( ShowWorldContextPin ) )
+UCLASS( Blueprintable, HideDropdown, meta = ( ShowWorldContextPin ) )
 class GASEXTENSIONS_API UGASExtTargetType : public UObject
 {
     GENERATED_BODY()

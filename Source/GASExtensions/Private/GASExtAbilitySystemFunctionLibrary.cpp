@@ -18,14 +18,18 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
     if ( auto * avatar_actor = ability->GetAvatarActorFromActorInfo() )
     {
         container_spec.GameplayEventTags = effect_container.GameplayEventTags;
-        container_spec.TargetGameplayEffectSpecs.Reserve( effect_container.TargetGameplayEffectClasses.Num() );
+        container_spec.TargetGameplayEffectSpecHandles.Reserve( effect_container.TargetGameplayEffectClasses.Num() );
 
         for ( const auto & gameplay_effect_class : effect_container.TargetGameplayEffectClasses )
         {
             if ( ensureAlwaysMsgf( gameplay_effect_class != nullptr, TEXT( "Can not provide a null class in the TargetEffectClasses of the gameplay effect container" ) ) )
             {
                 const auto gameplay_effect_spec_handle = ability->MakeOutgoingGameplayEffectSpec( gameplay_effect_class );
-                container_spec.TargetGameplayEffectSpecs.Emplace( gameplay_effect_spec_handle );
+                if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() ) )
+                {
+                    context->SetFallOffType( effect_container.FallOffType );
+                }
+                container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
             }
         }
 
@@ -44,7 +48,7 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
 {
     TArray< FActiveGameplayEffectHandle > applied_gameplay_effect_specs;
 
-    for ( const auto spec_handle : effect_container_spec.TargetGameplayEffectSpecs )
+    for ( const auto spec_handle : effect_container_spec.TargetGameplayEffectSpecHandles )
     {
         if ( spec_handle.IsValid() )
         {
