@@ -10,7 +10,7 @@ UGASExtFallOffType::UGASExtFallOffType()
     Radius = 1.0f;
 }
 
-float UGASExtFallOffType::GetFallOffMultiplier( const float /*distance*/ )
+float UGASExtFallOffType::GetFallOffMultiplier( const float /*distance*/ ) const
 {
     return 0.0f;
 }
@@ -38,27 +38,27 @@ void UGASExtFallOffType::PostEditChangeProperty( FPropertyChangedEvent & propert
 }
 #endif
 
-float UGASExtFallOffType_Linear::GetFallOffMultiplier( const float distance )
+float UGASExtFallOffType_Linear::GetFallOffMultiplier( const float distance ) const
 {
     return 1.0f - distance / GetRadius();
 }
 
-float UGASExtFallOffType_Inversed::GetFallOffMultiplier( const float distance )
+float UGASExtFallOffType_Inversed::GetFallOffMultiplier( const float distance ) const
 {
     return distance / GetRadius();
 }
 
-float UGASExtFallOffType_Squared::GetFallOffMultiplier( const float distance )
+float UGASExtFallOffType_Squared::GetFallOffMultiplier( const float distance ) const
 {
     return 1.0f - FMath::Square( distance / GetRadius() );
 }
 
-float UGASExtFallOffType_Logarithmic::GetFallOffMultiplier( const float distance )
+float UGASExtFallOffType_Logarithmic::GetFallOffMultiplier( const float distance ) const
 {
     return -FMath::LogX( 10, distance / GetRadius() );
 }
 
-float UGASExtFallOffType_Curve::GetFallOffMultiplier( const float distance )
+float UGASExtFallOffType_Curve::GetFallOffMultiplier( const float distance ) const
 {
     return Curve->GetFloatValue( distance / GetRadius() );
 }

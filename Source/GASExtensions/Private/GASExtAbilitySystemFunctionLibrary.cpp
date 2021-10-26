@@ -27,7 +27,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                 const auto gameplay_effect_spec_handle = ability->MakeOutgoingGameplayEffectSpec( gameplay_effect_class );
                 if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() ) )
                 {
-                    context->FallOffType = effect_container.FallOffType;
+                    context->SetFallOffType( effect_container.FallOffType );
                 }
                 container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
             }

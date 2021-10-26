@@ -104,16 +104,25 @@ struct FGASExtGameplayEffectContext : public FGameplayEffectContext
 {
     GENERATED_BODY()
 
-    FGASExtGameplayEffectContext( UGASExtFallOffType * fall_off_type );
+public:
+    FGASExtGameplayEffectContext();
 
     UScriptStruct * GetScriptStruct() const override;
     FGameplayEffectContext * Duplicate() const override;
     bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
 
+    UGASExtFallOffType * GetFallOffType() const;
+    void SetFallOffType( UGASExtFallOffType * fall_off_type );
+
 protected:
     UPROPERTY()
     UGASExtFallOffType * FallOffType;
 };
+
+FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const
+{
+    return FallOffType;
+}
 
 template <>
 struct TStructOpsTypeTraits< FGASExtGameplayEffectContext > : public TStructOpsTypeTraitsBase2< FGASExtGameplayEffectContext >

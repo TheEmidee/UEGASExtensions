@@ -1,6 +1,8 @@
 #include "GASExtAbilityTypesBase.h"
 
-FGASExtGameplayEffectContext::FGASExtGameplayEffectContext( UGASExtFallOffType * fall_off_type )
+#include "FallOff/GASExtFallOffType.h"
+
+FGASExtGameplayEffectContext::FGASExtGameplayEffectContext()
 {
     FallOffType = nullptr;
 }
@@ -119,6 +121,11 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
 
     out_success = true;
     return true;
+}
+
+void FGASExtGameplayEffectContext::SetFallOffType( UGASExtFallOffType * fall_off_type )
+{
+    FallOffType = fall_off_type;
 }
 
 bool FGASExtGameplayAbilityTargetData_LocationInfo::NetSerialize( FArchive & archive, UPackageMap * package_map, bool & success )

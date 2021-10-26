@@ -13,7 +13,7 @@ public:
     UGASExtFallOffType();
 
     UFUNCTION( BlueprintPure )
-    virtual float GetFallOffMultiplier( const float distance );
+    virtual float GetFallOffMultiplier( const float distance ) const;
 
     UFUNCTION( BlueprintPure )
     float GetRadius() const;
@@ -33,7 +33,7 @@ class GASEXTENSIONS_API UGASExtFallOffType_Linear : public UGASExtFallOffType
     GENERATED_BODY()
 
 public:
-    float GetFallOffMultiplier( const float distance ) override;
+    float GetFallOffMultiplier( const float distance ) const override;
 };
 
 UCLASS()
@@ -42,7 +42,7 @@ class GASEXTENSIONS_API UGASExtFallOffType_Inversed : public UGASExtFallOffType
     GENERATED_BODY()
 
 public:
-    float GetFallOffMultiplier( const float distance ) override;
+    float GetFallOffMultiplier( const float distance ) const override;
 };
 
 UCLASS()
@@ -51,7 +51,7 @@ class GASEXTENSIONS_API UGASExtFallOffType_Squared : public UGASExtFallOffType
     GENERATED_BODY()
 
 public:
-    float GetFallOffMultiplier( const float distance ) override;
+    float GetFallOffMultiplier( const float distance ) const override;
 };
 
 UCLASS()
@@ -60,7 +60,7 @@ class GASEXTENSIONS_API UGASExtFallOffType_Logarithmic : public UGASExtFallOffTy
     GENERATED_BODY()
 
 public:
-    float GetFallOffMultiplier( const float distance ) override;
+    float GetFallOffMultiplier( const float distance ) const override;
 };
 
 UCLASS()
@@ -69,7 +69,7 @@ class GASEXTENSIONS_API UGASExtFallOffType_Curve : public UGASExtFallOffType
     GENERATED_BODY()
 
 public:
-    float GetFallOffMultiplier( const float distance ) override;
+    float GetFallOffMultiplier( const float distance ) const override;
 
     UPROPERTY( EditAnywhere )
     UCurveFloat * Curve;
