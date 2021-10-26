@@ -10,16 +10,19 @@ class GASEXTENSIONS_API UGASExtFallOffType : public UObject
     GENERATED_BODY()
 
 public:
-    UGASExtFallOffType()
-    {
-        Radius = 100.0f;
-    }
+    UGASExtFallOffType();
 
     UFUNCTION( BlueprintPure )
     virtual float GetFallOffMultiplier( const float distance );
 
-    void PostEditChangeProperty( FPropertyChangedEvent & property_changed_event ) override;
+    UFUNCTION( BlueprintPure )
+    float GetRadius() const;
 
+#if WITH_EDITOR
+    void PostEditChangeProperty( FPropertyChangedEvent & property_changed_event ) override;
+#endif
+
+private:
     UPROPERTY( EditAnywhere )
     FScalableFloat Radius;
 };

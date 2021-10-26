@@ -5,11 +5,27 @@
 
 #include <Curves/CurveFloat.h>
 
+UGASExtFallOffType::UGASExtFallOffType()
+{
+    Radius = 1.0f;
+}
+
 float UGASExtFallOffType::GetFallOffMultiplier( const float /*distance*/ )
 {
     return 0.0f;
 }
 
+float UGASExtFallOffType::GetRadius() const
+{
+    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
+    {
+        return Radius.GetValue();
+    }
+
+    return 0.0001f;
+}
+
+#if WITH_EDITOR
 void UGASExtFallOffType::PostEditChangeProperty( FPropertyChangedEvent & property_changed_event )
 {
     Super::PostEditChangeProperty( property_changed_event );
@@ -20,53 +36,29 @@ void UGASExtFallOffType::PostEditChangeProperty( FPropertyChangedEvent & propert
         UE_SLOG( LogTemp, Warning, TEXT( "Radius cannot be smaller than or equal to 0!" ) );
     }
 }
+#endif
 
 float UGASExtFallOffType_Linear::GetFallOffMultiplier( const float distance )
 {
-    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
-    {
-        return 1.0f - distance / Radius.GetValue();
-    }
-
-    return 0.0f;
+    return 1.0f - distance / GetRadius();
 }
 
 float UGASExtFallOffType_Inversed::GetFallOffMultiplier( const float distance )
 {
-    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
-    {
-        return distance / Radius.GetValue();
-    }
-
-    return 0.0f;
+    return distance / GetRadius();
 }
 
 float UGASExtFallOffType_Squared::GetFallOffMultiplier( const float distance )
 {
-    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
-    {
-        return 1.0f - FMath::Square( distance / Radius.GetValue() );
-    }
-
-    return 0.0f;
+    return 1.0f - FMath::Square( distance / GetRadius() );
 }
 
 float UGASExtFallOffType_Logarithmic::GetFallOffMultiplier( const float distance )
 {
-    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
-    {
-        return -FMath::LogX( 10, distance / Radius.GetValue() );
-    }
-
-    return 0.0f;
+    return -FMath::LogX( 10, distance / GetRadius() );
 }
 
 float UGASExtFallOffType_Curve::GetFallOffMultiplier( const float distance )
 {
-    if ( ensureAlwaysMsgf( Radius.GetValue() > 0.0f, TEXT( "Radius cannot be smaller than or equal to 0!" ) ) )
-    {
-        return Curve->GetFloatValue( distance / Radius.GetValue() );
-    }
-
-    return 0.0f;
+    return Curve->GetFloatValue( distance / GetRadius() );
 }
