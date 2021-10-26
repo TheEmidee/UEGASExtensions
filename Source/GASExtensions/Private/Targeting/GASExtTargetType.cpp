@@ -27,6 +27,7 @@ UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHit
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
     bDrawsDebug = false;
+    bMustHaveLineOfSight = true;
 }
 
 FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
