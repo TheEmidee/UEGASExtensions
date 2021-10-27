@@ -14,7 +14,7 @@ enum class EGASExtTargetDataExecutionType : uint8
     OnEffectContextCreation
 };
 
-UCLASS( Blueprintable, HideDropdown, meta = ( ShowWorldContextPin ) )
+UCLASS( NotBlueprintable, EditInlineNew, HideDropdown, meta = ( ShowWorldContextPin ) )
 class GASEXTENSIONS_API UGASExtTargetType : public UObject
 {
     GENERATED_BODY()
