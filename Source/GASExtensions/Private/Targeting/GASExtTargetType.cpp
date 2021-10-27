@@ -23,7 +23,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_GetOwner::GetTargetData( AAct
 
 UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHitResult()
 {
-    SphereRadius = 100.0f;
+    SphereRadius = 1.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
     bDrawsDebug = false;

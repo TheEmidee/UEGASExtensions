@@ -50,25 +50,27 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
     return container_spec;
 }
 
-TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( FGASExtGameplayEffectContainerSpec & effect_container_spec )
+TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( const FGASExtGameplayEffectContainerSpec & effect_container_spec )
 {
     TArray< FActiveGameplayEffectHandle > applied_gameplay_effect_specs;
 
-    for ( const auto spec_handle : effect_container_spec.TargetGameplayEffectSpecHandles )
+    auto effect_container_spec_copy = effect_container_spec;
+
+    for ( const auto spec_handle : effect_container_spec_copy.TargetGameplayEffectSpecHandles )
     {
         if ( spec_handle.IsValid() )
         {
             if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
             {
-                if ( effect_container_spec.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication &&
+                if ( effect_container_spec_copy.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication &&
                      context->GetTargetType() != nullptr )
                 {
-                    effect_container_spec.TargetData.Clear();
-                    effect_container_spec.TargetData.Append( context->GetTargetType()->GetTargetData( context->GetEffectCauser(), *context->GetHitResult(), effect_container_spec.EventDataPayload ) );
+                    effect_container_spec_copy.TargetData.Clear();
+                    effect_container_spec_copy.TargetData.Append( context->GetTargetType()->GetTargetData( context->GetEffectCauser(), *context->GetHitResult(), effect_container_spec_copy.EventDataPayload ) );
                 }
             }
 
-            for ( auto target_data : effect_container_spec.TargetData.Data )
+            for ( auto target_data : effect_container_spec_copy.TargetData.Data )
             {
                 if ( target_data.IsValid() )
                 {
@@ -82,15 +84,15 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
         }
     }
 
-    for ( const auto event_tag : effect_container_spec.GameplayEventTags )
+    for ( const auto event_tag : effect_container_spec_copy.GameplayEventTags )
     {
-        for ( const auto & data : effect_container_spec.TargetData.Data )
+        for ( const auto & data : effect_container_spec_copy.TargetData.Data )
         {
             for ( auto & target_actor : data->GetActors() )
             {
                 if ( auto target_component = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( target_actor.Get() ) )
                 {
-                    target_component->HandleGameplayEvent( event_tag, &effect_container_spec.EventDataPayload );
+                    target_component->HandleGameplayEvent( event_tag, &effect_container_spec_copy.EventDataPayload );
                 }
             }
         }
