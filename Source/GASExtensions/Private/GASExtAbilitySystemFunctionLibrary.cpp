@@ -31,7 +31,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
 
                     if ( effect_container.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication )
                     {
-                        context->TargetTypeClass = effect_container.TargetTypeClass;
+                        context->SetTargetType( effect_container.TargetType );
                     }
                 }
                 container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
@@ -39,10 +39,9 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
         }
 
         if ( effect_container.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextCreation &&
-             effect_container.TargetTypeClass != nullptr )
+             effect_container.TargetType != nullptr )
         {
-            const auto * cdo = effect_container.TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
-            container_spec.TargetData = cdo->GetTargetData( avatar_actor, hit_result, event_data );
+            container_spec.TargetData = effect_container.TargetType->GetTargetData( avatar_actor, hit_result, event_data );
         }
 
         container_spec.EventDataPayload = event_data;
@@ -59,14 +58,13 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
     {
         if ( spec_handle.IsValid() )
         {
-            if ( effect_container_spec.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication )
+            if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
             {
-                if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
+                if ( effect_container_spec.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication &&
+                     context->GetTargetType() != nullptr )
                 {
                     effect_container_spec.TargetData.Clear();
-
-                    const auto * cdo = context->TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
-                    effect_container_spec.TargetData.Append( cdo->GetTargetData( context->GetEffectCauser(), *context->GetHitResult(), effect_container_spec.EventDataPayload ) );
+                    effect_container_spec.TargetData.Append( context->GetTargetType()->GetTargetData( context->GetEffectCauser(), *context->GetHitResult(), effect_container_spec.EventDataPayload ) );
                 }
             }
 

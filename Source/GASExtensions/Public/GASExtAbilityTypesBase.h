@@ -67,11 +67,11 @@ struct FGASExtGameplayEffectContainer
 {
     GENERATED_BODY()
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced )
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
     UGASExtFallOffType * FallOffType;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
-    TSubclassOf< UGASExtTargetType > TargetTypeClass;
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
+    UGASExtTargetType * TargetType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "TargetTypeClass != nullptr", EditConditionHides ) )
     EGASExtTargetDataExecutionType TargetDataExecutionType;
@@ -122,17 +122,25 @@ public:
     UGASExtFallOffType * GetFallOffType() const;
     void SetFallOffType( UGASExtFallOffType * fall_off_type );
 
+    UGASExtTargetType * GetTargetType() const;
+    void SetTargetType( UGASExtTargetType * target_type );
+
 protected:
     UPROPERTY()
     UGASExtFallOffType * FallOffType;
 
     UPROPERTY()
-    TSubclassOf< UGASExtTargetType > TargetTypeClass;
+    UGASExtTargetType * TargetType;
 };
 
 FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const
 {
     return FallOffType;
+}
+
+FORCEINLINE UGASExtTargetType * FGASExtGameplayEffectContext::GetTargetType() const
+{
+    return TargetType;
 }
 
 template <>
