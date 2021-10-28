@@ -7,7 +7,14 @@
 
 struct FGameplayEventData;
 
-UCLASS( Blueprintable, HideDropdown, meta = ( ShowWorldContextPin ) )
+UENUM()
+enum class EGASExtGetTargetDataExecutionType : uint8
+{
+    OnEffectContextApplication,
+    OnEffectContextCreation
+};
+
+UCLASS( NotBlueprintable, EditInlineNew, HideDropdown, meta = ( ShowWorldContextPin ) )
 class GASEXTENSIONS_API UGASExtTargetType : public UObject
 {
     GENERATED_BODY()

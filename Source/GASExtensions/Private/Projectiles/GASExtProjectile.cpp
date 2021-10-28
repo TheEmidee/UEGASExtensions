@@ -163,20 +163,10 @@ void AGASExtProjectile::PostProcessHit_Implementation( const FHitResult & /*hit_
 
 void AGASExtProjectile::ApplyGameplayEffects()
 {
-    GameplayEffectContainerSpec.TargetData.Clear();
-
-    if ( TargetTypeClass != nullptr )
-    {
-        if ( auto * target_type_cdo = TargetTypeClass->GetDefaultObject< UGASExtTargetType >() )
-        {
-            const auto target_data_handle = target_type_cdo->GetTargetData( this, LastHitResult, FGameplayEventData() );
-            GameplayEffectContainerSpec.TargetData.Append( target_data_handle );
-        }
-    }
-
     for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
     {
         effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
+        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult );
     }
 
     UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );

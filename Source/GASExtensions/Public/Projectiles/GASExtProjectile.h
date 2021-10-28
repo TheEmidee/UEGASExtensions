@@ -120,9 +120,6 @@ private:
     UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
     TSubclassOf< AActor > ImpactSpawnActorClass;
 
-    UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile", meta = ( AllowPrivateAccess = true ) )
-    TSubclassOf< UGASExtTargetType > TargetTypeClass;
-
     UPROPERTY()
     UGASExtAbilitySystemComponent * AbilitySystemComponent;
 

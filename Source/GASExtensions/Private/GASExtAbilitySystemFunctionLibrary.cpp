@@ -28,18 +28,24 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                 if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() ) )
                 {
                     context->SetFallOffType( effect_container.FallOffType );
+
+                    if ( effect_container.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextApplication )
+                    {
+                        context->SetTargetType( effect_container.TargetType );
+                    }
                 }
                 container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
             }
         }
 
-        if ( effect_container.TargetTypeClass != nullptr )
+        if ( effect_container.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextCreation &&
+             effect_container.TargetType != nullptr )
         {
-            const auto * cdo = effect_container.TargetTypeClass->GetDefaultObject< UGASExtTargetType >();
-            container_spec.TargetData = cdo->GetTargetData( avatar_actor, hit_result, event_data );
+            container_spec.TargetData = effect_container.TargetType->GetTargetData( avatar_actor, hit_result, event_data );
         }
 
         container_spec.EventDataPayload = event_data;
+        container_spec.TargetDataExecutionType = effect_container.TargetDataExecutionType;
     }
     return container_spec;
 }
@@ -48,11 +54,25 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
 {
     TArray< FActiveGameplayEffectHandle > applied_gameplay_effect_specs;
 
-    for ( const auto spec_handle : effect_container_spec.TargetGameplayEffectSpecHandles )
+    // Create a copy of the effect container spec so that we can edit the value of the TargetData in it.
+    // Removing const does not work, since that would make the function parameter an output instead of an input in blueprints.
+    auto effect_container_spec_copy = effect_container_spec;
+
+    for ( const auto spec_handle : effect_container_spec_copy.TargetGameplayEffectSpecHandles )
     {
         if ( spec_handle.IsValid() )
         {
-            for ( auto target_data : effect_container_spec.TargetData.Data )
+            if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
+            {
+                if ( effect_container_spec_copy.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextApplication &&
+                     context->GetTargetType() != nullptr )
+                {
+                    effect_container_spec_copy.TargetData.Clear();
+                    effect_container_spec_copy.TargetData.Append( context->GetTargetType()->GetTargetData( context->GetEffectCauser(), *context->GetHitResult(), effect_container_spec_copy.EventDataPayload ) );
+                }
+            }
+
+            for ( auto target_data : effect_container_spec_copy.TargetData.Data )
             {
                 if ( target_data.IsValid() )
                 {
@@ -66,15 +86,15 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
         }
     }
 
-    for ( const auto event_tag : effect_container_spec.GameplayEventTags )
+    for ( const auto event_tag : effect_container_spec_copy.GameplayEventTags )
     {
-        for ( const auto & data : effect_container_spec.TargetData.Data )
+        for ( const auto & data : effect_container_spec_copy.TargetData.Data )
         {
             for ( auto & target_actor : data->GetActors() )
             {
                 if ( auto target_component = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( target_actor.Get() ) )
                 {
-                    target_component->HandleGameplayEvent( event_tag, &effect_container_spec.EventDataPayload );
+                    target_component->HandleGameplayEvent( event_tag, &effect_container_spec_copy.EventDataPayload );
                 }
             }
         }

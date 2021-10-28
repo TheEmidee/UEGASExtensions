@@ -23,10 +23,11 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_GetOwner::GetTargetData( AAct
 
 UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHitResult()
 {
-    SphereRadius = 100.0f;
+    SphereRadius = 1.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
     bDrawsDebug = false;
+    bMustHaveLineOfSight = true;
 }
 
 FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
