@@ -29,7 +29,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                 {
                     context->SetFallOffType( effect_container.FallOffType );
 
-                    if ( effect_container.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication )
+                    if ( effect_container.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextApplication )
                     {
                         context->SetTargetType( effect_container.TargetType );
                     }
@@ -38,7 +38,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
             }
         }
 
-        if ( effect_container.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextCreation &&
+        if ( effect_container.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextCreation &&
              effect_container.TargetType != nullptr )
         {
             container_spec.TargetData = effect_container.TargetType->GetTargetData( avatar_actor, hit_result, event_data );
@@ -54,6 +54,8 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
 {
     TArray< FActiveGameplayEffectHandle > applied_gameplay_effect_specs;
 
+    // Create a copy of the effect container spec so that we can edit the value of the TargetData in it.
+    // Removing const does not work, since that would make the function parameter an output instead of an input in blueprints.
     auto effect_container_spec_copy = effect_container_spec;
 
     for ( const auto spec_handle : effect_container_spec_copy.TargetGameplayEffectSpecHandles )
@@ -62,7 +64,7 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
         {
             if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
             {
-                if ( effect_container_spec_copy.TargetDataExecutionType == EGASExtTargetDataExecutionType::OnEffectContextApplication &&
+                if ( effect_container_spec_copy.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextApplication &&
                      context->GetTargetType() != nullptr )
                 {
                     effect_container_spec_copy.TargetData.Clear();

@@ -74,7 +74,7 @@ struct FGASExtGameplayEffectContainer
     UGASExtTargetType * TargetType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "TargetTypeClass != nullptr", EditConditionHides ) )
-    EGASExtTargetDataExecutionType TargetDataExecutionType;
+    EGASExtGetTargetDataExecutionType TargetDataExecutionType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TArray< TSubclassOf< UGameplayEffect > > TargetGameplayEffectClasses;
@@ -104,7 +104,7 @@ struct FGASExtGameplayEffectContainerSpec
     FGameplayEventData EventDataPayload;
 
     UPROPERTY()
-    EGASExtTargetDataExecutionType TargetDataExecutionType;
+    EGASExtGetTargetDataExecutionType TargetDataExecutionType;
 };
 
 USTRUCT( BlueprintType )

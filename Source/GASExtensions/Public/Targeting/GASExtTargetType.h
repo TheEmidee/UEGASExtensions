@@ -8,7 +8,7 @@
 struct FGameplayEventData;
 
 UENUM()
-enum class EGASExtTargetDataExecutionType : uint8
+enum class EGASExtGetTargetDataExecutionType : uint8
 {
     OnEffectContextApplication,
     OnEffectContextCreation
