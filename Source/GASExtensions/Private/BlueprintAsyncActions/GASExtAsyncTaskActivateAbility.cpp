@@ -2,7 +2,7 @@
 
 #include "Components/GASExtAbilitySystemComponent.h"
 
-UGASExtAsyncTaskActivateAbility * UGASExtAsyncTaskActivateAbility::ActivateAbility( UGASExtAbilitySystemComponent * ability_system_component, const TSubclassOf< UGameplayAbility > & ability_class )
+UGASExtAsyncTaskActivateAbility * UGASExtAsyncTaskActivateAbility::ActivateAbility( UGASExtAbilitySystemComponent * ability_system_component, const TSubclassOf< UGameplayAbility > ability_class )
 {
     auto * async_task_activate_ability = NewObject< UGASExtAsyncTaskActivateAbility >();
     async_task_activate_ability->AbilitySystemComponent = ability_system_component;
