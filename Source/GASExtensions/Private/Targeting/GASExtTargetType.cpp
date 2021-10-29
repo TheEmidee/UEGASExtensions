@@ -1,5 +1,7 @@
 #include "Targeting/GASExtTargetType.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+
 #include <Abilities/GameplayAbilityTypes.h>
 #include <Kismet/KismetSystemLibrary.h>
 
@@ -28,32 +30,42 @@ UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHit
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
     bDrawsDebug = false;
     bMustHaveLineOfSight = true;
+    DrawDebugDuration = 2.0f;
 }
 
 FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
 {
     TArray< AActor * > hit_actors;
 
-    const auto actor_location = ability_owner->GetActorLocation();
+    const auto sphere_center = ability_owner->GetActorLocation() + SphereCenterOffset;
 
-    UKismetSystemLibrary::SphereOverlapActors( ability_owner, actor_location, SphereRadius.GetValue(), ObjectTypes, nullptr, TArray< AActor * >(), hit_actors );
+    UKismetSystemLibrary::SphereOverlapActors( ability_owner, sphere_center, SphereRadius.GetValue(), ObjectTypes, nullptr, TArray< AActor * > { ability_owner }, hit_actors );
+
+    if ( bDrawsDebug )
+    {
+        UKismetSystemLibrary::DrawDebugSphere( ability_owner, sphere_center, SphereRadius.GetValue(), 12, FLinearColor::Red, DrawDebugDuration, 1.0f );
+    }
+
+    for ( auto index = hit_actors.Num() - 1; index >= 0; --index )
+    {
+        auto * hit_actor = hit_actors[ index ];
+        if ( UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( hit_actor ) == nullptr )
+        {
+            hit_actors.RemoveAt( index );
+        }
+    }
 
     if ( bMustHaveLineOfSight )
     {
-        auto ignore_actors = hit_actors;
-        ignore_actors.Remove( ability_owner->GetAttachParentActor() );
+        const auto ignore_actors = hit_actors;
 
         for ( auto index = hit_actors.Num() - 1; index >= 0; --index )
         {
             const auto * hit_actor = hit_actors[ index ];
-            if ( hit_actor == nullptr || hit_actor == ability_owner )
-            {
-                continue;
-            }
 
             FHitResult line_trace_hit;
             UKismetSystemLibrary::LineTraceSingle( ability_owner,
-                actor_location,
+                sphere_center,
                 hit_actor->GetActorLocation(),
                 UEngineTypes::ConvertToTraceType( ECC_Visibility ),
                 false,
@@ -63,18 +75,13 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
                 true,
                 FLinearColor::Red,
                 FLinearColor::Green,
-                2.0f );
+                DrawDebugDuration );
 
             if ( line_trace_hit.bBlockingHit && line_trace_hit.GetActor() != hit_actor )
             {
                 hit_actors.RemoveAt( index );
             }
         }
-    }
-
-    if ( bDrawsDebug )
-    {
-        UKismetSystemLibrary::DrawDebugSphere( ability_owner, actor_location, SphereRadius.GetValue(), 12, FLinearColor::Red, 1.0f, 1.0f );
     }
 
     auto * new_data = new FGameplayAbilityTargetData_ActorArray();

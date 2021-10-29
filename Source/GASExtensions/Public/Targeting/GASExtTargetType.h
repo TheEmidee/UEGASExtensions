@@ -67,6 +67,9 @@ public:
     FScalableFloat SphereRadius;
 
     UPROPERTY( EditAnywhere )
+    FVector SphereCenterOffset;
+
+    UPROPERTY( EditAnywhere )
     TArray< TEnumAsByte< EObjectTypeQuery > > ObjectTypes;
 
     UPROPERTY( EditAnywhere )
@@ -74,4 +77,7 @@ public:
 
     UPROPERTY( EditAnywhere )
     uint8 bDrawsDebug : 1;
+
+    UPROPERTY( EditAnywhere, meta = ( EditCondition = "bDrawsDebug" ) )
+    float DrawDebugDuration;
 };
