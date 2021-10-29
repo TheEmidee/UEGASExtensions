@@ -5,6 +5,7 @@
 FGASExtGameplayEffectContext::FGASExtGameplayEffectContext()
 {
     FallOffType = nullptr;
+    TargetType = nullptr;
 }
 
 UScriptStruct * FGASExtGameplayEffectContext::GetScriptStruct() const
