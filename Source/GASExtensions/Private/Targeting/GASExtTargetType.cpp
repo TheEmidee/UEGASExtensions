@@ -1,8 +1,7 @@
 #include "Targeting/GASExtTargetType.h"
 
-#include "AbilitySystemBlueprintLibrary.h"
-
 #include <Abilities/GameplayAbilityTypes.h>
+#include <AbilitySystemBlueprintLibrary.h>
 #include <Kismet/KismetSystemLibrary.h>
 
 FGameplayAbilityTargetDataHandle UGASExtTargetType_EventData::GetTargetData( AActor * /*ability_owner*/, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
