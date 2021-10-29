@@ -31,6 +31,7 @@ UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHit
     bDrawsDebug = false;
     bMustHaveLineOfSight = true;
     DrawDebugDuration = 2.0f;
+    SphereCenterOffset = FVector();
 }
 
 FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
