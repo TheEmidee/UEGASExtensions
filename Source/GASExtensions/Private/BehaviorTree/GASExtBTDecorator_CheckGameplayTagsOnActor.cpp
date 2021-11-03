@@ -11,7 +11,7 @@ UGASExtBTDecorator_CheckGameplayTagsOnActor::UGASExtBTDecorator_CheckGameplayTag
 
     bNotifyTick = false;
 
-    bAllowAbortLowerPri = false;
+    bAllowAbortLowerPri = true;
     bAllowAbortNone = false;
     bAllowAbortChildNodes = true;
     FlowAbortMode = EBTFlowAbortMode::Self;
