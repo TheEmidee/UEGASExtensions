@@ -45,4 +45,7 @@ public:
 
     UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
     static FGameplayTagContainer GetTargetTagContainer( const FGameplayEffectSpec & gameplay_effect_spec );
+
+    UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
+    static float GetFloatAttribute( const FGameplayEffectSpec & gameplay_effect_spec, FGameplayAttribute attribute );
 };

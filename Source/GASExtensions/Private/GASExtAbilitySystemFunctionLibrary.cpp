@@ -137,3 +137,16 @@ FGameplayTagContainer UGASExtAbilitySystemFunctionLibrary::GetTargetTagContainer
 {
     return *gameplay_effect_spec.CapturedTargetTags.GetAggregatedTags();
 }
+
+float UGASExtAbilitySystemFunctionLibrary::GetFloatAttribute( const FGameplayEffectSpec & gameplay_effect_spec, const FGameplayAttribute attribute )
+{
+    if ( const auto * effect_causer = gameplay_effect_spec.GetContext().GetEffectCauser() )
+    {
+        if ( const auto * asc = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor( effect_causer ) )
+        {
+            return asc->GetNumericAttribute( attribute );
+        }
+    }
+
+    return 0.0f;
+}
