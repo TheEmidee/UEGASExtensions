@@ -41,11 +41,8 @@ public:
     static bool IsGameplayEffectHandleValid( FActiveGameplayEffectHandle gameplay_effect_handle );
 
     UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
-    static FGameplayEffectContextHandle GetContextHandle( const FGameplayEffectSpec & gameplay_effect_spec );
+    static FGameplayEffectContextHandle GetContextHandleFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec );
 
     UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
-    static FGameplayTagContainer GetTargetTagContainer( const FGameplayEffectSpec & gameplay_effect_spec );
-
-    UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
-    static float GetFloatAttribute( const FGameplayEffectSpec & gameplay_effect_spec, FGameplayAttribute attribute );
+    static FGameplayTagContainer GetTargetTagContainerFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec );
 };

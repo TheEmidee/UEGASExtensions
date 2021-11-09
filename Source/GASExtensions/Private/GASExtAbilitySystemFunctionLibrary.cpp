@@ -128,25 +128,12 @@ bool UGASExtAbilitySystemFunctionLibrary::IsGameplayEffectHandleValid( const FAc
     return gameplay_effect_handle.IsValid();
 }
 
-FGameplayEffectContextHandle UGASExtAbilitySystemFunctionLibrary::GetContextHandle( const FGameplayEffectSpec & gameplay_effect_spec )
+FGameplayEffectContextHandle UGASExtAbilitySystemFunctionLibrary::GetContextHandleFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec )
 {
     return gameplay_effect_spec.GetContext();
 }
 
-FGameplayTagContainer UGASExtAbilitySystemFunctionLibrary::GetTargetTagContainer( const FGameplayEffectSpec & gameplay_effect_spec )
+FGameplayTagContainer UGASExtAbilitySystemFunctionLibrary::GetTargetTagContainerFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec )
 {
     return *gameplay_effect_spec.CapturedTargetTags.GetAggregatedTags();
-}
-
-float UGASExtAbilitySystemFunctionLibrary::GetFloatAttribute( const FGameplayEffectSpec & gameplay_effect_spec, const FGameplayAttribute attribute )
-{
-    if ( const auto * effect_causer = gameplay_effect_spec.GetContext().GetEffectCauser() )
-    {
-        if ( const auto * asc = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor( effect_causer ) )
-        {
-            return asc->GetNumericAttribute( attribute );
-        }
-    }
-
-    return 0.0f;
 }
