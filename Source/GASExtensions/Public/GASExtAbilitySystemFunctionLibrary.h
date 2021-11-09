@@ -3,6 +3,7 @@
 #include "GASExtAbilityTypesBase.h"
 
 #include <CoreMinimal.h>
+#include <GameplayEffect.h>
 #include <GameplayEffectTypes.h>
 #include <Kismet/BlueprintFunctionLibrary.h>
 
@@ -38,4 +39,10 @@ public:
 
     UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
     static bool IsGameplayEffectHandleValid( FActiveGameplayEffectHandle gameplay_effect_handle );
+
+    UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
+    static FGameplayEffectContextHandle GetContextHandleFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec );
+
+    UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
+    static FGameplayTagContainer GetTargetTagContainerFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec );
 };

@@ -127,3 +127,13 @@ bool UGASExtAbilitySystemFunctionLibrary::IsGameplayEffectHandleValid( const FAc
 {
     return gameplay_effect_handle.IsValid();
 }
+
+FGameplayEffectContextHandle UGASExtAbilitySystemFunctionLibrary::GetContextHandleFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec )
+{
+    return gameplay_effect_spec.GetContext();
+}
+
+FGameplayTagContainer UGASExtAbilitySystemFunctionLibrary::GetTargetTagContainerFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec )
+{
+    return *gameplay_effect_spec.CapturedTargetTags.GetAggregatedTags();
+}
