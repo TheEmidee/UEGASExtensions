@@ -61,6 +61,17 @@ public:
         Mesh( mesh )
     {
     }
+
+    bool NetSerialize( FArchive & ar, class UPackageMap * map, bool & out_success );
+};
+
+template <>
+struct TStructOpsTypeTraits< FGameplayAbilityRepAnimMontageForMesh > : public TStructOpsTypeTraitsBase2< FGameplayAbilityRepAnimMontageForMesh >
+{
+    enum
+    {
+        WithNetSerializer = true,
+    };
 };
 
 UCLASS()
