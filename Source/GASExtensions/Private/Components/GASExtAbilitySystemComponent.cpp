@@ -41,6 +41,17 @@ namespace
 
 static TAutoConsoleVariable< float > CVarReplayMontageErrorThreshold( TEXT( "replay.MontageErrorThresholdSW" ), 0.5f, TEXT( "Tolerance level for when montage playback position correction occurs in replays" ) );
 
+bool FGameplayAbilityRepAnimMontageForMesh::NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success )
+{
+    // Need to call manually, since we implement this function in the struct holding it, it won't call the function automatically anymore
+    RepMontageInfo.NetSerialize( ar, map, out_success );
+
+    ar << Mesh;
+
+    out_success = true;
+    return true;
+}
+
 // ReSharper disable once CppInconsistentNaming
 void UGASExtAbilitySystemComponent::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
 {
