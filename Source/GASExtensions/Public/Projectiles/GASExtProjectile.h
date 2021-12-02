@@ -123,6 +123,9 @@ private:
     UPROPERTY()
     UGASExtAbilitySystemComponent * AbilitySystemComponent;
 
+    UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
+    float KnockBackStrength;
+
     bool IsInOverlap;
 };
 

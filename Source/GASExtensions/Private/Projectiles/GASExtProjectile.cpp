@@ -169,6 +169,9 @@ void AGASExtProjectile::ApplyGameplayEffects()
         effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult );
     }
 
+    GameplayEffectContainerSpec.EventDataPayload.EventMagnitude = KnockBackStrength;
+    GameplayEffectContainerSpec.EventDataPayload.TargetData = UGASExtTargetingHelperLibrary::MakeTargetDataFromHitResults( TArray< FHitResult > { LastHitResult } );
+
     UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
 }
 
