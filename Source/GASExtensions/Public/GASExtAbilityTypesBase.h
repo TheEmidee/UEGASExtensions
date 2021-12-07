@@ -29,7 +29,7 @@ enum class EGASExtCollisionDetectionType : uint8
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtCollisionDetectionInfo
+struct GASEXTENSIONS_API FGASExtCollisionDetectionInfo
 {
     GENERATED_BODY()
 
@@ -63,9 +63,11 @@ struct FGASExtCollisionDetectionInfo
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtGameplayEffectContainer
+struct GASEXTENSIONS_API FGASExtGameplayEffectContainer
 {
     GENERATED_BODY()
+
+    FGASExtGameplayEffectContainer();
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
     UGASExtFallOffType * FallOffType;
@@ -84,7 +86,7 @@ struct FGASExtGameplayEffectContainer
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtGameplayEffectContainerSpec
+struct GASEXTENSIONS_API FGASExtGameplayEffectContainerSpec
 {
     GENERATED_BODY()
 
@@ -108,7 +110,7 @@ struct FGASExtGameplayEffectContainerSpec
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtGameplayEffectContext : public FGameplayEffectContext
+struct GASEXTENSIONS_API FGASExtGameplayEffectContext : public FGameplayEffectContext
 {
     GENERATED_BODY()
 
@@ -154,7 +156,7 @@ struct TStructOpsTypeTraits< FGASExtGameplayEffectContext > : public TStructOpsT
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtGameplayAbilityTargetData_LocationInfo : public FGameplayAbilityTargetData_LocationInfo
+struct GASEXTENSIONS_API FGASExtGameplayAbilityTargetData_LocationInfo : public FGameplayAbilityTargetData_LocationInfo
 {
     GENERATED_USTRUCT_BODY()
 
