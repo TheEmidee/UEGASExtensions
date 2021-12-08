@@ -33,6 +33,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                     {
                         context->SetTargetType( effect_container.TargetType );
                     }
+                    context->AddHitResult( hit_result, true );
                 }
                 container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
             }
