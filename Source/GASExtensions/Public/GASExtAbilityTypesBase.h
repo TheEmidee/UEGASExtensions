@@ -88,22 +88,22 @@ struct FGASExtGameplayEffectContainerSpec
 {
     GENERATED_BODY()
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     FGameplayAbilityTargetDataHandle TargetData;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecHandles;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     TArray< FGameplayTag > GameplayEventTags;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     FGameplayCueParameters GameplayCueParameters;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     FGameplayEventData EventDataPayload;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     EGASExtGetTargetDataExecutionType TargetDataExecutionType;
 };
 
