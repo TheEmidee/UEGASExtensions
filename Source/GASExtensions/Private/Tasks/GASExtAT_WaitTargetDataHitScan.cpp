@@ -3,21 +3,21 @@
 #include "BlueprintLibraries/CoreExtTraceBlueprintLibrary.h"
 #include "Targeting/GASExtTargetingHelperLibrary.h"
 
-#include <AbilitySystemComponent.h>
 #include <DrawDebugHelpers.h>
 #include <GameFramework/PlayerController.h>
 
-FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions()
+FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
+    bAimFromPlayerViewPoint( true ),
+    TargetTraceType( EGASExtTargetTraceType::Line ),
+    MaxHitResultsPerTrace( 1 ),
+    bSpreadTraces( true ),
+    bTraceAffectsAimPitch( true ),
+    bShowDebugTraces( false ),
+    TraceSphereRadius( 10.0f )
 {
-    bAimFromPlayerViewPoint = true;
-    TargetTraceType = EGASExtTargetTraceType::Line;
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
-    bMaxHitResultsPerTrace = 1;
     TargetingSpread.Value = 0.0f;
-    bTraceAffectsAimPitch = true;
-    bShowDebugTraces = false;
-    TraceSphereRadius = 10.0f;
 }
 
 UGASExtAT_WaitTargetDataHitScan * UGASExtAT_WaitTargetDataHitScan::WaitTargetDataHitScan( UGameplayAbility * owning_ability, FName task_instance_name, const FGameplayAbilityTargetingLocationInfo & start_trace_location_infos, const FGASExtWaitTargetDataReplicationOptions & replication_options, const FGASExtWaitTargetDataHitScanOptions & hit_scan_options )
@@ -128,20 +128,23 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
                     Options.MaxRange.GetValue() ) );
         }
 
-        UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread(
-            trace_end,
-            FSWSpreadInfos(
-                trace_start,
-                Options.TargetingSpread.GetValue(),
-                Options.MaxRange.GetValue() ) );
+        if ( Options.bSpreadTraces )
+        {
+            UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread(
+                trace_end,
+                FSWSpreadInfos(
+                    trace_start,
+                    Options.TargetingSpread.GetValue(),
+                    Options.MaxRange.GetValue() ) );
+        }
 
         TArray< FHitResult > trace_hit_results;
         DoTrace( trace_hit_results, world, Options.TargetDataFilterHandle, trace_start, trace_end, Options.CollisionInfo, collision_query_params );
 
-        if ( Options.bMaxHitResultsPerTrace >= 0 && trace_hit_results.Num() + 1 > Options.bMaxHitResultsPerTrace )
+        if ( Options.MaxHitResultsPerTrace > 0 && trace_hit_results.Num() + 1 > Options.MaxHitResultsPerTrace )
         {
             // Trim to MaxHitResults
-            trace_hit_results.SetNum( Options.bMaxHitResultsPerTrace );
+            trace_hit_results.SetNum( Options.MaxHitResultsPerTrace );
         }
 
         if ( trace_hit_results.Num() < 1 )
