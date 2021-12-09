@@ -12,8 +12,8 @@ FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
     MaxHitResultsPerTrace( 1 ),
     bSpreadTraces( true ),
     bTraceAffectsAimPitch( true ),
-    bShowDebugTraces( false ),
-    TraceSphereRadius( 10.0f )
+    TraceSphereRadius( 10.0f ),
+    bShowDebugTraces( false )
 {
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
