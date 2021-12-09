@@ -166,7 +166,7 @@ void AGASExtProjectile::ApplyGameplayEffects()
     for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
     {
         effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
-        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult );
+        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult, true );
     }
 
     UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
