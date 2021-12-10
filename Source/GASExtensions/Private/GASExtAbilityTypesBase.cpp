@@ -2,6 +2,13 @@
 
 #include "FallOff/GASExtFallOffType.h"
 
+FGASExtGameplayEffectContainer::FGASExtGameplayEffectContainer()
+{
+    FallOffType = nullptr;
+    TargetType = nullptr;
+    TargetDataExecutionType = EGASExtGetTargetDataExecutionType::OnEffectContextCreation;
+}
+
 FGASExtGameplayEffectContext::FGASExtGameplayEffectContext()
 {
     FallOffType = nullptr;
