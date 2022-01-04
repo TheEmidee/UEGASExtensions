@@ -46,15 +46,6 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
         UKismetSystemLibrary::DrawDebugSphere( ability_owner, sphere_center, SphereRadius.GetValue(), 12, FLinearColor::Red, DrawDebugDuration, 1.0f );
     }
 
-    for ( auto index = hit_actors.Num() - 1; index >= 0; --index )
-    {
-        auto * hit_actor = hit_actors[ index ];
-        if ( UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( hit_actor ) == nullptr )
-        {
-            hit_actors.RemoveAt( index );
-        }
-    }
-
     if ( bMustHaveLineOfSight )
     {
         const auto ignore_actors = hit_actors;
