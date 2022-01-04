@@ -82,8 +82,6 @@ void AGASExtProjectile::BeginPlay()
 
 void AGASExtProjectile::Destroyed()
 {
-    Super::Destroyed();
-
     ExecuteGameplayCue( DestroyedGameplayCue, [ projectile = this ]( FGameplayCueParameters & gameplay_cue_parameters ) {
         projectile->UpdateDestroyedGameplayCueParameters( gameplay_cue_parameters );
     } );
@@ -95,6 +93,8 @@ void AGASExtProjectile::Destroyed()
 
     // :NOTE: Don't forget to add timers using a reference to this, and not lambdas, or they won't be cleared at all
     GetWorldTimerManager().ClearAllTimersForObject( this );
+
+    Super::Destroyed();
 }
 
 void AGASExtProjectile::Release( float /*time_held*/ )
