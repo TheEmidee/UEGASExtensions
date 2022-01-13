@@ -15,6 +15,10 @@ class GASEXTENSIONS_API UGASExtAT_MonitorOverlap final : public UAbilityTask
     GENERATED_BODY()
 
 public:
+
+    /*
+     * If PrimitiveComponent is null, the task will try to find one on the Avatar Actor of the gameplay ability
+     */
     UFUNCTION( BlueprintCallable, Category = "Ability|Tasks", meta = ( HidePin = "owning_ability", DefaultToSelf = "owning_ability", BlueprintInternalUseOnly = "TRUE" ) )
     static UGASExtAT_MonitorOverlap * MonitorOverlap( UGameplayAbility * owning_ability, UPrimitiveComponent * component );
 
@@ -29,6 +33,7 @@ protected:
 
 private:
     void OnDestroy( bool ability_ended ) override;
+    UPrimitiveComponent * GetPrimitiveComponent();
 
     UFUNCTION()
     void OnComponentBeginOverlap( UPrimitiveComponent * overlapped_component, AActor * other_actor, UPrimitiveComponent * other_component, int32 other_body_index, bool from_sweep, const FHitResult & hit_result );
