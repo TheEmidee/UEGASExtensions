@@ -13,22 +13,39 @@ void UGASExtAT_MonitorOverlap::Activate()
 
     SetWaitingOnAvatar();
 
-    if ( PrimitiveComponent != nullptr )
+    if ( auto * primitive_component = GetPrimitiveComponent() )
     {
-        PrimitiveComponent->OnComponentBeginOverlap.AddDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentBeginOverlap );
-        PrimitiveComponent->OnComponentEndOverlap.AddDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentEndOverlap );
+        primitive_component->OnComponentBeginOverlap.AddDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentBeginOverlap );
+        primitive_component->OnComponentEndOverlap.AddDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentEndOverlap );
     }
 }
 
 void UGASExtAT_MonitorOverlap::OnDestroy( const bool ability_ended )
 {
-    if ( PrimitiveComponent != nullptr )
+    if ( auto * primitive_component = GetPrimitiveComponent() )
     {
-        PrimitiveComponent->OnComponentBeginOverlap.RemoveDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentBeginOverlap );
-        PrimitiveComponent->OnComponentEndOverlap.RemoveDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentEndOverlap );
+        primitive_component->OnComponentBeginOverlap.RemoveDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentBeginOverlap );
+        primitive_component->OnComponentEndOverlap.RemoveDynamic( this, &UGASExtAT_MonitorOverlap::OnComponentEndOverlap );
     }
 
     Super::OnDestroy( ability_ended );
+}
+
+UPrimitiveComponent * UGASExtAT_MonitorOverlap::GetPrimitiveComponent()
+{
+    if ( PrimitiveComponent == nullptr )
+    {
+        if ( const auto * avatar_actor = GetAvatarActor() )
+        {
+            PrimitiveComponent = Cast< UPrimitiveComponent >( avatar_actor->GetRootComponent() );
+            if ( PrimitiveComponent == nullptr )
+            {
+                PrimitiveComponent = avatar_actor->FindComponentByClass< UPrimitiveComponent >();
+            }
+        }
+    }
+
+    return PrimitiveComponent;
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
