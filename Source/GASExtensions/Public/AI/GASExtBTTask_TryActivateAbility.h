@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BehaviorTree/Tasks/BTTask_BlackboardBase.h>
+#include <BehaviorTree/BTTaskNode.h>
 #include <CoreMinimal.h>
 
 #include "GASExtBTTask_TryActivateAbility.generated.h"
@@ -17,7 +17,7 @@ struct FGASExtTryActivateAbilityBTTaskMemory
 };
 
 UCLASS( Abstract )
-class GASEXTENSIONS_API UGASExtBTTask_TryActivateAbility : public UBTTask_BlackboardBase
+class GASEXTENSIONS_API UGASExtBTTask_TryActivateAbility : public UBTTaskNode
 {
     GENERATED_BODY()
 
@@ -37,6 +37,13 @@ protected:
 
 private:
     void OnGameplayAbilityEnded( UGameplayAbility * ability, FGASExtTryActivateAbilityBTTaskMemory * memory, UBehaviorTreeComponent * owner_comp );
+    UAbilitySystemComponent * GetAbilitySystemComponent( UBehaviorTreeComponent & owner_comp ) const;
+
+    UPROPERTY( EditAnywhere, Category = "Target" )
+    uint8 bUseActorFromBlackboardKey : 1;
+
+    UPROPERTY( EditAnywhere, Category = "Target", meta = ( EditCondition = "bUseActorFromBlackboardKey" ) )
+    FBlackboardKeySelector BlackboardKey;
 };
 
 UCLASS()

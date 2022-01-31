@@ -1,5 +1,6 @@
 #include "AI/GASExtBTTask_TryActivateAbility.h"
 
+#include <AIController.h>
 #include <AbilitySystemBlueprintLibrary.h>
 #include <BehaviorTree/Blackboard/BlackboardKeyType_Object.h>
 #include <BehaviorTree/BlackboardComponent.h>
@@ -16,22 +17,14 @@ UGASExtBTTask_TryActivateAbility::UGASExtBTTask_TryActivateAbility( const FObjec
     NodeName = "Try Activate Ability";
 
     BlackboardKey.AddObjectFilter( this, GET_MEMBER_NAME_CHECKED( UGASExtBTTask_TryActivateAbility, BlackboardKey ), AActor::StaticClass() );
+    bUseActorFromBlackboardKey = false;
 }
 
 EBTNodeResult::Type UGASExtBTTask_TryActivateAbility::ExecuteTask( UBehaviorTreeComponent & owner_comp, uint8 * node_memory )
 {
-    if ( const UBlackboardComponent * blackboard_component = owner_comp.GetBlackboardComponent() )
+    if ( auto * asc = GetAbilitySystemComponent( owner_comp ) )
     {
-        if ( UObject * key_value = blackboard_component->GetValue< UBlackboardKeyType_Object >( BlackboardKey.GetSelectedKeyID() ) )
-        {
-            if ( AActor * target_actor = Cast< AActor >( key_value ) )
-            {
-                if ( auto * asc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( target_actor ) )
-                {
-                    return TryActivateAbility( owner_comp, *asc, CastInstanceNodeMemory< FGASExtTryActivateAbilityBTTaskMemory >( node_memory ) );
-                }
-            }
-        }
+        return TryActivateAbility( owner_comp, *asc, CastInstanceNodeMemory< FGASExtTryActivateAbilityBTTaskMemory >( node_memory ) );
     }
 
     return EBTNodeResult::Failed;
@@ -44,12 +37,16 @@ uint16 UGASExtBTTask_TryActivateAbility::GetInstanceMemorySize() const
 
 FString UGASExtBTTask_TryActivateAbility::GetStaticDescription() const
 {
-    FString key_desc( "invalid" );
-    if ( BlackboardKey.SelectedKeyType == UBlackboardKeyType_Object::StaticClass() )
+    FString key_desc( "Self" );
+    if ( bUseActorFromBlackboardKey )
     {
-        key_desc = BlackboardKey.SelectedKeyName.ToString();
+        if ( BlackboardKey.SelectedKeyType == UBlackboardKeyType_Object::StaticClass() )
+        {
+            key_desc = BlackboardKey.SelectedKeyName.ToString();
+        }
     }
-    return FString::Printf( TEXT( "%s: %s - %s" ), *Super::GetStaticDescription(), *key_desc, *GetDetailedStaticDescription() );
+
+    return FString::Printf( TEXT( "%s: Target: %s - %s" ), *Super::GetStaticDescription(), *key_desc, *GetDetailedStaticDescription() );
 }
 
 void UGASExtBTTask_TryActivateAbility::OnTaskFinished( UBehaviorTreeComponent & owner_comp, uint8 * node_memory, const EBTNodeResult::Type task_result )
@@ -146,6 +143,33 @@ void UGASExtBTTask_TryActivateAbility::OnGameplayAbilityEnded( UGameplayAbility 
     {
         FinishLatentTask( *owner_comp, EBTNodeResult::Succeeded );
     }
+}
+
+UAbilitySystemComponent * UGASExtBTTask_TryActivateAbility::GetAbilitySystemComponent( UBehaviorTreeComponent & owner_comp ) const
+{
+    UAbilitySystemComponent * result = nullptr;
+    if ( !bUseActorFromBlackboardKey )
+    {
+        auto * actor_owner = owner_comp.GetAIOwner();
+        result = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( actor_owner );
+
+        if ( result == nullptr )
+        {
+            result = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( actor_owner->GetPawn() );
+        }
+    }
+    else if ( const UBlackboardComponent * blackboard_component = owner_comp.GetBlackboardComponent() )
+    {
+        if ( UObject * key_value = blackboard_component->GetValue< UBlackboardKeyType_Object >( BlackboardKey.GetSelectedKeyID() ) )
+        {
+            if ( AActor * target_actor = Cast< AActor >( key_value ) )
+            {
+                result = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( target_actor );
+            }
+        }
+    }
+
+    return result;
 }
 
 UGASExtBTTask_TryActivateAbilityByClass::UGASExtBTTask_TryActivateAbilityByClass( const FObjectInitializer & object_initializer ) :
