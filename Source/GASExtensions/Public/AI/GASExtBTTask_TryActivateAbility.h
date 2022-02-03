@@ -34,10 +34,10 @@ protected:
     EBTNodeResult::Type AbortTask( UBehaviorTreeComponent & owner_comp, uint8 * node_memory ) override;
     virtual EBTNodeResult::Type TryActivateAbility( UBehaviorTreeComponent & owner_comp, UAbilitySystemComponent & asc, FGASExtTryActivateAbilityBTTaskMemory * memory ) PURE_VIRTUAL( UGASExtBTTask_TryActivateAbility::TryActivateAbility, return EBTNodeResult::Aborted; );
     EBTNodeResult::Type TryActivateAbilityHandle( UBehaviorTreeComponent & owner_comp, UAbilitySystemComponent & asc, FGameplayAbilitySpecHandle ability_to_activate, FGASExtTryActivateAbilityBTTaskMemory * memory );
+    UAbilitySystemComponent * GetAbilitySystemComponent( UBehaviorTreeComponent & owner_comp ) const;
 
 private:
     void OnGameplayAbilityEnded( UGameplayAbility * ability, FGASExtTryActivateAbilityBTTaskMemory * memory, UBehaviorTreeComponent * owner_comp );
-    UAbilitySystemComponent * GetAbilitySystemComponent( UBehaviorTreeComponent & owner_comp ) const;
 
     UPROPERTY( EditAnywhere, Category = "Target" )
     uint8 bUseActorFromBlackboardKey : 1;
@@ -82,4 +82,23 @@ protected:
 private:
     UPROPERTY( Category = Node, EditAnywhere )
     FGameplayTagContainer TagContainer;
+};
+
+UCLASS()
+class GASEXTENSIONS_API UGASExtBTTask_SendGameplayEvent final : public UGASExtBTTask_TryActivateAbility
+{
+    GENERATED_BODY()
+
+public:
+    explicit UGASExtBTTask_SendGameplayEvent( const FObjectInitializer & object_initializer );
+
+    EBTNodeResult::Type ExecuteTask( UBehaviorTreeComponent & owner_comp, uint8 * node_memory ) override;
+    FString GetDetailedStaticDescription() const override;
+
+private:
+    UPROPERTY( Category = Node, EditAnywhere )
+    FGameplayTag TriggerTag;
+
+    UPROPERTY( Category = Node, EditAnywhere )
+    FGameplayEventData Payload;
 };
