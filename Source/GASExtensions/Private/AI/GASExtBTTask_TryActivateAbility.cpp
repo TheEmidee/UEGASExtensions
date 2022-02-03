@@ -135,16 +135,6 @@ EBTNodeResult::Type UGASExtBTTask_TryActivateAbility::TryActivateAbilityHandle( 
     return EBTNodeResult::Succeeded;
 }
 
-void UGASExtBTTask_TryActivateAbility::OnGameplayAbilityEnded( UGameplayAbility * /*ability*/, FGASExtTryActivateAbilityBTTaskMemory * memory, UBehaviorTreeComponent * owner_comp )
-{
-    memory->bAbilityHasEnded = true;
-
-    if ( memory->bObserverCanFinishTask )
-    {
-        FinishLatentTask( *owner_comp, EBTNodeResult::Succeeded );
-    }
-}
-
 UAbilitySystemComponent * UGASExtBTTask_TryActivateAbility::GetAbilitySystemComponent( UBehaviorTreeComponent & owner_comp ) const
 {
     UAbilitySystemComponent * result = nullptr;
@@ -170,6 +160,16 @@ UAbilitySystemComponent * UGASExtBTTask_TryActivateAbility::GetAbilitySystemComp
     }
 
     return result;
+}
+
+void UGASExtBTTask_TryActivateAbility::OnGameplayAbilityEnded( UGameplayAbility * /*ability*/, FGASExtTryActivateAbilityBTTaskMemory * memory, UBehaviorTreeComponent * owner_comp )
+{
+    memory->bAbilityHasEnded = true;
+
+    if ( memory->bObserverCanFinishTask )
+    {
+        FinishLatentTask( *owner_comp, EBTNodeResult::Succeeded );
+    }
 }
 
 UGASExtBTTask_TryActivateAbilityByClass::UGASExtBTTask_TryActivateAbilityByClass( const FObjectInitializer & object_initializer ) :
@@ -227,4 +227,28 @@ EBTNodeResult::Type UGASExtBTTask_TryActivateAbilityByTag::TryActivateAbility( U
     }
 
     return EBTNodeResult::Failed;
+}
+
+UGASExtBTTask_SendGameplayEvent::UGASExtBTTask_SendGameplayEvent( const FObjectInitializer & object_initializer ) :
+    Super( object_initializer )
+{
+    NodeName = TEXT( "Send Gameplay Event" );
+}
+
+EBTNodeResult::Type UGASExtBTTask_SendGameplayEvent::ExecuteTask( UBehaviorTreeComponent & owner_comp, uint8 * node_memory )
+{
+    if ( auto * asc = GetAbilitySystemComponent( owner_comp ) )
+    {
+        FScopedPredictionWindow scoped_prediction_window( asc, true );
+        asc->HandleGameplayEvent( TriggerTag, &Payload );
+
+        return EBTNodeResult::Succeeded;
+    }
+
+    return EBTNodeResult::Failed;
+}
+
+FString UGASExtBTTask_SendGameplayEvent::GetDetailedStaticDescription() const
+{
+    return TriggerTag.ToString();
 }
