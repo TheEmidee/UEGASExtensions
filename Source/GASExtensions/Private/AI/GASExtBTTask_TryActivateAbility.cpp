@@ -239,8 +239,10 @@ EBTNodeResult::Type UGASExtBTTask_SendGameplayEvent::ExecuteTask( UBehaviorTreeC
 {
     if ( auto * asc = GetAbilitySystemComponent( owner_comp ) )
     {
-        FScopedPredictionWindow NewScopedWindow( asc, true );
+        FScopedPredictionWindow scoped_prediction_window( asc, true );
         asc->HandleGameplayEvent( TriggerTag, &Payload );
+
+        return EBTNodeResult::Succeeded;
     }
 
     return EBTNodeResult::Failed;
