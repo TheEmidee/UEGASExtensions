@@ -59,7 +59,7 @@ protected:
     EBTNodeResult::Type TryActivateAbility( UBehaviorTreeComponent & owner_comp, UAbilitySystemComponent & asc, FGASExtTryActivateAbilityBTTaskMemory * memory ) override;
 
 private:
-    UPROPERTY( Category = Node, EditAnywhere )
+    UPROPERTY( Category = "Ability", EditAnywhere )
     TSubclassOf< UGameplayAbility > AbilityClass;
 };
 
@@ -80,8 +80,33 @@ protected:
     EBTNodeResult::Type TryActivateAbility( UBehaviorTreeComponent & owner_comp, UAbilitySystemComponent & asc, FGASExtTryActivateAbilityBTTaskMemory * memory ) override;
 
 private:
-    UPROPERTY( Category = Node, EditAnywhere )
+    UPROPERTY( Category = "Ability", EditAnywhere )
     FGameplayTagContainer TagContainer;
+};
+
+UENUM()
+enum class EGASExtBTTaskSendGameplayEventAssetSource : uint8
+{
+    None,
+    FromBlackboard,
+    FromReference
+};
+
+USTRUCT()
+struct FGASExtBTTaskSendGameplayEventAsset
+{
+    GENERATED_USTRUCT_BODY()
+
+    FGASExtBTTaskSendGameplayEventAsset();
+
+    UPROPERTY( EditAnywhere )
+    EGASExtBTTaskSendGameplayEventAssetSource AssetSource;
+
+    UPROPERTY( EditAnywhere, meta = ( EditCondition = "AssetSource == EGASExtBTTaskSendGameplayEventAssetSource::FromBlackboard" ) )
+    FBlackboardKeySelector BlackboardKey;
+
+    UPROPERTY( EditAnywhere, meta = ( EditCondition = "AssetSource == EGASExtBTTaskSendGameplayEventAssetSource::FromReference" ) )
+    UObject * Asset;
 };
 
 UCLASS()
@@ -96,9 +121,29 @@ public:
     FString GetDetailedStaticDescription() const override;
 
 private:
-    UPROPERTY( Category = Node, EditAnywhere )
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
     FGameplayTag TriggerTag;
 
-    UPROPERTY( Category = Node, EditAnywhere )
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
+    FGASExtBTTaskSendGameplayEventAsset Instigator;
+
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
+    FGASExtBTTaskSendGameplayEventAsset Target;
+
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
+    FGASExtBTTaskSendGameplayEventAsset OptionalObject1;
+
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
+    FGASExtBTTaskSendGameplayEventAsset OptionalObject2;
+
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
+    FGameplayTagContainer InstigatorTags;
+
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
+    FGameplayTagContainer TargetTags;
+
+    UPROPERTY( EditAnywhere, Category = "Payload Data" )
+    float EventMagnitude;
+
     FGameplayEventData Payload;
 };
