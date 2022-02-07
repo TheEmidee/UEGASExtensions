@@ -229,6 +229,11 @@ EBTNodeResult::Type UGASExtBTTask_TryActivateAbilityByTag::TryActivateAbility( U
     return EBTNodeResult::Failed;
 }
 
+FGASExtBTTaskSendGameplayEventAsset::FGASExtBTTaskSendGameplayEventAsset() :
+    AssetSource( EGASExtBTTaskSendGameplayEventAssetSource::None ),
+    Asset( nullptr )
+{}
+
 UGASExtBTTask_SendGameplayEvent::UGASExtBTTask_SendGameplayEvent( const FObjectInitializer & object_initializer ) :
     Super( object_initializer )
 {

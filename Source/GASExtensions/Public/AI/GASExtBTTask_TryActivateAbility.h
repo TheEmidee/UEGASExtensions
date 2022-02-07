@@ -97,6 +97,8 @@ struct FGASExtBTTaskSendGameplayEventAsset
 {
     GENERATED_USTRUCT_BODY()
 
+    FGASExtBTTaskSendGameplayEventAsset();
+
     UPROPERTY( EditAnywhere )
     EGASExtBTTaskSendGameplayEventAssetSource AssetSource;
 
