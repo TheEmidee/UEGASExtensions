@@ -93,11 +93,13 @@ enum class EGASExtBTTaskSendGameplayEventAssetSource : uint8
 };
 
 USTRUCT()
-struct FGASExtBTTaskSendGameplayEventAsset
+struct FGASExtBTTaskSendGameplayEventAssetSelector
 {
     GENERATED_USTRUCT_BODY()
 
-    FGASExtBTTaskSendGameplayEventAsset();
+    FGASExtBTTaskSendGameplayEventAssetSelector();
+
+    UObject * GetAsset( UBehaviorTreeComponent & owner_comp ) const;
 
     UPROPERTY( EditAnywhere )
     EGASExtBTTaskSendGameplayEventAssetSource AssetSource;
@@ -125,16 +127,16 @@ private:
     FGameplayTag TriggerTag;
 
     UPROPERTY( EditAnywhere, Category = "Payload Data" )
-    FGASExtBTTaskSendGameplayEventAsset Instigator;
+    FGASExtBTTaskSendGameplayEventAssetSelector Instigator;
 
     UPROPERTY( EditAnywhere, Category = "Payload Data" )
-    FGASExtBTTaskSendGameplayEventAsset Target;
+    FGASExtBTTaskSendGameplayEventAssetSelector Target;
 
     UPROPERTY( EditAnywhere, Category = "Payload Data" )
-    FGASExtBTTaskSendGameplayEventAsset OptionalObject1;
+    FGASExtBTTaskSendGameplayEventAssetSelector OptionalObject1;
 
     UPROPERTY( EditAnywhere, Category = "Payload Data" )
-    FGASExtBTTaskSendGameplayEventAsset OptionalObject2;
+    FGASExtBTTaskSendGameplayEventAssetSelector OptionalObject2;
 
     UPROPERTY( EditAnywhere, Category = "Payload Data" )
     FGameplayTagContainer InstigatorTags;

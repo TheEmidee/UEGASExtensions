@@ -229,10 +229,38 @@ EBTNodeResult::Type UGASExtBTTask_TryActivateAbilityByTag::TryActivateAbility( U
     return EBTNodeResult::Failed;
 }
 
-FGASExtBTTaskSendGameplayEventAsset::FGASExtBTTaskSendGameplayEventAsset() :
+FGASExtBTTaskSendGameplayEventAssetSelector::FGASExtBTTaskSendGameplayEventAssetSelector() :
     AssetSource( EGASExtBTTaskSendGameplayEventAssetSource::None ),
     Asset( nullptr )
 {}
+
+UObject * FGASExtBTTaskSendGameplayEventAssetSelector::GetAsset( UBehaviorTreeComponent & owner_comp ) const
+{
+    switch ( AssetSource )
+    {
+        case EGASExtBTTaskSendGameplayEventAssetSource::None:
+        {
+            return nullptr;
+        }
+        case EGASExtBTTaskSendGameplayEventAssetSource::FromBlackboard:
+        {
+            if ( const UBlackboardComponent * blackboard_component = owner_comp.GetBlackboardComponent() )
+            {
+                return blackboard_component->GetValue< UBlackboardKeyType_Object >( BlackboardKey.GetSelectedKeyID() );
+            }
+            return nullptr;
+        }
+        case EGASExtBTTaskSendGameplayEventAssetSource::FromReference:
+        {
+            return Asset;
+        }
+        default:
+        {
+            checkNoEntry();
+            return nullptr;
+        };
+    }
+}
 
 UGASExtBTTask_SendGameplayEvent::UGASExtBTTask_SendGameplayEvent( const FObjectInitializer & object_initializer ) :
     Super( object_initializer )
@@ -245,6 +273,15 @@ EBTNodeResult::Type UGASExtBTTask_SendGameplayEvent::ExecuteTask( UBehaviorTreeC
     if ( auto * asc = GetAbilitySystemComponent( owner_comp ) )
     {
         FScopedPredictionWindow scoped_prediction_window( asc, true );
+
+        Payload.Instigator = Cast< AActor >( Instigator.GetAsset( owner_comp ) );
+        Payload.Target = Cast< AActor >( Target.GetAsset( owner_comp ) );
+        Payload.OptionalObject = OptionalObject1.GetAsset( owner_comp );
+        Payload.OptionalObject2 = OptionalObject2.GetAsset( owner_comp );
+        Payload.InstigatorTags = InstigatorTags;
+        Payload.TargetTags = TargetTags;
+        Payload.EventMagnitude = EventMagnitude;
+
         asc->HandleGameplayEvent( TriggerTag, &Payload );
 
         return EBTNodeResult::Succeeded;
