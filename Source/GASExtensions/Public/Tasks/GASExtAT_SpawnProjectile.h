@@ -5,7 +5,6 @@
 
 #include "GASExtAT_SpawnProjectile.generated.h"
 
-class ASWWeaponBase;
 class AGASExtProjectile;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FSWOnSpawnActorDelegate, AActor *, SpawnedActor );

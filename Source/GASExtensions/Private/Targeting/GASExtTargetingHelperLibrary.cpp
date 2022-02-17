@@ -197,10 +197,6 @@ void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_end, const
     if ( const auto * source_component = aim_infos.StartLocationInfos.SourceComponent )
     {
         FRotator rotation_offset( 0.0f );
-        /*if ( const auto * source_owner = Cast< ASWWeaponBase >( source_component->GetOwner() ) )
-        {
-            rotation_offset = source_owner->GetAttachmentRotationOffset().GetInverse();
-        }*/
 
         auto forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
         forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Roll, forward_vector );
