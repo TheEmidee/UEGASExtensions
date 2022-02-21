@@ -135,3 +135,16 @@ FGameplayTagContainer UGASExtAbilitySystemFunctionLibrary::GetTargetTagContainer
 {
     return *gameplay_effect_spec.CapturedTargetTags.GetAggregatedTags();
 }
+
+void UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC( UAbilitySystemComponent * asc, FGameplayTag event_tag, FGameplayEventData payload )
+{
+    if ( asc != nullptr && !asc->IsPendingKill() )
+    {
+        FScopedPredictionWindow NewScopedWindow( asc, true );
+        asc->HandleGameplayEvent( event_tag, &payload );
+    }
+    else
+    {
+        ABILITY_LOG( Error, TEXT( "UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC: Invalid ability system component" ) );
+    }
+}

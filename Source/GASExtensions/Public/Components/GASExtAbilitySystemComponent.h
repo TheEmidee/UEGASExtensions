@@ -74,7 +74,7 @@ struct TStructOpsTypeTraits< FGameplayAbilityRepAnimMontageForMesh > : public TS
     };
 };
 
-UCLASS()
+UCLASS( meta = ( BlueprintSpawnableComponent ) )
 class GASEXTENSIONS_API UGASExtAbilitySystemComponent : public UAbilitySystemComponent
 {
     GENERATED_BODY()

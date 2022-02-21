@@ -45,4 +45,7 @@ public:
 
     UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
     static FGameplayTagContainer GetTargetTagContainerFromGameplayEffectSpec( const FGameplayEffectSpec & gameplay_effect_spec );
+
+    UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
+    static void SendGameplayEventToASC( UAbilitySystemComponent * asc, FGameplayTag event_tag, FGameplayEventData payload );
 };
