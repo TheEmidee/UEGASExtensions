@@ -1,6 +1,7 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
 #include "Abilities/GASExtGameplayAbility.h"
+#include "DVEDataValidator.h"
 
 #include <AbilitySystemGlobals.h>
 #include <Animation/AnimInstance.h>
@@ -50,6 +51,36 @@ bool FGameplayAbilityRepAnimMontageForMesh::NetSerialize( FArchive & ar, UPackag
 
     out_success = true;
     return true;
+}
+
+UGASExtAbilitySystemComponent::UGASExtAbilitySystemComponent()
+{
+    bGiveAbilitiesAndEffectsInBeginPlay = true;
+}
+
+void UGASExtAbilitySystemComponent::InitializeComponent()
+{
+    Super::InitializeComponent();
+
+    if ( AttributeSetClass != nullptr )
+    {
+        AttributeSet = NewObject< UAttributeSet >( GetOwner(), AttributeSetClass );
+        AddAttributeSetSubobject( AttributeSet );
+    }
+}
+
+void UGASExtAbilitySystemComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if ( bGiveAbilitiesAndEffectsInBeginPlay )
+    {
+        GiveDefaultAbilities();
+        GiveDefaultEffects();
+        GiveDefaultAttributes();
+    }
+
+    AddLooseGameplayTags( LooseTagsContainer );
 }
 
 // ReSharper disable once CppInconsistentNaming
@@ -145,6 +176,18 @@ void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayT
         gameplay_cue_container.PredictiveRemove( gameplay_cue_tag );
     }
 }
+
+#if WITH_EDITOR
+EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText > & validation_errors )
+{
+    Super::IsDataValid( validation_errors );
+
+    return FDVEDataValidator( validation_errors )
+        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultEffects ) )
+        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultAbilities ) )
+        .Result();
+}
+#endif
 
 FGameplayAbilitySpecHandle UGASExtAbilitySystemComponent::FindAbilitySpecHandleForClass( const TSubclassOf< UGameplayAbility > & ability_class )
 {
@@ -529,6 +572,74 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionTimeLeftForMesh( US
     }
 
     return -1.f;
+}
+
+void UGASExtAbilitySystemComponent::GiveDefaultAbilities()
+{
+    if ( !GetOwner()->HasAuthority() )
+    {
+        return;
+    }
+
+    for ( const auto & startup_ability : DefaultAbilities )
+    {
+        if ( !ensureAlwaysMsgf( startup_ability != nullptr, TEXT( "%s() One of the DefaultAbilities is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
+        {
+            continue;
+        }
+
+        GiveAbility( FGameplayAbilitySpec(
+            startup_ability,
+            1,
+            startup_ability->GetDefaultObject< UGASExtGameplayAbility >()->GetInputID(),
+            this ) );
+    }
+}
+
+void UGASExtAbilitySystemComponent::GiveDefaultEffects()
+{
+    if ( !GetOwner()->HasAuthority() )
+    {
+        return;
+    }
+
+    auto effect_context = MakeEffectContext();
+    effect_context.AddSourceObject( this );
+
+    for ( const auto & startup_effect : DefaultEffects )
+    {
+        if ( !ensureAlwaysMsgf( startup_effect != nullptr, TEXT( "%s() One of the StartupEffects is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
+        {
+            continue;
+        }
+
+        const auto new_handle = MakeOutgoingSpec( startup_effect, 1, effect_context );
+
+        if ( new_handle.IsValid() )
+        {
+            ApplyGameplayEffectSpecToTarget( *new_handle.Data.Get(), this );
+        }
+    }
+}
+
+void UGASExtAbilitySystemComponent::GiveDefaultAttributes()
+{
+    if ( DefaultAttributes == nullptr )
+    {
+        UE_LOG( LogTemp, Error, TEXT( "%s() Missing DefaultAttributes for %s." ), TEXT( __FUNCTION__ ), *GetName() );
+        return;
+    }
+
+    // Can run on Server and Client
+    auto effect_context = MakeEffectContext();
+    effect_context.AddSourceObject( this );
+
+    const auto new_handle = MakeOutgoingSpec( DefaultAttributes, 1, effect_context );
+
+    if ( new_handle.IsValid() )
+    {
+        ApplyGameplayEffectSpecToSelf( *new_handle.Data.Get() );
+    }
 }
 
 void UGASExtAbilitySystemComponent::K2_RemoveGameplayCue( const FGameplayTag gameplay_cue_tag )
