@@ -11,6 +11,8 @@ class GASEXTENSIONS_API AGASExtActor : public AActor, public IAbilitySystemInter
     GENERATED_BODY()
 
 public:
+    AGASExtActor();
+
     UAbilitySystemComponent * GetAbilitySystemComponent() const override;
 
 private:
