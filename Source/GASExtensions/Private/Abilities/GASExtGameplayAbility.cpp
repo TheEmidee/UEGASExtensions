@@ -76,7 +76,7 @@ UAnimMontage * UGASExtGameplayAbility::GetCurrentMontageForMesh( USkeletalMeshCo
 
 int32 UGASExtGameplayAbility::GetInputID() const
 {
-    return 0;
+    return INDEX_NONE;
 }
 
 void UGASExtGameplayAbility::EndAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilityActivationInfo activation_info, const bool replicate_end_ability, const bool was_cancelled )
