@@ -61,6 +61,8 @@ public:
     /** Returns the currently playing montage for this ability, if any */
     UFUNCTION( BlueprintPure, Category = Animation )
     UAnimMontage * GetCurrentMontageForMesh( USkeletalMeshComponent * mesh ) const;
+    
+    virtual int32 GetInputID() const;
 
 protected:
     void EndAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilityActivationInfo activation_info, bool replicate_end_ability, bool was_cancelled ) override;
