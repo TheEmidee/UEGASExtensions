@@ -626,7 +626,7 @@ void UGASExtAbilitySystemComponent::GiveDefaultAttributes()
 {
     if ( DefaultAttributes == nullptr )
     {
-        UE_LOG( LogTemp, Error, TEXT( "%s() Missing DefaultAttributes for %s." ), TEXT( __FUNCTION__ ), *GetName() );
+        UE_LOG( LogTemp, Verbose, TEXT( "%s() Missing DefaultAttributes for %s." ), TEXT( __FUNCTION__ ), *GetNameSafe( GetOwner() ) );
         return;
     }
 
