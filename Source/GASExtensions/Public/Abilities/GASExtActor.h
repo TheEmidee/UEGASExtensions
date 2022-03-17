@@ -5,6 +5,8 @@
 
 #include "GASExtActor.generated.h"
 
+class UGASExtAbilitySystemComponent;
+
 UCLASS()
 class GASEXTENSIONS_API AGASExtActor : public AActor, public IAbilitySystemInterface
 {
