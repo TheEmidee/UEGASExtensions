@@ -31,6 +31,10 @@
     {
       "Name": "DataValidationExtensions",
       "Enabled": true
+    },
+    {
+      "Name": "GameBaseFramework",
+      "Enabled": true
     }
   ]
 }

@@ -22,6 +22,7 @@ namespace UnrealBuildTool.Rules
                     "CoreExtensions",
                     "AIModule",
                     "DataValidationExtensions",
+                    "GameBaseFramework"
                 }
             );
         }
