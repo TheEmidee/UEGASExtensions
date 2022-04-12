@@ -59,6 +59,9 @@ struct FGASExtGameFeatureAbilitiesEntry
     // List of attribute sets to grant to actors of the specified class
     UPROPERTY( EditAnywhere, Category = "Attributes" )
     TArray< FGASExtGameFeatureAttributesMapping > GrantedAttributes;
+
+    UPROPERTY( EditAnywhere, Category = "Tags" )
+    FGameplayTagContainer LooseGameplayTags;
 };
 
 UCLASS()
@@ -101,6 +104,8 @@ private:
     {
         TArray< FGameplayAbilitySpecHandle > Abilities;
         TArray< UAttributeSet * > Attributes;
+        TArray< FActiveGameplayEffectHandle > Effects;
+        FGameplayTagContainer Tags;
     };
     TMap< AActor *, FActorExtensions > ActiveExtensions;
 
