@@ -28,7 +28,7 @@ void UGASExtGameFeatureAction_Grant::AddAdditionalAssetBundleData( FAssetBundleD
 {
     if ( UAssetManager::IsValid() )
     {
-        auto AddBundleAsset = [ &asset_bundle_data ]( const FSoftObjectPath & SoftObjectPath ) {
+        auto add_bundle_asset = [ &asset_bundle_data ]( const FSoftObjectPath & SoftObjectPath ) {
             asset_bundle_data.AddBundleAsset( UGameFeaturesSubsystemSettings::LoadStateClient, SoftObjectPath );
             asset_bundle_data.AddBundleAsset( UGameFeaturesSubsystemSettings::LoadStateServer, SoftObjectPath );
         };
@@ -37,7 +37,7 @@ void UGASExtGameFeatureAction_Grant::AddAdditionalAssetBundleData( FAssetBundleD
         {
             for ( const auto & ability : entry.GrantedAbilities )
             {
-                AddBundleAsset( ability.AbilityType.ToSoftObjectPath() );
+                add_bundle_asset( ability.AbilityType.ToSoftObjectPath() );
 
                 /* :TODO: Re-enable with UE5
                 if ( !Ability.InputAction.IsNull() )
@@ -48,16 +48,16 @@ void UGASExtGameFeatureAction_Grant::AddAdditionalAssetBundleData( FAssetBundleD
 
             for ( const auto & attributes : entry.GrantedAttributes )
             {
-                AddBundleAsset( attributes.AttributeSetType.ToSoftObjectPath() );
+                add_bundle_asset( attributes.AttributeSetType.ToSoftObjectPath() );
                 if ( !attributes.InitializationData.IsNull() )
                 {
-                    AddBundleAsset( attributes.InitializationData.ToSoftObjectPath() );
+                    add_bundle_asset( attributes.InitializationData.ToSoftObjectPath() );
                 }
             }
 
             for ( const auto & effect : entry.GrantedEffects )
             {
-                AddBundleAsset( effect.ToSoftObjectPath() );
+                add_bundle_asset( effect.ToSoftObjectPath() );
             }
         }
     }
@@ -69,7 +69,7 @@ EDataValidationResult UGASExtGameFeatureAction_Grant::IsDataValid( TArray< FText
 {
     return FDVEDataValidator( validation_errors )
         .CustomValidation< TArray< FGASExtGameFeatureAbilitiesEntry > >( AbilitiesList, []( TArray< FText > & errors, TArray< FGASExtGameFeatureAbilitiesEntry > abilities_list ) {
-            int32 entry_index = 0;
+            auto entry_index = 0;
             for ( const auto & entry : abilities_list )
             {
                 if ( entry.ActorClass == nullptr )
@@ -77,12 +77,16 @@ EDataValidationResult UGASExtGameFeatureAction_Grant::IsDataValid( TArray< FText
                     errors.Emplace( FText::Format( LOCTEXT( "EntryHasNullActor", "Null ActorClass at index {0} in AbilitiesList" ), FText::AsNumber( entry_index ) ) );
                 }
 
-                if ( entry.GrantedAbilities.Num() == 0 && entry.GrantedAttributes.Num() == 0 )
+                if ( entry.GrantedAbilities.Num() == 0 
+                    && entry.GrantedAttributes.Num() == 0 
+                    && entry.GrantedEffects.Num() == 0 
+                    && entry.LooseGameplayTags.IsEmpty()
+                    )
                 {
-                    errors.Emplace( FText::Format( LOCTEXT( "EntryHasNoAddOns", "Empty GrantedAbilities and GrantedAttributes at index {0} in AbilitiesList" ), FText::AsNumber( entry_index ) ) );
+                    errors.Emplace( FText::Format( LOCTEXT( "EntryHasNoAddOns", "Empty item at index {0} in AbilitiesList" ), FText::AsNumber( entry_index ) ) );
                 }
 
-                int32 ability_index = 0;
+                auto ability_index = 0;
                 for ( const auto & ability : entry.GrantedAbilities )
                 {
                     if ( ability.AbilityType.IsNull() )
@@ -92,7 +96,7 @@ EDataValidationResult UGASExtGameFeatureAction_Grant::IsDataValid( TArray< FText
                     ++ability_index;
                 }
 
-                int32 attributes_index = 0;
+                auto attributes_index = 0;
                 for ( const auto & attributes : entry.GrantedAttributes )
                 {
                     if ( attributes.AttributeSetType.IsNull() )
@@ -102,14 +106,14 @@ EDataValidationResult UGASExtGameFeatureAction_Grant::IsDataValid( TArray< FText
                     ++attributes_index;
                 }
 
-                int32 effect_index = 0;
+                auto effect_index = 0;
                 for ( const auto & effect : entry.GrantedEffects )
                 {
                     if ( effect.IsNull() )
                     {
                         errors.Emplace( FText::Format( LOCTEXT( "EntryHasNullEffect", "Null Effect at index {0} in AbilitiesList[{1}].GrantedEffects" ), FText::AsNumber( effect_index ), FText::AsNumber( entry_index ) ) );
                     }
-                    ++attributes_index;
+                    ++effect_index;
                 }
 
                 ++entry_index;
@@ -121,15 +125,15 @@ EDataValidationResult UGASExtGameFeatureAction_Grant::IsDataValid( TArray< FText
 
 void UGASExtGameFeatureAction_Grant::AddToWorld( const FWorldContext & world_context )
 {
-    if ( const UWorld * world = world_context.World() )
+    if ( const auto * world = world_context.World() )
     {
-        if ( const UGameInstance * game_instance = world_context.OwningGameInstance )
+        if ( const auto * game_instance = world_context.OwningGameInstance )
         {
             if ( world->IsGameWorld() )
             {
                 if ( auto * component_manager = UGameInstance::GetSubsystem< UGameFrameworkComponentManager >( game_instance ) )
                 {
-                    int32 entry_index = 0;
+                    auto entry_index = 0;
                     for ( const auto & entry : AbilitiesList )
                     {
                         if ( entry.ActorClass.IsNull() )
@@ -137,7 +141,7 @@ void UGASExtGameFeatureAction_Grant::AddToWorld( const FWorldContext & world_con
                             continue;
                         }
 
-                        const UGameFrameworkComponentManager::FExtensionHandlerDelegate add_abilities_delegate = UGameFrameworkComponentManager::FExtensionHandlerDelegate::CreateUObject(
+                        const auto add_abilities_delegate = UGameFrameworkComponentManager::FExtensionHandlerDelegate::CreateUObject(
                             this,
                             &ThisClass::HandleActorExtension,
                             entry_index );
@@ -221,10 +225,10 @@ void UGASExtGameFeatureAction_Grant::AddActorAbilities( AActor * actor, const FG
                 TSubclassOf< UAttributeSet > attribute_set_class = attributes.AttributeSetType.LoadSynchronous();
                 if ( attribute_set_class != nullptr )
                 {
-                    UAttributeSet * new_set = NewObject< UAttributeSet >( ability_system_component, attribute_set_class );
+                    auto * new_set = NewObject< UAttributeSet >( ability_system_component, attribute_set_class );
                     if ( !attributes.InitializationData.IsNull() )
                     {
-                        if ( UDataTable * init_data = attributes.InitializationData.LoadSynchronous() )
+                        if ( auto * init_data = attributes.InitializationData.LoadSynchronous() )
                         {
                             new_set->InitFromMetaDataTable( init_data );
                         }
