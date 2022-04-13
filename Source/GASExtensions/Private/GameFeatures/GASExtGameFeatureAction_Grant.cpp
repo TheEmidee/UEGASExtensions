@@ -325,7 +325,7 @@ UActorComponent * UGASExtGameFeatureAction_Grant::FindOrAddComponentForActor( UC
 
         if ( auto * component_manager = UGameInstance::GetSubsystem< UGameFrameworkComponentManager >( game_instance ) )
         {
-            const TSharedPtr< FComponentRequestHandle > request_handle = component_manager->AddComponentRequest( abilities_entry.ActorClass, component_type );
+            const auto request_handle = component_manager->AddComponentRequest( abilities_entry.ActorClass, component_type );
             ComponentRequests.Add( request_handle );
         }
 
