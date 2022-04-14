@@ -25,11 +25,23 @@
       "Enabled": true
     },
     {
+      "Name": "GameFeatures",
+      "Enabled": true
+    },
+    {
+      "Name": "ModularGameplay",
+      "Enabled": true
+    },
+    {
       "Name": "CoreExtensions",
       "Enabled": true
     },
     {
       "Name": "DataValidationExtensions",
+      "Enabled": true
+    },
+    {
+      "Name": "GameFeaturesExtensions",
       "Enabled": true
     }
   ]

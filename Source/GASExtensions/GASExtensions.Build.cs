@@ -22,6 +22,9 @@ namespace UnrealBuildTool.Rules
                     "CoreExtensions",
                     "AIModule",
                     "DataValidationExtensions",
+                    "GameFeaturesExtensions",
+                    "ModularGameplay",
+                    "GameFeatures"
                 }
             );
         }
