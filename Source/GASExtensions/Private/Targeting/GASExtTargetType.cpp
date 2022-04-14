@@ -48,11 +48,13 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
 
     if ( bMustHaveLineOfSight )
     {
-        const auto ignore_actors = hit_actors;
 
         for ( auto index = hit_actors.Num() - 1; index >= 0; --index )
         {
-            const auto * hit_actor = hit_actors[ index ];
+            auto * hit_actor = hit_actors[ index ];
+
+            auto ignore_actors = hit_actors;
+            ignore_actors.RemoveSwap( hit_actor );
 
             FHitResult line_trace_hit;
             UKismetSystemLibrary::LineTraceSingle( ability_owner,
@@ -70,7 +72,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
 
             if ( line_trace_hit.bBlockingHit && line_trace_hit.GetActor() != hit_actor )
             {
-                hit_actors.RemoveAt( index );
+                hit_actors.RemoveAtSwap( index );
             }
         }
     }
