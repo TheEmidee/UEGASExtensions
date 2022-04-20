@@ -2,6 +2,7 @@
 
 #include <AbilitySystemInterface.h>
 #include <CoreMinimal.h>
+#include <GameFramework/Actor.h>
 
 #include "GASExtActor.generated.h"
 
