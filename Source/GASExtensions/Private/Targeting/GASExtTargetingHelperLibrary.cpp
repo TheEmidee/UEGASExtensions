@@ -209,11 +209,8 @@ void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_end, const
     TArray< FHitResult > hit_results;
     UGASExtTargetingHelperLibrary::LineTraceWithFilter( hit_results, aim_infos.Ability->GetWorld(), aim_infos.TargetDataFilterHandle, aim_infos.TraceStart, trace_end, aim_infos.CollisionInfo, aim_infos.CollisionQueryParams );
 
-    auto trace_direction = trace_end - aim_infos.TraceStart;
-    trace_direction.Normalize();
-
     const auto use_trace_result = hit_results.Num() > 0 && ( FVector::DistSquared( aim_infos.TraceStart, hit_results[ 0 ].Location ) <= ( FMath::Square( aim_infos.MaxRange ) ) );
-    trace_end = ( use_trace_result ) ? hit_results[ 0 ].Location + trace_direction : trace_end;
+    trace_end = ( use_trace_result ) ? hit_results[ 0 ].Location : trace_end;
 }
 
 void UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread( FVector & trace_end, const FSWSpreadInfos & spread_infos )

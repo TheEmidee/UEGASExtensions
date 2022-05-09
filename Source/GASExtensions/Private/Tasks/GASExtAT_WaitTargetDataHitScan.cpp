@@ -138,6 +138,12 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
                     Options.MaxRange.GetValue() ) );
         }
 
+        // Trace correction in case of floating point precision error
+        // This will push the end location back by 1 unit in the direction of the trace
+        auto trace_direction = trace_end - trace_start;
+        trace_direction.Normalize();
+        trace_end += trace_direction;
+
         TArray< FHitResult > trace_hit_results;
         DoTrace( trace_hit_results, world, Options.TargetDataFilterHandle, trace_start, trace_end, Options.CollisionInfo, collision_query_params );
 
