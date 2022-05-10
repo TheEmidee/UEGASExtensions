@@ -48,4 +48,7 @@ public:
 
     UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
     static void SendGameplayEventToASC( UAbilitySystemComponent * asc, FGameplayTag event_tag, FGameplayEventData payload );
+
+    UFUNCTION( BlueprintPure, Category = "Ability|Attributes" )
+    static bool DoesASCHaveAttributeSetForAttribute( UAbilitySystemComponent * asc, FGameplayAttribute attribute );
 };
