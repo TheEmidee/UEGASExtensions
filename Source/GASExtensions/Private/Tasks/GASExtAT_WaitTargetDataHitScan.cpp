@@ -85,7 +85,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     if ( trace_from_player_view_point )
     {
         // :TODO: Fix aiming for AI
-        if ( auto * pc = Ability->GetCurrentActorInfo()->PlayerController.Get() )
+        if ( auto * pc = actor_info->PlayerController.Get() )
         {
             FRotator view_rotation;
             pc->GetPlayerViewPoint( trace_start, view_rotation );
@@ -96,40 +96,47 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
         }
     }
 
-    TArray< FHitResult > returned_hit_results;
+    FVector calculated_trace_end;
 
-    const auto world = Ability->GetCurrentActorInfo()->OwnerActor->GetWorld();
+    if ( trace_from_player_view_point )
+    {
+        UGASExtTargetingHelperLibrary::AimWithPlayerController(
+            calculated_trace_end,
+            FSWAimWithPlayerControllerInfos(
+                Ability,
+                trace_start,
+                collision_query_params,
+                StartLocationInfo,
+                Options.CollisionInfo,
+                Options.TargetDataFilterHandle,
+                Options.MaxRange.GetValue() ) );
+    }
+    else
+    {
+        UGASExtTargetingHelperLibrary::AimFromComponent(
+            calculated_trace_end,
+            FSWAimFromComponentInfos(
+                Ability,
+                trace_start,
+                collision_query_params,
+                StartLocationInfo,
+                Options.CollisionInfo,
+                Options.TargetDataFilterHandle,
+                Options.MaxRange.GetValue() ) );
+    }
+
+    trace_end = calculated_trace_end;
+
+    const auto world = actor_info->OwnerActor->GetWorld();
+    TArray< FHitResult > returned_hit_results;
 
     for ( auto number_of_trace_index = 0; number_of_trace_index < Options.NumberOfTraces.GetValue(); number_of_trace_index++ )
     {
-        if ( trace_from_player_view_point )
-        {
-            UGASExtTargetingHelperLibrary::AimWithPlayerController( trace_end,
-                FSWAimWithPlayerControllerInfos(
-                    Ability,
-                    trace_start,
-                    collision_query_params,
-                    StartLocationInfo,
-                    Options.CollisionInfo,
-                    Options.TargetDataFilterHandle,
-                    Options.MaxRange.GetValue() ) );
-        }
-        else
-        {
-            UGASExtTargetingHelperLibrary::AimFromComponent(
-                trace_end,
-                FSWAimFromComponentInfos(
-                    Ability,
-                    trace_start,
-                    collision_query_params,
-                    StartLocationInfo,
-                    Options.CollisionInfo,
-                    Options.TargetDataFilterHandle,
-                    Options.MaxRange.GetValue() ) );
-        }
-
         if ( Options.bSpreadTraces )
         {
+            trace_end = calculated_trace_end;
+
+            // TODO MAKE SURE WE RESET THE TRACE END!!!!!!
             UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread(
                 trace_end,
                 FSWSpreadInfos(
@@ -137,12 +144,6 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
                     Options.TargetingSpread.GetValue(),
                     Options.MaxRange.GetValue() ) );
         }
-
-        // Trace correction in case of floating point precision error
-        // This will push the end location back by 1 unit in the direction of the trace
-        auto trace_direction = trace_end - trace_start;
-        trace_direction.Normalize();
-        trace_end += trace_direction;
 
         TArray< FHitResult > trace_hit_results;
         DoTrace( trace_hit_results, world, Options.TargetDataFilterHandle, trace_start, trace_end, Options.CollisionInfo, collision_query_params );
