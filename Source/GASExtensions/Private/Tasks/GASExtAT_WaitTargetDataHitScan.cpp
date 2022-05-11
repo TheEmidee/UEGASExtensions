@@ -78,27 +78,25 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     collision_query_params.AddIgnoredActors( actors_to_ignore );
     collision_query_params.bIgnoreBlocks = Options.CollisionInfo.bIgnoreBlockingHits;
 
-    FVector trace_start;
-    FVector trace_end;
-
     auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint && actor_info->PlayerController.IsValid();
 
     auto aim_infos = FSWAimInfos( Ability, StartLocationInfo, Options.MaxRange.GetValue() );
 
-    FVector calculated_trace_start;
-    FVector calculated_trace_end;
+    FVector trace_start;
+    FVector trace_end;
+
+    FVector initial_trace_end;
 
     if ( trace_from_player_view_point )
     {
-        UGASExtTargetingHelperLibrary::AimWithPlayerController( calculated_trace_start, calculated_trace_end, aim_infos );
+        UGASExtTargetingHelperLibrary::AimWithPlayerController( trace_start, initial_trace_end, aim_infos );
     }
     else
     {
-        UGASExtTargetingHelperLibrary::AimFromComponent( calculated_trace_start, calculated_trace_end, aim_infos );
+        UGASExtTargetingHelperLibrary::AimFromComponent( trace_start, initial_trace_end, aim_infos );
     }
 
-    trace_start = calculated_trace_start;
-    trace_end = calculated_trace_end;
+    trace_end = initial_trace_end;
 
     const auto world = actor_info->OwnerActor->GetWorld();
     TArray< FHitResult > returned_hit_results;
@@ -107,9 +105,8 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     {
         if ( Options.bSpreadTraces )
         {
-            trace_end = calculated_trace_end;
+            trace_end = initial_trace_end;
 
-            // TODO MAKE SURE WE RESET THE TRACE END!!!!!!
             UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread(
                 trace_end,
                 FSWSpreadInfos(
