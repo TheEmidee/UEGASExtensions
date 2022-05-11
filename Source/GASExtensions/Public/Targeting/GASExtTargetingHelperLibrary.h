@@ -25,49 +25,17 @@ public:
     FGameplayAbilityTargetingLocationInfo Target;
 };
 
-struct FSWAimWithPlayerControllerInfos
+struct FSWAimInfos
 {
-    FSWAimWithPlayerControllerInfos( const UGameplayAbility * ability, const FVector & trace_start, const FCollisionQueryParams & collision_query_params, const FGameplayAbilityTargetingLocationInfo & start_location_infos, const FGASExtCollisionDetectionInfo & collision_info, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const float max_range, const bool ignore_pitch = false ) :
+    FSWAimInfos( const UGameplayAbility * ability, const FGameplayAbilityTargetingLocationInfo & start_location_infos, const float max_range ) :
         Ability( ability ),
-        TraceStart( trace_start ),
-        CollisionQueryParams( collision_query_params ),
         StartLocationInfos( start_location_infos ),
-        CollisionInfo( collision_info ),
-        TargetDataFilterHandle( target_data_filter_handle ),
-        MaxRange( max_range ),
-        IgnorePitch( ignore_pitch )
-    {
-    }
-
-    const UGameplayAbility * Ability;
-    const FVector & TraceStart;
-    const FCollisionQueryParams & CollisionQueryParams;
-    const FGameplayAbilityTargetingLocationInfo & StartLocationInfos;
-    const FGASExtCollisionDetectionInfo & CollisionInfo;
-    const FGameplayTargetDataFilterHandle & TargetDataFilterHandle;
-    const float MaxRange;
-    const bool IgnorePitch;
-};
-
-struct FSWAimFromComponentInfos
-{
-    FSWAimFromComponentInfos( const UGameplayAbility * ability, const FVector & trace_start, const FCollisionQueryParams & collision_query_params, const FGameplayAbilityTargetingLocationInfo & start_location_infos, const FGASExtCollisionDetectionInfo & collision_info, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const float max_range ) :
-        Ability( ability ),
-        TraceStart( trace_start ),
-        CollisionQueryParams( collision_query_params ),
-        StartLocationInfos( start_location_infos ),
-        CollisionInfo( collision_info ),
-        TargetDataFilterHandle( target_data_filter_handle ),
         MaxRange( max_range )
     {
     }
 
     const UGameplayAbility * Ability;
-    const FVector & TraceStart;
-    const FCollisionQueryParams & CollisionQueryParams;
     const FGameplayAbilityTargetingLocationInfo & StartLocationInfos;
-    const FGASExtCollisionDetectionInfo & CollisionInfo;
-    const FGameplayTargetDataFilterHandle & TargetDataFilterHandle;
     const float MaxRange;
 };
 
@@ -108,7 +76,7 @@ public:
     UFUNCTION( BlueprintCallable )
     static FGameplayAbilityTargetDataHandle MakeTargetDataFromMultipleLocationInfos( const TArray< FSWTargetingLocationInfo > & location_infos );
 
-    static void AimWithPlayerController( FVector & trace_end, const FSWAimWithPlayerControllerInfos & aim_infos );
-    static void AimFromComponent( FVector & trace_end, const FSWAimFromComponentInfos & aim_infos );
+    static void AimWithPlayerController( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
+    static void AimFromComponent( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
     static void ComputeTraceEndWithSpread( FVector & trace_end, const FSWSpreadInfos & spread_infos );
 };

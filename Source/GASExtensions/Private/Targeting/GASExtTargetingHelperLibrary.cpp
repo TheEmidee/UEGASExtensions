@@ -142,20 +142,20 @@ FGameplayAbilityTargetDataHandle UGASExtTargetingHelperLibrary::MakeTargetDataFr
     return return_data_handle;
 }
 
-void UGASExtTargetingHelperLibrary::AimWithPlayerController( FVector & trace_end, const FSWAimWithPlayerControllerInfos & aim_infos )
+void UGASExtTargetingHelperLibrary::AimWithPlayerController( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos )
 {
-    // Default values in case of AI Controller
-    auto view_start = aim_infos.TraceStart;
-    auto view_rotation = aim_infos.StartLocationInfos.GetTargetingTransform().GetRotation().Rotator();
-
     const auto * pc = aim_infos.Ability->GetCurrentActorInfo()->PlayerController.Get();
     check( pc != nullptr );
+
+    FVector view_start;
+    FRotator view_rotation;
 
     pc->GetPlayerViewPoint( view_start, view_rotation );
 
     const auto view_direction = view_rotation.Vector();
     const auto view_end = view_start + ( view_direction * aim_infos.MaxRange );
 
+    trace_start = view_start;
     trace_end = view_end;
 
     // if ( !bTraceAffectsAimPitch && bUseTraceResult )
@@ -177,8 +177,10 @@ void UGASExtTargetingHelperLibrary::AimWithPlayerController( FVector & trace_end
     //::DrawDebugLine( GetWorld(), view_start, trace_end, FColor::Red, false, 5.0f, 0, 5 );
 }
 
-void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_end, const FSWAimFromComponentInfos & aim_infos )
+void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos )
 {
+    trace_start = aim_infos.StartLocationInfos.GetTargetingTransform().GetLocation();
+
     if ( const auto * source_component = aim_infos.StartLocationInfos.SourceComponent )
     {
         const FRotator rotation_offset( 0.0f );
@@ -188,7 +190,7 @@ void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_end, const
         forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Pitch, source_component->GetRightVector() );
         forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Yaw, source_component->GetUpVector() );
 
-        trace_end = aim_infos.TraceStart + forward_vector * aim_infos.MaxRange;
+        trace_end = trace_start + forward_vector * aim_infos.MaxRange;
     }
 }
 
