@@ -41,9 +41,8 @@ protected:
     UFUNCTION( BlueprintImplementableEvent )
     void ReceiveTargetRemoved( const FHitResult & hit_result );
 
-    virtual void ComputeTraceEnd( FVector & trace_end, const FVector & trace_start, const FCollisionQueryParams & collision_query_params );
+    virtual void ComputeTrace( FVector & trace_start, FVector & trace_end );
     virtual void FillActorsToIgnore( TArray< AActor * > actors_to_ignore ) const;
-    virtual FVector ComputeTraceStart( FVector & trace_start ) const;
     virtual void PerformTrace( float delta_seconds );
     virtual AActor * GetSourceActor();
 
