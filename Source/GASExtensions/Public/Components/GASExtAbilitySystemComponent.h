@@ -269,11 +269,8 @@ private:
     UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
     uint8 bGiveAbilitiesAndEffectsInBeginPlay : 1;
 
-    UPROPERTY()
-    UAttributeSet * AttributeSet;
-
     UPROPERTY( EditDefaultsOnly )
-    TSubclassOf< UAttributeSet > AttributeSetClass;
+    TArray< TSubclassOf< UAttributeSet > > AdditionalAttributeSetClass;
 
     /*
     * For tags not bound to gameplay effects

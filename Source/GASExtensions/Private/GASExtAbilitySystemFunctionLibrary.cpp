@@ -148,3 +148,8 @@ void UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC( UAbilitySystem
         ABILITY_LOG( Error, TEXT( "UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC: Invalid ability system component" ) );
     }
 }
+
+bool UGASExtAbilitySystemFunctionLibrary::DoesASCHaveAttributeSetForAttribute( UAbilitySystemComponent * asc, FGameplayAttribute attribute )
+{
+    return asc->HasAttributeSetForAttribute( attribute );
+}
