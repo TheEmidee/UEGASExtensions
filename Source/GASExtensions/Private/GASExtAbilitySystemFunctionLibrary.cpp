@@ -110,6 +110,12 @@ FGameplayEffectSpecHandle UGASExtAbilitySystemFunctionLibrary::MakeGameplayEffec
     return FGameplayEffectSpecHandle( effect_spec );
 }
 
+FGameplayAbilitySpecHandle UGASExtAbilitySystemFunctionLibrary::GiveAbility( UAbilitySystemComponent * asc, TSubclassOf<UGameplayAbility> ability, int32 level, UObject * source_object )
+{
+    FGameplayAbilitySpec spec( ability, level, INDEX_NONE, source_object );
+    return asc->GiveAbility( spec );
+}
+
 FGameplayAbilitySpecHandle UGASExtAbilitySystemFunctionLibrary::GiveAbilityAndActivateOnce( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level /*= 1*/, UObject * source_object /*= nullptr*/ )
 {
     FGameplayAbilitySpec spec( ability, level, INDEX_NONE, source_object );
@@ -147,4 +153,11 @@ void UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC( UAbilitySystem
     {
         ABILITY_LOG( Error, TEXT( "UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC: Invalid ability system component" ) );
     }
+}
+    if ( asc == nullptr )
+    {
+        return false;
+    }
+
+    return asc->HasAttributeSetForAttribute( attribute );
 }

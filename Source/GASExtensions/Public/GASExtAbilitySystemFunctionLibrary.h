@@ -32,6 +32,9 @@ public:
     static FGameplayEffectSpecHandle MakeGameplayEffectSpecHandle( TSubclassOf< UGameplayEffect > effect_class, AActor * instigator, AActor * effect_causer, const UGameplayAbility * ability = nullptr );
 
     UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
+    static FGameplayAbilitySpecHandle GiveAbility( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level = 1, UObject * source_object = nullptr );
+
+    UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
     static FGameplayAbilitySpecHandle GiveAbilityAndActivateOnce( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level = 1, UObject * source_object = nullptr );
 
     UFUNCTION( BlueprintPure, Category = "Ability|AttributeSet" )
