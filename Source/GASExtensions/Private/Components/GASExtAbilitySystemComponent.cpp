@@ -62,10 +62,10 @@ void UGASExtAbilitySystemComponent::InitializeComponent()
 {
     Super::InitializeComponent();
 
-    if ( AttributeSetClass != nullptr )
+    for ( const auto & attribute_set_class : AdditionalAttributeSetClass )
     {
-        AttributeSet = NewObject< UAttributeSet >( GetOwner(), AttributeSetClass );
-        AddAttributeSetSubobject( AttributeSet );
+        auto * attribute_set = NewObject< UAttributeSet >( GetOwner(), attribute_set_class );
+        AddAttributeSetSubobject( attribute_set );
     }
 }
 

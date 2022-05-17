@@ -78,58 +78,35 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     collision_query_params.AddIgnoredActors( actors_to_ignore );
     collision_query_params.bIgnoreBlocks = Options.CollisionInfo.bIgnoreBlockingHits;
 
-    auto trace_start = StartLocationInfo.GetTargetingTransform().GetLocation();
+    auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint && actor_info->PlayerController.IsValid();
+
+    auto aim_infos = FSWAimInfos( Ability, StartLocationInfo, Options.MaxRange.GetValue() );
+
+    FVector trace_start;
     FVector trace_end;
 
-    auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint;
+    FVector initial_trace_end;
+
     if ( trace_from_player_view_point )
     {
-        // :TODO: Fix aiming for AI
-        if ( auto * pc = Ability->GetCurrentActorInfo()->PlayerController.Get() )
-        {
-            FRotator view_rotation;
-            pc->GetPlayerViewPoint( trace_start, view_rotation );
-        }
-        else
-        {
-            trace_from_player_view_point = false;
-        }
+        UGASExtTargetingHelperLibrary::AimWithPlayerController( trace_start, initial_trace_end, aim_infos );
+    }
+    else
+    {
+        UGASExtTargetingHelperLibrary::AimFromComponent( trace_start, initial_trace_end, aim_infos );
     }
 
-    TArray< FHitResult > returned_hit_results;
+    trace_end = initial_trace_end;
 
-    const auto world = Ability->GetCurrentActorInfo()->OwnerActor->GetWorld();
+    const auto world = actor_info->OwnerActor->GetWorld();
+    TArray< FHitResult > returned_hit_results;
 
     for ( auto number_of_trace_index = 0; number_of_trace_index < Options.NumberOfTraces.GetValue(); number_of_trace_index++ )
     {
-        if ( trace_from_player_view_point )
-        {
-            UGASExtTargetingHelperLibrary::AimWithPlayerController( trace_end,
-                FSWAimWithPlayerControllerInfos(
-                    Ability,
-                    trace_start,
-                    collision_query_params,
-                    StartLocationInfo,
-                    Options.CollisionInfo,
-                    Options.TargetDataFilterHandle,
-                    Options.MaxRange.GetValue() ) );
-        }
-        else
-        {
-            UGASExtTargetingHelperLibrary::AimFromComponent(
-                trace_end,
-                FSWAimFromComponentInfos(
-                    Ability,
-                    trace_start,
-                    collision_query_params,
-                    StartLocationInfo,
-                    Options.CollisionInfo,
-                    Options.TargetDataFilterHandle,
-                    Options.MaxRange.GetValue() ) );
-        }
-
         if ( Options.bSpreadTraces )
         {
+            trace_end = initial_trace_end;
+
             UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread(
                 trace_end,
                 FSWSpreadInfos(
