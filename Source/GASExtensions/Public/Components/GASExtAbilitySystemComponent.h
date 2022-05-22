@@ -5,6 +5,8 @@
 
 #include "GASExtAbilitySystemComponent.generated.h"
 
+class UGASExtGameplayAbility;
+
 /**
 * Data about montages that were played locally (all montages in case of server. predictive montages in case of client). Never replicated directly.
 */
@@ -61,14 +63,30 @@ public:
         Mesh( mesh )
     {
     }
+
+    bool NetSerialize( FArchive & ar, class UPackageMap * map, bool & out_success );
 };
 
-UCLASS()
+template <>
+struct TStructOpsTypeTraits< FGameplayAbilityRepAnimMontageForMesh > : public TStructOpsTypeTraitsBase2< FGameplayAbilityRepAnimMontageForMesh >
+{
+    enum
+    {
+        WithNetSerializer = true,
+    };
+};
+
+UCLASS( meta = ( BlueprintSpawnableComponent ) )
 class GASEXTENSIONS_API UGASExtAbilitySystemComponent : public UAbilitySystemComponent
 {
     GENERATED_BODY()
 
 public:
+    UGASExtAbilitySystemComponent();
+
+    void InitializeComponent() override;
+    void BeginPlay() override;
+
     bool ShouldDoServerAbilityRPCBatch() const override;
 
     // ReSharper disable once CppInconsistentNaming
@@ -78,6 +96,11 @@ public:
     void TickComponent( float delta_time, enum ELevelTick tick_type, FActorComponentTickFunction * this_tick_function ) override;
     void InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor ) override;
     void NotifyAbilityEnded( FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, bool was_cancelled ) override;
+    void RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container ) override;
+
+#if WITH_EDITOR
+    EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
+#endif
 
     UFUNCTION( BlueprintPure )
     FGameplayAbilitySpecHandle FindAbilitySpecHandleForClass( const TSubclassOf< UGameplayAbility > & ability_class );
@@ -149,6 +172,15 @@ public:
 
     // Returns amount of time left in current section
     float GetCurrentMontageSectionTimeLeftForMesh( USkeletalMeshComponent * mesh ) const;
+
+    template < typename _ATTRIBUTE_SET_CLASS_ >
+    _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
+
+    void GiveDefaultAbilities();
+    void GiveDefaultEffects();
+    void GiveDefaultAttributes();
+
+    void SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play );
 
 protected:
     UFUNCTION( BlueprintCallable )
@@ -224,10 +256,51 @@ private:
     void ServerCurrentMontageSetPlayRateForMesh( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
     void ServerCurrentMontageSetPlayRateForMesh_Implementation( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
     bool ServerCurrentMontageSetPlayRateForMesh_Validate( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
+
+    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
+    TArray< TSubclassOf< UGASExtGameplayAbility > > DefaultAbilities;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
+    TArray< TSubclassOf< UGameplayEffect > > DefaultEffects;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
+    TSubclassOf< UGameplayEffect > DefaultAttributes;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
+    uint8 bGiveAbilitiesAndEffectsInBeginPlay : 1;
+
+    UPROPERTY( EditDefaultsOnly )
+    TArray< TSubclassOf< UAttributeSet > > AdditionalAttributeSetClass;
+
+    /*
+    * For tags not bound to gameplay effects
+    */
+    UPROPERTY( EditAnywhere )
+    FGameplayTagContainer LooseTagsContainer;
 };
+
+template < typename _ATTRIBUTE_SET_CLASS_ >
+_ATTRIBUTE_SET_CLASS_ * UGASExtAbilitySystemComponent::GetAttributeSet()
+{
+    auto & attributes = GetSpawnedAttributes_Mutable();
+    for ( auto * attribute_set : attributes )
+    {
+        if ( auto * swarms_attribute_set = Cast< _ATTRIBUTE_SET_CLASS_ >( attribute_set ) )
+        {
+            return swarms_attribute_set;
+        }
+    }
+
+    return nullptr;
+}
 
 FORCEINLINE bool UGASExtAbilitySystemComponent::ShouldDoServerAbilityRPCBatch() const
 {
     // :TODO:
     return false;
+}
+
+FORCEINLINE void UGASExtAbilitySystemComponent::SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play )
+{
+    bGiveAbilitiesAndEffectsInBeginPlay = give_abilities_and_effects_in_begin_play;
 }

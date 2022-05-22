@@ -1,6 +1,7 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
 #include "Abilities/GASExtGameplayAbility.h"
+#include "DVEDataValidator.h"
 
 #include <AbilitySystemGlobals.h>
 #include <Animation/AnimInstance.h>
@@ -40,6 +41,47 @@ namespace
 }
 
 static TAutoConsoleVariable< float > CVarReplayMontageErrorThreshold( TEXT( "replay.MontageErrorThresholdSW" ), 0.5f, TEXT( "Tolerance level for when montage playback position correction occurs in replays" ) );
+
+bool FGameplayAbilityRepAnimMontageForMesh::NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success )
+{
+    // Need to call manually, since we implement this function in the struct holding it, it won't call the function automatically anymore
+    RepMontageInfo.NetSerialize( ar, map, out_success );
+
+    ar << Mesh;
+
+    out_success = true;
+    return true;
+}
+
+UGASExtAbilitySystemComponent::UGASExtAbilitySystemComponent()
+{
+    bGiveAbilitiesAndEffectsInBeginPlay = true;
+}
+
+void UGASExtAbilitySystemComponent::InitializeComponent()
+{
+    Super::InitializeComponent();
+
+    for ( const auto & attribute_set_class : AdditionalAttributeSetClass )
+    {
+        auto * attribute_set = NewObject< UAttributeSet >( GetOwner(), attribute_set_class );
+        AddAttributeSetSubobject( attribute_set );
+    }
+}
+
+void UGASExtAbilitySystemComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if ( bGiveAbilitiesAndEffectsInBeginPlay )
+    {
+        GiveDefaultAbilities();
+        GiveDefaultEffects();
+        GiveDefaultAttributes();
+    }
+
+    AddLooseGameplayTags( LooseTagsContainer );
+}
 
 // ReSharper disable once CppInconsistentNaming
 void UGASExtAbilitySystemComponent::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
@@ -97,6 +139,55 @@ void UGASExtAbilitySystemComponent::NotifyAbilityEnded( const FGameplayAbilitySp
     // If AnimatingAbility ended, clear the pointer
     ClearAnimatingAbilityForAllMeshes( ability );
 }
+
+void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container )
+{
+    // This function is overriden because of an issue in singleplayer of losing data passed to the FGameplayCueParameters of the GameplayCue.
+    // This data was lost because the original implementation created a new FGameplayCueParameters if authoritative, and passed that on.
+    // Only the Instigator and Effect Causer were set.
+    // This meant that all other data was being lost in singleplayer, making it impossible to access that data in the OnRemove function in blueprints.
+    // This wasn't a problem in multiplayer, because each client would call PredictiveRemove on the FActiveGameplayCueContainer.
+    // This finds the cue in the GameplayCues array and gets the original FGameplayCueParameters from it, to then pass it along.
+    // Using that method to find and pass the original FGameplayCueParameters for authoritative owners too, allows to access that data perfectly fine in the OnRemove.
+
+    if ( IsOwnerActorAuthoritative() )
+    {
+        const auto was_in_list = HasMatchingGameplayTag( gameplay_cue_tag );
+
+        if ( was_in_list )
+        {
+            // Instead of creating new parameters and calling InitDefaultGameplayCueParameters, find the parameters that were passed with the cue originally
+            // and pass that on to the InvokeGameplayCueEvent
+            for ( auto idx = 0; idx < gameplay_cue_container.GameplayCues.Num(); ++idx )
+            {
+                auto & cue = gameplay_cue_container.GameplayCues[ idx ];
+                if ( cue.GameplayCueTag == gameplay_cue_tag )
+                {
+                    InvokeGameplayCueEvent( gameplay_cue_tag, EGameplayCueEvent::Removed, cue.Parameters );
+                    break;
+                }
+            }
+        }
+
+        gameplay_cue_container.RemoveCue( gameplay_cue_tag );
+    }
+    else if ( ScopedPredictionKey.IsLocalClientKey() )
+    {
+        gameplay_cue_container.PredictiveRemove( gameplay_cue_tag );
+    }
+}
+
+#if WITH_EDITOR
+EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText > & validation_errors )
+{
+    Super::IsDataValid( validation_errors );
+
+    return FDVEDataValidator( validation_errors )
+        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultEffects ) )
+        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultAbilities ) )
+        .Result();
+}
+#endif
 
 FGameplayAbilitySpecHandle UGASExtAbilitySystemComponent::FindAbilitySpecHandleForClass( const TSubclassOf< UGameplayAbility > & ability_class )
 {
@@ -481,6 +572,74 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionTimeLeftForMesh( US
     }
 
     return -1.f;
+}
+
+void UGASExtAbilitySystemComponent::GiveDefaultAbilities()
+{
+    if ( !GetOwner()->HasAuthority() )
+    {
+        return;
+    }
+
+    for ( const auto & startup_ability : DefaultAbilities )
+    {
+        if ( !ensureAlwaysMsgf( startup_ability != nullptr, TEXT( "%s() One of the DefaultAbilities is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
+        {
+            continue;
+        }
+
+        GiveAbility( FGameplayAbilitySpec(
+            startup_ability,
+            1,
+            startup_ability->GetDefaultObject< UGASExtGameplayAbility >()->GetInputID(),
+            this ) );
+    }
+}
+
+void UGASExtAbilitySystemComponent::GiveDefaultEffects()
+{
+    if ( !GetOwner()->HasAuthority() )
+    {
+        return;
+    }
+
+    auto effect_context = MakeEffectContext();
+    effect_context.AddSourceObject( this );
+
+    for ( const auto & startup_effect : DefaultEffects )
+    {
+        if ( !ensureAlwaysMsgf( startup_effect != nullptr, TEXT( "%s() One of the StartupEffects is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
+        {
+            continue;
+        }
+
+        const auto new_handle = MakeOutgoingSpec( startup_effect, 1, effect_context );
+
+        if ( new_handle.IsValid() )
+        {
+            ApplyGameplayEffectSpecToTarget( *new_handle.Data.Get(), this );
+        }
+    }
+}
+
+void UGASExtAbilitySystemComponent::GiveDefaultAttributes()
+{
+    if ( DefaultAttributes == nullptr )
+    {
+        UE_LOG( LogTemp, Verbose, TEXT( "%s() Missing DefaultAttributes for %s." ), TEXT( __FUNCTION__ ), *GetNameSafe( GetOwner() ) );
+        return;
+    }
+
+    // Can run on Server and Client
+    auto effect_context = MakeEffectContext();
+    effect_context.AddSourceObject( this );
+
+    const auto new_handle = MakeOutgoingSpec( DefaultAttributes, 1, effect_context );
+
+    if ( new_handle.IsValid() )
+    {
+        ApplyGameplayEffectSpecToSelf( *new_handle.Data.Get() );
+    }
 }
 
 void UGASExtAbilitySystemComponent::K2_RemoveGameplayCue( const FGameplayTag gameplay_cue_tag )

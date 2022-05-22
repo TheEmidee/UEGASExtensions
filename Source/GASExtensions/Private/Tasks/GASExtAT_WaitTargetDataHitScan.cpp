@@ -3,21 +3,21 @@
 #include "BlueprintLibraries/CoreExtTraceBlueprintLibrary.h"
 #include "Targeting/GASExtTargetingHelperLibrary.h"
 
-#include <AbilitySystemComponent.h>
 #include <DrawDebugHelpers.h>
 #include <GameFramework/PlayerController.h>
 
-FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions()
+FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
+    bAimFromPlayerViewPoint( true ),
+    TargetTraceType( EGASExtTargetTraceType::Line ),
+    MaxHitResultsPerTrace( 1 ),
+    bSpreadTraces( true ),
+    bTraceAffectsAimPitch( true ),
+    TraceSphereRadius( 10.0f ),
+    bShowDebugTraces( false )
 {
-    bAimFromPlayerViewPoint = true;
-    TargetTraceType = EGASExtTargetTraceType::Line;
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
-    bMaxHitResultsPerTrace = 1;
     TargetingSpread.Value = 0.0f;
-    bTraceAffectsAimPitch = true;
-    bShowDebugTraces = false;
-    TraceSphereRadius = 10.0f;
 }
 
 UGASExtAT_WaitTargetDataHitScan * UGASExtAT_WaitTargetDataHitScan::WaitTargetDataHitScan( UGameplayAbility * owning_ability, FName task_instance_name, const FGameplayAbilityTargetingLocationInfo & start_trace_location_infos, const FGASExtWaitTargetDataReplicationOptions & replication_options, const FGASExtWaitTargetDataHitScanOptions & hit_scan_options )
@@ -78,70 +78,50 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     collision_query_params.AddIgnoredActors( actors_to_ignore );
     collision_query_params.bIgnoreBlocks = Options.CollisionInfo.bIgnoreBlockingHits;
 
-    auto trace_start = StartLocationInfo.GetTargetingTransform().GetLocation();
+    auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint && actor_info->PlayerController.IsValid();
+
+    auto aim_infos = FSWAimInfos( Ability, StartLocationInfo, Options.MaxRange.GetValue() );
+
+    FVector trace_start;
     FVector trace_end;
 
-    auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint;
+    FVector initial_trace_end;
+
     if ( trace_from_player_view_point )
     {
-        // :TODO: Fix aiming for AI
-        if ( auto * pc = Ability->GetCurrentActorInfo()->PlayerController.Get() )
-        {
-            FRotator view_rotation;
-            pc->GetPlayerViewPoint( trace_start, view_rotation );
-        }
-        else
-        {
-            trace_from_player_view_point = false;
-        }
+        UGASExtTargetingHelperLibrary::AimWithPlayerController( trace_start, initial_trace_end, aim_infos );
+    }
+    else
+    {
+        UGASExtTargetingHelperLibrary::AimFromComponent( trace_start, initial_trace_end, aim_infos );
     }
 
-    TArray< FHitResult > returned_hit_results;
+    trace_end = initial_trace_end;
 
-    const auto world = Ability->GetCurrentActorInfo()->OwnerActor->GetWorld();
+    const auto world = actor_info->OwnerActor->GetWorld();
+    TArray< FHitResult > returned_hit_results;
 
     for ( auto number_of_trace_index = 0; number_of_trace_index < Options.NumberOfTraces.GetValue(); number_of_trace_index++ )
     {
-        if ( trace_from_player_view_point )
+        if ( Options.bSpreadTraces )
         {
-            UGASExtTargetingHelperLibrary::AimWithPlayerController( trace_end,
-                FSWAimWithPlayerControllerInfos(
-                    Ability,
-                    trace_start,
-                    collision_query_params,
-                    StartLocationInfo,
-                    Options.CollisionInfo,
-                    Options.TargetDataFilterHandle,
-                    Options.MaxRange.GetValue() ) );
-        }
-        else
-        {
-            UGASExtTargetingHelperLibrary::AimFromComponent(
-                trace_end,
-                FSWAimFromComponentInfos(
-                    Ability,
-                    trace_start,
-                    collision_query_params,
-                    StartLocationInfo,
-                    Options.CollisionInfo,
-                    Options.TargetDataFilterHandle,
-                    Options.MaxRange.GetValue() ) );
-        }
+            trace_end = initial_trace_end;
 
-        UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread(
-            trace_end,
-            FSWSpreadInfos(
-                trace_start,
-                Options.TargetingSpread.GetValue(),
-                Options.MaxRange.GetValue() ) );
+            UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread(
+                trace_end,
+                FSWSpreadInfos(
+                    trace_start,
+                    Options.TargetingSpread.GetValue(),
+                    Options.MaxRange.GetValue() ) );
+        }
 
         TArray< FHitResult > trace_hit_results;
         DoTrace( trace_hit_results, world, Options.TargetDataFilterHandle, trace_start, trace_end, Options.CollisionInfo, collision_query_params );
 
-        if ( Options.bMaxHitResultsPerTrace >= 0 && trace_hit_results.Num() + 1 > Options.bMaxHitResultsPerTrace )
+        if ( Options.MaxHitResultsPerTrace > 0 && trace_hit_results.Num() + 1 > Options.MaxHitResultsPerTrace )
         {
             // Trim to MaxHitResults
-            trace_hit_results.SetNum( Options.bMaxHitResultsPerTrace );
+            trace_hit_results.SetNum( Options.MaxHitResultsPerTrace );
         }
 
         if ( trace_hit_results.Num() < 1 )

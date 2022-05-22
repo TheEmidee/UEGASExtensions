@@ -7,7 +7,14 @@
 
 struct FGameplayEventData;
 
-UCLASS( Blueprintable, meta = ( ShowWorldContextPin ) )
+UENUM()
+enum class EGASExtGetTargetDataExecutionType : uint8
+{
+    OnEffectContextApplication,
+    OnEffectContextCreation
+};
+
+UCLASS( NotBlueprintable, EditInlineNew, HideDropdown, meta = ( ShowWorldContextPin ) )
 class GASEXTENSIONS_API UGASExtTargetType : public UObject
 {
     GENERATED_BODY()
@@ -60,6 +67,9 @@ public:
     FScalableFloat SphereRadius;
 
     UPROPERTY( EditAnywhere )
+    FVector SphereCenterOffset;
+
+    UPROPERTY( EditAnywhere )
     TArray< TEnumAsByte< EObjectTypeQuery > > ObjectTypes;
 
     UPROPERTY( EditAnywhere )
@@ -67,4 +77,7 @@ public:
 
     UPROPERTY( EditAnywhere )
     uint8 bDrawsDebug : 1;
+
+    UPROPERTY( EditAnywhere, meta = ( EditCondition = "bDrawsDebug" ) )
+    float DrawDebugDuration;
 };

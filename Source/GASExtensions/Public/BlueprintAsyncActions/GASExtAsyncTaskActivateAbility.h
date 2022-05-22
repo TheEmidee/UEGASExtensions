@@ -19,7 +19,7 @@ class GASEXTENSIONS_API UGASExtAsyncTaskActivateAbility : public UBlueprintAsync
 
 public:
     UFUNCTION( BlueprintCallable, meta = ( BlueprintInternalUseOnly = "true" ) )
-    static UGASExtAsyncTaskActivateAbility * ActivateAbility( UGASExtAbilitySystemComponent * ability_system_component, const TSubclassOf< UGameplayAbility > & ability_class );
+    static UGASExtAsyncTaskActivateAbility * ActivateAbility( UGASExtAbilitySystemComponent * ability_system_component, TSubclassOf< UGameplayAbility > ability_class );
 
     void Activate() override;
 

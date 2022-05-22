@@ -35,7 +35,10 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
     FScalableFloat NumberOfTraces;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
-    uint8 bMaxHitResultsPerTrace;
+    uint8 MaxHitResultsPerTrace;
+
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
+    uint8 bSpreadTraces : 1;
 
     // In degrees
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )

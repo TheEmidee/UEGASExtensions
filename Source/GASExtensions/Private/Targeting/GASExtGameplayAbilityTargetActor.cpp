@@ -112,18 +112,9 @@ void AGASExtGameplayAbilityTargetActor::ConfirmTargetingAndContinue()
     SetActorHiddenInGame( true );
 }
 
-void AGASExtGameplayAbilityTargetActor::ComputeTraceEnd( FVector & trace_end, const FVector & trace_start, const FCollisionQueryParams & collision_query_params )
+void AGASExtGameplayAbilityTargetActor::ComputeTrace( FVector & trace_start, FVector & trace_end )
 {
-    UGASExtTargetingHelperLibrary::AimWithPlayerController(
-        trace_end,
-        FSWAimWithPlayerControllerInfos(
-            OwningAbility,
-            trace_start,
-            collision_query_params,
-            StartLocation,
-            CollisionInfo,
-            TargetDataFilterHandle,
-            TraceMaxRange ) ); //Effective on server and launching client only
+    UGASExtTargetingHelperLibrary::AimWithPlayerController( trace_start, trace_end, FSWAimInfos( OwningAbility, StartLocation, TraceMaxRange ) );
 }
 
 void AGASExtGameplayAbilityTargetActor::FillActorsToIgnore( TArray< AActor * > actors_to_ignore ) const
@@ -131,21 +122,6 @@ void AGASExtGameplayAbilityTargetActor::FillActorsToIgnore( TArray< AActor * > a
     actors_to_ignore.Add( SourceActor );
     actors_to_ignore.Add( OwningAbility->GetCurrentActorInfo()->AvatarActor.Get() );
     actors_to_ignore.Add( const_cast< AGASExtGameplayAbilityTargetActor * >( this ) );
-}
-
-FVector AGASExtGameplayAbilityTargetActor::ComputeTraceStart( FVector & trace_start ) const
-{
-    if ( MasterPC != nullptr )
-    {
-        // :TODO: fix for AI
-        FVector view_start;
-        FRotator view_rot;
-        MasterPC->GetPlayerViewPoint( view_start, view_rot );
-
-        return view_start;
-    }
-
-    return StartLocation.GetTargetingTransform().GetLocation();
 }
 
 void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds )
@@ -159,7 +135,9 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
     collision_query_params.bIgnoreBlocks = bIgnoreBlockingHits;
 
     FVector trace_start;
-    ComputeTraceStart( trace_start );
+    FVector trace_end;
+
+    ComputeTrace( trace_start, trace_end );
 
     for ( auto index = PersistentHitResults.Num() - 1; index >= 0; --index )
     {
@@ -172,8 +150,6 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
     }
 
     TArray< FHitResult > hit_results;
-    FVector trace_end;
-    ComputeTraceEnd( trace_end, trace_start, collision_query_params );
 
     switch ( TraceType )
     {

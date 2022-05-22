@@ -82,8 +82,6 @@ void AGASExtProjectile::BeginPlay()
 
 void AGASExtProjectile::Destroyed()
 {
-    Super::Destroyed();
-
     ExecuteGameplayCue( DestroyedGameplayCue, [ projectile = this ]( FGameplayCueParameters & gameplay_cue_parameters ) {
         projectile->UpdateDestroyedGameplayCueParameters( gameplay_cue_parameters );
     } );
@@ -95,6 +93,8 @@ void AGASExtProjectile::Destroyed()
 
     // :NOTE: Don't forget to add timers using a reference to this, and not lambdas, or they won't be cleared at all
     GetWorldTimerManager().ClearAllTimersForObject( this );
+
+    Super::Destroyed();
 }
 
 void AGASExtProjectile::Release( float /*time_held*/ )
@@ -163,15 +163,10 @@ void AGASExtProjectile::PostProcessHit_Implementation( const FHitResult & /*hit_
 
 void AGASExtProjectile::ApplyGameplayEffects()
 {
-    GameplayEffectContainerSpec.TargetData.Clear();
-
-    if ( TargetTypeClass != nullptr )
+    for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
     {
-        if ( auto * target_type_cdo = TargetTypeClass->GetDefaultObject< UGASExtTargetType >() )
-        {
-            const auto target_data_handle = target_type_cdo->GetTargetData( this, LastHitResult, FGameplayEventData() );
-            GameplayEffectContainerSpec.TargetData.Append( target_data_handle );
-        }
+        effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
+        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult, true );
     }
 
     UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );

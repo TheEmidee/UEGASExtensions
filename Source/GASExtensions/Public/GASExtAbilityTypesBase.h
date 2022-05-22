@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Targeting/GASExtTargetType.h"
+
 #include <Abilities/GameplayAbilityTargetTypes.h>
 #include <Abilities/GameplayAbilityTypes.h>
 #include <CoreMinimal.h>
@@ -7,6 +9,7 @@
 
 #include "GASExtAbilityTypesBase.generated.h"
 
+class UGASExtFallOffType;
 class ASWSpline;
 class UGameplayEffect;
 class UGASExtTargetType;
@@ -26,7 +29,7 @@ enum class EGASExtCollisionDetectionType : uint8
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtCollisionDetectionInfo
+struct GASEXTENSIONS_API FGASExtCollisionDetectionInfo
 {
     GENERATED_BODY()
 
@@ -60,12 +63,20 @@ struct FGASExtCollisionDetectionInfo
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtGameplayEffectContainer
+struct GASEXTENSIONS_API FGASExtGameplayEffectContainer
 {
     GENERATED_BODY()
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
-    TSubclassOf< UGASExtTargetType > TargetTypeClass;
+    FGASExtGameplayEffectContainer();
+
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
+    UGASExtFallOffType * FallOffType;
+
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
+    UGASExtTargetType * TargetType;
+
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "TargetTypeClass != nullptr", EditConditionHides ) )
+    EGASExtGetTargetDataExecutionType TargetDataExecutionType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TArray< TSubclassOf< UGameplayEffect > > TargetGameplayEffectClasses;
@@ -75,28 +86,77 @@ struct FGASExtGameplayEffectContainer
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtGameplayEffectContainerSpec
+struct GASEXTENSIONS_API FGASExtGameplayEffectContainerSpec
 {
     GENERATED_BODY()
 
-    UPROPERTY()
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     FGameplayAbilityTargetDataHandle TargetData;
 
-    UPROPERTY()
-    TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecs;
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecHandles;
 
-    UPROPERTY()
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     TArray< FGameplayTag > GameplayEventTags;
 
-    UPROPERTY()
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     FGameplayCueParameters GameplayCueParameters;
 
-    UPROPERTY()
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     FGameplayEventData EventDataPayload;
+
+    UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
+    EGASExtGetTargetDataExecutionType TargetDataExecutionType;
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtGameplayAbilityTargetData_LocationInfo : public FGameplayAbilityTargetData_LocationInfo
+struct GASEXTENSIONS_API FGASExtGameplayEffectContext : public FGameplayEffectContext
+{
+    GENERATED_BODY()
+
+public:
+    FGASExtGameplayEffectContext();
+
+    UScriptStruct * GetScriptStruct() const override;
+    FGameplayEffectContext * Duplicate() const override;
+    bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
+
+    UGASExtFallOffType * GetFallOffType() const;
+    void SetFallOffType( UGASExtFallOffType * fall_off_type );
+
+    UGASExtTargetType * GetTargetType() const;
+    void SetTargetType( UGASExtTargetType * target_type );
+
+protected:
+    UPROPERTY()
+    UGASExtFallOffType * FallOffType;
+
+    UPROPERTY()
+    UGASExtTargetType * TargetType;
+};
+
+FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const
+{
+    return FallOffType;
+}
+
+FORCEINLINE UGASExtTargetType * FGASExtGameplayEffectContext::GetTargetType() const
+{
+    return TargetType;
+}
+
+template <>
+struct TStructOpsTypeTraits< FGASExtGameplayEffectContext > : public TStructOpsTypeTraitsBase2< FGASExtGameplayEffectContext >
+{
+    enum
+    {
+        WithNetSerializer = true,
+        WithCopy = true // Necessary so that TSharedPtr<FHitResult> Data is copied around
+    };
+};
+
+USTRUCT( BlueprintType )
+struct GASEXTENSIONS_API FGASExtGameplayAbilityTargetData_LocationInfo : public FGameplayAbilityTargetData_LocationInfo
 {
     GENERATED_USTRUCT_BODY()
 
