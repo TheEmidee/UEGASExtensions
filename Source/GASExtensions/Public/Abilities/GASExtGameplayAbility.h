@@ -73,10 +73,27 @@ public:
     /** Returns the currently playing montage for this ability, if any */
     UFUNCTION( BlueprintPure, Category = Animation )
     UAnimMontage * GetCurrentMontageForMesh( USkeletalMeshComponent * mesh ) const;
-    
+
+    // Returns true if the requested activation group is a valid transition.
+    UFUNCTION( BlueprintCallable, BlueprintPure = false, Category = "Ability", Meta = ( ExpandBoolAsExecs = "ReturnValue" ) )
+    bool CanChangeActivationGroup( EGASExtAbilityActivationGroup new_group ) const;
+
+    // Tries to change the activation group.  Returns true if it successfully changed.
+    UFUNCTION( BlueprintCallable, BlueprintPure = false, Category = "Ability", Meta = ( ExpandBoolAsExecs = "ReturnValue" ) )
+    bool ChangeActivationGroup( EGASExtAbilityActivationGroup new_group );
+
     virtual int32 GetInputID() const;
 
+    void SetCanBeCanceled( bool can_be_canceled ) override;
+    void TryActivateAbilityOnSpawn( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) const;
+
+    virtual void OnPawnAvatarSet();
+
 protected:
+    UFUNCTION( BlueprintImplementableEvent, Category = Ability, DisplayName = "OnPawnAvatarSet" )
+    void K2_OnPawnAvatarSet();
+
+    bool CanActivateAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const override;
     void EndAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilityActivationInfo activation_info, bool replicate_end_ability, bool was_cancelled ) override;
     void OnGiveAbility( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) override;
     void OnRemoveAbility( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) override;
