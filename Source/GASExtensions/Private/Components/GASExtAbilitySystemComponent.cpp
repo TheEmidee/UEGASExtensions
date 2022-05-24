@@ -1,6 +1,7 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
 #include "Abilities/GASExtGameplayAbility.h"
+#include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
 
 #include <AbilitySystemGlobals.h>
@@ -158,11 +159,10 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
             }
         }
 
-        // :TODO: GASExtAnimInstance
-        /*if ( ULyraAnimInstance * LyraAnimInst = Cast< ULyraAnimInstance >( ActorInfo->GetAnimInstance() ) )
+        if ( auto * anim_instance = Cast< UGASExtAnimInstance >( actor_info->GetAnimInstance() ) )
         {
-            LyraAnimInst->InitializeWithAbilitySystem( this );
-        }*/
+            anim_instance->InitializeWithAbilitySystem( this );
+        }
 
         TryActivateAbilitiesOnSpawn();
     }
