@@ -158,10 +158,11 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
             }
         }
 
-        if ( ULyraAnimInstance * LyraAnimInst = Cast< ULyraAnimInstance >( ActorInfo->GetAnimInstance() ) )
+        // :TODO: GASExtAnimInstance
+        /*if ( ULyraAnimInstance * LyraAnimInst = Cast< ULyraAnimInstance >( ActorInfo->GetAnimInstance() ) )
         {
             LyraAnimInst->InitializeWithAbilitySystem( this );
-        }
+        }*/
 
         TryActivateAbilitiesOnSpawn();
     }
