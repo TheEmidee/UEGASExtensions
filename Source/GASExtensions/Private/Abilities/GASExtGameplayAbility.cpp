@@ -19,7 +19,7 @@ bool UGASExtGameplayAbility::K2_IsLocallyControlled() const
     return IsLocallyControlled();
 }
 
-UGASExtAbilitySystemComponent * UGASExtGameplayAbility::GetSWAbilitySystemComponent() const
+UGASExtAbilitySystemComponent * UGASExtGameplayAbility::GetGASExtAbilitySystemComponent() const
 {
     if ( auto * asc = GetAbilitySystemComponentFromActorInfo_Ensured() )
     {

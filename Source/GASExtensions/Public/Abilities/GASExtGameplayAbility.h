@@ -50,7 +50,7 @@ public:
     bool K2_IsLocallyControlled() const;
 
     UFUNCTION( BlueprintPure )
-    UGASExtAbilitySystemComponent * GetSWAbilitySystemComponent() const;
+    UGASExtAbilitySystemComponent * GetGASExtAbilitySystemComponent() const;
 
     // If an ability is marked as 'bActivateAbilityOnGranted', activate them immediately when given here
     // Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.
