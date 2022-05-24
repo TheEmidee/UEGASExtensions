@@ -52,6 +52,12 @@ public:
     UFUNCTION( BlueprintPure )
     UGASExtAbilitySystemComponent * GetGASExtAbilitySystemComponent() const;
 
+    UFUNCTION( BlueprintPure )
+    UGASExtAbilitySystemComponent * GetGASExtAbilitySystemComponentFromActorInfo() const;
+
+    UFUNCTION( BlueprintPure )
+    AController * GetControllerFromActorInfo() const;
+
     // If an ability is marked as 'bActivateAbilityOnGranted', activate them immediately when given here
     // Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.
     void OnAvatarSet( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) override;

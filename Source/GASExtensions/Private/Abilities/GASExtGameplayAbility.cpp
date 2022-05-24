@@ -4,6 +4,7 @@
 
 #include <Abilities/Tasks/AbilityTask.h>
 #include <Components/GASExtAbilitySystemComponent.h>
+#include <GameFramework/PlayerController.h>
 #include <GameplayTask.h>
 
 UGASExtGameplayAbility::UGASExtGameplayAbility()
@@ -24,6 +25,43 @@ UGASExtAbilitySystemComponent * UGASExtGameplayAbility::GetGASExtAbilitySystemCo
     if ( auto * asc = GetAbilitySystemComponentFromActorInfo_Ensured() )
     {
         return Cast< UGASExtAbilitySystemComponent >( asc );
+    }
+
+    return nullptr;
+}
+
+UGASExtAbilitySystemComponent * UGASExtGameplayAbility::GetGASExtAbilitySystemComponentFromActorInfo() const
+{
+    return CurrentActorInfo
+               ? Cast< UGASExtAbilitySystemComponent >( CurrentActorInfo->AbilitySystemComponent.Get() )
+               : nullptr;
+}
+
+AController * UGASExtGameplayAbility::GetControllerFromActorInfo() const
+{
+    if ( CurrentActorInfo )
+    {
+        if ( auto * pc = CurrentActorInfo->PlayerController.Get() )
+        {
+            return pc;
+        }
+
+        // Look for a player controller or pawn in the owner chain.
+        auto * test_actor = CurrentActorInfo->OwnerActor.Get();
+        while ( test_actor )
+        {
+            if ( auto * controller = Cast< AController >( test_actor ) )
+            {
+                return controller;
+            }
+
+            if ( const auto * pawn = Cast< APawn >( test_actor ) )
+            {
+                return pawn->GetController();
+            }
+
+            test_actor = test_actor->GetOwner();
+        }
     }
 
     return nullptr;
