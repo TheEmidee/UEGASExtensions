@@ -10,6 +10,7 @@ UGASExtGameplayAbility::UGASExtGameplayAbility()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
+    ActivationGroup = EGASExtAbilityActivationGroup::Independent;
     bActivateAbilityOnGranted = false;
 }
 

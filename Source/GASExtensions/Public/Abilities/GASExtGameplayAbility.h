@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GASExtAbilitySystemFunctionLibrary.h"
+#include "GASExtAbilityTypesBase.h"
 
 #include <Abilities/GameplayAbility.h>
 #include <CoreMinimal.h>
@@ -43,6 +44,8 @@ class GASEXTENSIONS_API UGASExtGameplayAbility : public UGameplayAbility
 public:
     UGASExtGameplayAbility();
 
+    EGASExtAbilityActivationGroup GetActivationGroup() const;
+
     UFUNCTION( BlueprintPure, DisplayName = "IsLocallyControlled" )
     bool K2_IsLocallyControlled() const;
 
@@ -82,6 +85,8 @@ protected:
     UPROPERTY( BlueprintReadOnly, EditDefaultsOnly, Category = "Ability" )
     uint8 bActivateAbilityOnGranted : 1;
 
+    UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
+    EGASExtAbilityActivationGroup ActivationGroup;
 private:
     bool FindAbilityMeshMontage( FGASExtAbilityMeshMontage & ability_mesh_montage, USkeletalMeshComponent * mesh ) const;
 
@@ -122,6 +127,11 @@ private:
 
     TArray< UAbilityTask * > TasksToEndWhenAbilityEnds;
 };
+
+FORCEINLINE EGASExtAbilityActivationGroup UGASExtGameplayAbility::GetActivationGroup() const
+{
+    return ActivationGroup;
+}
 
 FORCEINLINE TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > UGASExtGameplayAbility::K2_GetInstancingPolicy() const
 {
