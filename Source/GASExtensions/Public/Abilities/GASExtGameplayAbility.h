@@ -46,6 +46,9 @@ public:
 
     EGASExtAbilityActivationGroup GetActivationGroup() const;
 
+    UFUNCTION( BlueprintPure, meta = ( DisplayName = "GetInstancingPolicy" ) )
+    TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > K2_GetInstancingPolicy() const;
+
     UFUNCTION( BlueprintPure, DisplayName = "IsLocallyControlled" )
     bool K2_IsLocallyControlled() const;
 
@@ -123,9 +126,6 @@ private:
 
     UFUNCTION( BlueprintCallable, Category = "GameplayEffects", meta = ( AutoCreateRefTerm = "event_data" ) )
     FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data ) const;
-
-    UFUNCTION( BlueprintPure, meta = ( DisplayName = "GetInstancingPolicy" ) )
-    TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > K2_GetInstancingPolicy() const;
 
     /** Active montages being played by this ability */
     UPROPERTY()
