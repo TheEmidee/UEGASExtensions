@@ -96,6 +96,7 @@ protected:
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
     EGASExtAbilityActivationGroup ActivationGroup;
+
 private:
     bool FindAbilityMeshMontage( FGASExtAbilityMeshMontage & ability_mesh_montage, USkeletalMeshComponent * mesh ) const;
 
@@ -108,19 +109,19 @@ private:
     void MontageSetNextSectionNameForMesh( USkeletalMeshComponent * mesh, FName from_section_name, FName to_section_name );
 
     /**
-    * Stops the current animation montage.
-    *
-    * @param mesh
-    * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
-    */
+     * Stops the current animation montage.
+     *
+     * @param mesh
+     * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
+     */
     UFUNCTION( BlueprintCallable, Category = "Ability|Animation", Meta = ( AdvancedDisplay = "OverrideBlendOutTime" ) )
     void MontageStopForMesh( USkeletalMeshComponent * mesh, float override_blend_out_time = -1.0f );
 
     /**
-    * Stops all currently animating montages
-    *
-    * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
-    */
+     * Stops all currently animating montages
+     *
+     * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
+     */
     UFUNCTION( BlueprintCallable, Category = "Ability|Animation", Meta = ( AdvancedDisplay = "OverrideBlendOutTime" ) )
     void MontageStopForAllMeshes( float override_blend_out_time = -1.0f );
 
