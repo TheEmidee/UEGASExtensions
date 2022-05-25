@@ -801,6 +801,16 @@ void UGASExtAbilitySystemComponent::CancelAbilitiesByFunc( TShouldCancelAbilityF
     }
 }
 
+void UGASExtAbilitySystemComponent::CancelInputActivatedAbilities( bool replicate_cancel_ability )
+{
+    const TShouldCancelAbilityFunc predicate = [ this ]( const UGASExtGameplayAbility * ability, FGameplayAbilitySpecHandle handle ) {
+        const auto activation_policy = ability->GetActivationPolicy();
+        return activation_policy == EGASExtAbilityActivationPolicy::OnInputTriggered || activation_policy == EGASExtAbilityActivationPolicy::WhileInputActive;
+    };
+
+    CancelAbilitiesByFunc( predicate, replicate_cancel_ability );
+}
+
 void UGASExtAbilitySystemComponent::TryActivateAbilitiesOnSpawn()
 {
     ABILITYLIST_SCOPE_LOCK();
