@@ -62,10 +62,6 @@ public:
     UFUNCTION( BlueprintPure )
     AController * GetControllerFromActorInfo() const;
 
-    // If an ability is marked as 'bActivateAbilityOnGranted', activate them immediately when given here
-    // Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.
-    void OnAvatarSet( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) override;
-
     // Same as calling K2_EndAbility. Meant for use with batching system to end the ability externally.
     void ExternalEndAbility();
 
@@ -107,11 +103,6 @@ protected:
 
     UFUNCTION( BlueprintImplementableEvent )
     void ReceiveOnRemoveAbility( const FGameplayAbilityActorInfo & actor_info, const FGameplayAbilitySpec & spec );
-
-    // Tells an ability to activate immediately when its granted. Used for passive abilities and abilities forced on others.
-    // :TODO: Remove
-    UPROPERTY( BlueprintReadOnly, EditDefaultsOnly, Category = "Ability" )
-    uint8 bActivateAbilityOnGranted : 1;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
     EGASExtAbilityActivationGroup ActivationGroup;

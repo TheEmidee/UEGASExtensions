@@ -23,8 +23,6 @@ UGASExtGameplayAbility::UGASExtGameplayAbility()
 
     ActivationGroup = EGASExtAbilityActivationGroup::Independent;
     ActivationPolicy = EGASExtAbilityActivationPolicy::OnInputTriggered;
-
-    bActivateAbilityOnGranted = false;
 }
 
 bool UGASExtGameplayAbility::K2_IsLocallyControlled() const
@@ -77,16 +75,6 @@ AController * UGASExtGameplayAbility::GetControllerFromActorInfo() const
     }
 
     return nullptr;
-}
-
-void UGASExtGameplayAbility::OnAvatarSet( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec )
-{
-    Super::OnAvatarSet( actor_info, spec );
-
-    if ( bActivateAbilityOnGranted )
-    {
-        actor_info->AbilitySystemComponent->TryActivateAbility( spec.Handle, false );
-    }
 }
 
 void UGASExtGameplayAbility::ExternalEndAbility()
@@ -200,7 +188,7 @@ void UGASExtGameplayAbility::TryActivateAbilityOnSpawn( const FGameplayAbilityAc
     const auto is_predicting = ( spec.ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting );
 
     // Try to activate if activation policy is on spawn.
-    if ( actor_info && !spec.IsActive() && !is_predicting /* :TODO: && ( ActivationPolicy == ELyraAbilityActivationPolicy::OnSpawn )*/ )
+    if ( actor_info && !spec.IsActive() && !is_predicting && ( ActivationPolicy == EGASExtAbilityActivationPolicy::OnSpawn ) )
     {
         auto * asc = actor_info->AbilitySystemComponent.Get();
         const auto * avatar_actor = actor_info->AvatarActor.Get();
