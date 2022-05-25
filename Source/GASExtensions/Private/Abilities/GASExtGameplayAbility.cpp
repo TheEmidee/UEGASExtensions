@@ -22,6 +22,8 @@ UGASExtGameplayAbility::UGASExtGameplayAbility()
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
     ActivationGroup = EGASExtAbilityActivationGroup::Independent;
+    ActivationPolicy = EGASExtAbilityActivationPolicy::OnInputTriggered;
+
     bActivateAbilityOnGranted = false;
 }
 
@@ -195,9 +197,6 @@ void UGASExtGameplayAbility::SetCanBeCanceled( const bool can_be_canceled )
 
 void UGASExtGameplayAbility::TryActivateAbilityOnSpawn( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) const
 {
-    // :TODO: ActivationPolicy
-    return;
-
     const auto is_predicting = ( spec.ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting );
 
     // Try to activate if activation policy is on spawn.
@@ -278,8 +277,7 @@ void UGASExtGameplayAbility::OnGiveAbility( const FGameplayAbilityActorInfo * ac
 
     ReceiveOnGiveAbility( *actor_info, spec );
 
-    // :TODO:
-    // TryActivateAbilityOnSpawn( actor_info, spec );
+    TryActivateAbilityOnSpawn( actor_info, spec );
 }
 
 void UGASExtGameplayAbility::OnRemoveAbility( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec )

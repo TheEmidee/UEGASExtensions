@@ -45,6 +45,7 @@ public:
     UGASExtGameplayAbility();
 
     EGASExtAbilityActivationGroup GetActivationGroup() const;
+    EGASExtAbilityActivationPolicy GetActivationPolicy() const;
 
     UFUNCTION( BlueprintPure, meta = ( DisplayName = "GetInstancingPolicy" ) )
     TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > K2_GetInstancingPolicy() const;
@@ -108,11 +109,15 @@ protected:
     void ReceiveOnRemoveAbility( const FGameplayAbilityActorInfo & actor_info, const FGameplayAbilitySpec & spec );
 
     // Tells an ability to activate immediately when its granted. Used for passive abilities and abilities forced on others.
+    // :TODO: Remove
     UPROPERTY( BlueprintReadOnly, EditDefaultsOnly, Category = "Ability" )
     uint8 bActivateAbilityOnGranted : 1;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
     EGASExtAbilityActivationGroup ActivationGroup;
+
+    UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
+    EGASExtAbilityActivationPolicy ActivationPolicy;
 
 private:
     bool FindAbilityMeshMontage( FGASExtAbilityMeshMontage & ability_mesh_montage, USkeletalMeshComponent * mesh ) const;
@@ -155,6 +160,11 @@ private:
 FORCEINLINE EGASExtAbilityActivationGroup UGASExtGameplayAbility::GetActivationGroup() const
 {
     return ActivationGroup;
+}
+
+FORCEINLINE EGASExtAbilityActivationPolicy UGASExtGameplayAbility::GetActivationPolicy() const
+{
+    return ActivationPolicy;
 }
 
 FORCEINLINE TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > UGASExtGameplayAbility::K2_GetInstancingPolicy() const
