@@ -140,22 +140,22 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
     if ( bHasNewPawnAvatar )
     {
         // Notify all abilities that a new pawn avatar has been set
-        for ( const FGameplayAbilitySpec & AbilitySpec : ActivatableAbilities.Items )
+        for ( const auto & ability_spec : ActivatableAbilities.Items )
         {
-            auto * LyraAbilityCDO = CastChecked< UGASExtGameplayAbility >( AbilitySpec.Ability );
+            auto * gas_ext_ability_cdo = CastChecked< UGASExtGameplayAbility >( ability_spec.Ability );
 
-            if ( LyraAbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced )
+            if ( gas_ext_ability_cdo->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced )
             {
-                TArray< UGameplayAbility * > Instances = AbilitySpec.GetAbilityInstances();
-                for ( UGameplayAbility * AbilityInstance : Instances )
+                const auto & instances = ability_spec.GetAbilityInstances();
+                for ( UGameplayAbility * AbilityInstance : instances )
                 {
-                    auto * LyraAbilityInstance = CastChecked< UGASExtGameplayAbility >( AbilityInstance );
-                    LyraAbilityInstance->OnPawnAvatarSet();
+                    auto * gas_ext_ability_instance = CastChecked< UGASExtGameplayAbility >( AbilityInstance );
+                    gas_ext_ability_instance->OnPawnAvatarSet();
                 }
             }
             else
             {
-                LyraAbilityCDO->OnPawnAvatarSet();
+                gas_ext_ability_cdo->OnPawnAvatarSet();
             }
         }
 
@@ -770,20 +770,20 @@ void UGASExtAbilitySystemComponent::CancelAbilitiesByFunc( TShouldCancelAbilityF
         if ( ability_cdo->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced )
         {
             // Cancel all the spawned instances, not the CDO.
-            auto instances = ability_spec.GetAbilityInstances();
-            for ( auto * AbilityInstance : instances )
+            const auto & instances = ability_spec.GetAbilityInstances();
+            for ( auto * ability_instance : instances )
             {
-                auto * ability_instance = CastChecked< UGASExtGameplayAbility >( AbilityInstance );
+                auto * gas_ext_ability_instance = CastChecked< UGASExtGameplayAbility >( ability_instance );
 
-                if ( predicate( ability_instance, ability_spec.Handle ) )
+                if ( predicate( gas_ext_ability_instance, ability_spec.Handle ) )
                 {
-                    if ( ability_instance->CanBeCanceled() )
+                    if ( gas_ext_ability_instance->CanBeCanceled() )
                     {
-                        ability_instance->CancelAbility( ability_spec.Handle, AbilityActorInfo.Get(), ability_instance->GetCurrentActivationInfo(), replicate_cancel_ability );
+                        gas_ext_ability_instance->CancelAbility( ability_spec.Handle, AbilityActorInfo.Get(), gas_ext_ability_instance->GetCurrentActivationInfo(), replicate_cancel_ability );
                     }
                     else
                     {
-                        UE_LOG( LogTemp, Error, TEXT( "CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false." ), *ability_instance->GetName() );
+                        UE_LOG( LogTemp, Error, TEXT( "CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false." ), *gas_ext_ability_instance->GetName() );
                     }
                 }
             }

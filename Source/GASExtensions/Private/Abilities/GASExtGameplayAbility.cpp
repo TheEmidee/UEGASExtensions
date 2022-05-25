@@ -203,8 +203,8 @@ void UGASExtGameplayAbility::TryActivateAbilityOnSpawn( const FGameplayAbilityAc
     // Try to activate if activation policy is on spawn.
     if ( actor_info && !spec.IsActive() && !is_predicting /* :TODO: && ( ActivationPolicy == ELyraAbilityActivationPolicy::OnSpawn )*/ )
     {
-        UAbilitySystemComponent * asc = actor_info->AbilitySystemComponent.Get();
-        const AActor * avatar_actor = actor_info->AvatarActor.Get();
+        auto * asc = actor_info->AbilitySystemComponent.Get();
+        const auto * avatar_actor = actor_info->AvatarActor.Get();
 
         // If avatar actor is torn off or about to die, don't try to activate until we get the new one.
         if ( asc && avatar_actor && !avatar_actor->GetTearOff() && ( avatar_actor->GetLifeSpan() <= 0.0f ) )
