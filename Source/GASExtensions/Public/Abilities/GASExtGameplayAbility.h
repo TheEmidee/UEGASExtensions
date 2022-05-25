@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GASExtAbilitySystemFunctionLibrary.h"
+#include "GASExtAbilityTypesBase.h"
 
 #include <Abilities/GameplayAbility.h>
 #include <CoreMinimal.h>
@@ -43,11 +44,22 @@ class GASEXTENSIONS_API UGASExtGameplayAbility : public UGameplayAbility
 public:
     UGASExtGameplayAbility();
 
+    EGASExtAbilityActivationGroup GetActivationGroup() const;
+
+    UFUNCTION( BlueprintPure, meta = ( DisplayName = "GetInstancingPolicy" ) )
+    TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > K2_GetInstancingPolicy() const;
+
     UFUNCTION( BlueprintPure, DisplayName = "IsLocallyControlled" )
     bool K2_IsLocallyControlled() const;
 
     UFUNCTION( BlueprintPure )
-    UGASExtAbilitySystemComponent * GetSWAbilitySystemComponent() const;
+    UGASExtAbilitySystemComponent * GetGASExtAbilitySystemComponent() const;
+
+    UFUNCTION( BlueprintPure )
+    UGASExtAbilitySystemComponent * GetGASExtAbilitySystemComponentFromActorInfo() const;
+
+    UFUNCTION( BlueprintPure )
+    AController * GetControllerFromActorInfo() const;
 
     // If an ability is marked as 'bActivateAbilityOnGranted', activate them immediately when given here
     // Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.
@@ -61,10 +73,27 @@ public:
     /** Returns the currently playing montage for this ability, if any */
     UFUNCTION( BlueprintPure, Category = Animation )
     UAnimMontage * GetCurrentMontageForMesh( USkeletalMeshComponent * mesh ) const;
-    
+
+    // Returns true if the requested activation group is a valid transition.
+    UFUNCTION( BlueprintCallable, BlueprintPure = false, Category = "Ability", Meta = ( ExpandBoolAsExecs = "ReturnValue" ) )
+    bool CanChangeActivationGroup( EGASExtAbilityActivationGroup new_group ) const;
+
+    // Tries to change the activation group.  Returns true if it successfully changed.
+    UFUNCTION( BlueprintCallable, BlueprintPure = false, Category = "Ability", Meta = ( ExpandBoolAsExecs = "ReturnValue" ) )
+    bool ChangeActivationGroup( EGASExtAbilityActivationGroup new_group );
+
     virtual int32 GetInputID() const;
 
+    void SetCanBeCanceled( bool can_be_canceled ) override;
+    void TryActivateAbilityOnSpawn( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) const;
+
+    virtual void OnPawnAvatarSet();
+
 protected:
+    UFUNCTION( BlueprintImplementableEvent, Category = Ability, DisplayName = "OnPawnAvatarSet" )
+    void K2_OnPawnAvatarSet();
+
+    bool CanActivateAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const override;
     void EndAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilityActivationInfo activation_info, bool replicate_end_ability, bool was_cancelled ) override;
     void OnGiveAbility( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) override;
     void OnRemoveAbility( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) override;
@@ -82,6 +111,9 @@ protected:
     UPROPERTY( BlueprintReadOnly, EditDefaultsOnly, Category = "Ability" )
     uint8 bActivateAbilityOnGranted : 1;
 
+    UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
+    EGASExtAbilityActivationGroup ActivationGroup;
+
 private:
     bool FindAbilityMeshMontage( FGASExtAbilityMeshMontage & ability_mesh_montage, USkeletalMeshComponent * mesh ) const;
 
@@ -94,27 +126,24 @@ private:
     void MontageSetNextSectionNameForMesh( USkeletalMeshComponent * mesh, FName from_section_name, FName to_section_name );
 
     /**
-    * Stops the current animation montage.
-    *
-    * @param mesh
-    * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
-    */
+     * Stops the current animation montage.
+     *
+     * @param mesh
+     * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
+     */
     UFUNCTION( BlueprintCallable, Category = "Ability|Animation", Meta = ( AdvancedDisplay = "OverrideBlendOutTime" ) )
     void MontageStopForMesh( USkeletalMeshComponent * mesh, float override_blend_out_time = -1.0f );
 
     /**
-    * Stops all currently animating montages
-    *
-    * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
-    */
+     * Stops all currently animating montages
+     *
+     * @param override_blend_out_time If >= 0, will override the BlendOutTime parameter on the AnimMontage instance
+     */
     UFUNCTION( BlueprintCallable, Category = "Ability|Animation", Meta = ( AdvancedDisplay = "OverrideBlendOutTime" ) )
     void MontageStopForAllMeshes( float override_blend_out_time = -1.0f );
 
     UFUNCTION( BlueprintCallable, Category = "GameplayEffects", meta = ( AutoCreateRefTerm = "event_data" ) )
     FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data ) const;
-
-    UFUNCTION( BlueprintPure, meta = ( DisplayName = "GetInstancingPolicy" ) )
-    TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > K2_GetInstancingPolicy() const;
 
     /** Active montages being played by this ability */
     UPROPERTY()
@@ -122,6 +151,11 @@ private:
 
     TArray< UAbilityTask * > TasksToEndWhenAbilityEnds;
 };
+
+FORCEINLINE EGASExtAbilityActivationGroup UGASExtGameplayAbility::GetActivationGroup() const
+{
+    return ActivationGroup;
+}
 
 FORCEINLINE TEnumAsByte< EGameplayAbilityInstancingPolicy::Type > UGASExtGameplayAbility::K2_GetInstancingPolicy() const
 {

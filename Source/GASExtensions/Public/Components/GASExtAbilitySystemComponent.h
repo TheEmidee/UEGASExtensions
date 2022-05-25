@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GASExtAbilityTypesBase.h"
+
 #include <AbilitySystemComponent.h>
 #include <CoreMinimal.h>
 
@@ -8,8 +10,8 @@
 class UGASExtGameplayAbility;
 
 /**
-* Data about montages that were played locally (all montages in case of server. predictive montages in case of client). Never replicated directly.
-*/
+ * Data about montages that were played locally (all montages in case of server. predictive montages in case of client). Never replicated directly.
+ */
 USTRUCT()
 struct GASEXTENSIONS_API FGameplayAbilityLocalAnimMontageForMesh
 {
@@ -40,8 +42,8 @@ public:
 };
 
 /**
-* Data about montages that is replicated to simulated clients.
-*/
+ * Data about montages that is replicated to simulated clients.
+ */
 USTRUCT()
 struct GASEXTENSIONS_API FGameplayAbilityRepAnimMontageForMesh
 {
@@ -95,7 +97,6 @@ public:
     bool GetShouldTick() const override;
     void TickComponent( float delta_time, enum ELevelTick tick_type, FActorComponentTickFunction * this_tick_function ) override;
     void InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor ) override;
-    void NotifyAbilityEnded( FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, bool was_cancelled ) override;
     void RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container ) override;
 
 #if WITH_EDITOR
@@ -182,7 +183,20 @@ public:
 
     void SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play );
 
+    bool IsActivationGroupBlocked( EGASExtAbilityActivationGroup group ) const;
+    void AddAbilityToActivationGroup( EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ability );
+    void RemoveAbilityFromActivationGroup( EGASExtAbilityActivationGroup group, const UGASExtGameplayAbility * ability );
+    void CancelActivationGroupAbilities( EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ignore_ability, bool replicate_cancel_ability );
+
+    typedef TFunctionRef< bool( const UGASExtGameplayAbility * ability, FGameplayAbilitySpecHandle handle ) > TShouldCancelAbilityFunc;
+    void CancelAbilitiesByFunc( TShouldCancelAbilityFunc predicate, bool replicate_cancel_ability );
+
 protected:
+    void TryActivateAbilitiesOnSpawn();
+    void NotifyAbilityActivated( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability ) override;
+    void NotifyAbilityFailed( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability, const FGameplayTagContainer & FailureReason ) override;
+    void NotifyAbilityEnded( FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, bool was_cancelled ) override;
+
     UFUNCTION( BlueprintCallable )
     void K2_RemoveGameplayCue( FGameplayTag gameplay_cue_tag );
 
@@ -273,10 +287,13 @@ private:
     TArray< TSubclassOf< UAttributeSet > > AdditionalAttributeSetClass;
 
     /*
-    * For tags not bound to gameplay effects
-    */
+     * For tags not bound to gameplay effects
+     */
     UPROPERTY( EditAnywhere )
     FGameplayTagContainer LooseTagsContainer;
+
+    // Number of abilities running in each activation group.
+    int32 ActivationGroupCounts[ static_cast< uint8 >( EGASExtAbilityActivationGroup::MAX ) ];
 };
 
 template < typename _ATTRIBUTE_SET_CLASS_ >

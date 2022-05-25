@@ -1,6 +1,7 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
 #include "Abilities/GASExtGameplayAbility.h"
+#include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
 
 #include <AbilitySystemGlobals.h>
@@ -56,6 +57,8 @@ bool FGameplayAbilityRepAnimMontageForMesh::NetSerialize( FArchive & ar, UPackag
 UGASExtAbilitySystemComponent::UGASExtAbilitySystemComponent()
 {
     bGiveAbilitiesAndEffectsInBeginPlay = true;
+
+    FMemory::Memset( ActivationGroupCounts, 0, sizeof( ActivationGroupCounts ) );
 }
 
 void UGASExtAbilitySystemComponent::InitializeComponent()
@@ -121,6 +124,9 @@ void UGASExtAbilitySystemComponent::TickComponent( const float delta_time, const
 
 void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor )
 {
+    const auto * actor_info = AbilityActorInfo.Get();
+    const bool bHasNewPawnAvatar = Cast< APawn >( avatar_actor ) != nullptr && avatar_actor != actor_info->AvatarActor;
+
     Super::InitAbilityActorInfo( owner_actor, avatar_actor );
 
     LocalAnimMontageInfoForMeshes.Reset();
@@ -130,14 +136,36 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
     {
         OnRep_ReplicatedAnimMontageForMesh();
     }
-}
 
-void UGASExtAbilitySystemComponent::NotifyAbilityEnded( const FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, const bool was_cancelled )
-{
-    Super::NotifyAbilityEnded( handle, ability, was_cancelled );
+    if ( bHasNewPawnAvatar )
+    {
+        // Notify all abilities that a new pawn avatar has been set
+        for ( const auto & ability_spec : ActivatableAbilities.Items )
+        {
+            auto * gas_ext_ability_cdo = CastChecked< UGASExtGameplayAbility >( ability_spec.Ability );
 
-    // If AnimatingAbility ended, clear the pointer
-    ClearAnimatingAbilityForAllMeshes( ability );
+            if ( gas_ext_ability_cdo->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced )
+            {
+                const auto & instances = ability_spec.GetAbilityInstances();
+                for ( UGameplayAbility * AbilityInstance : instances )
+                {
+                    auto * gas_ext_ability_instance = CastChecked< UGASExtGameplayAbility >( AbilityInstance );
+                    gas_ext_ability_instance->OnPawnAvatarSet();
+                }
+            }
+            else
+            {
+                gas_ext_ability_cdo->OnPawnAvatarSet();
+            }
+        }
+
+        if ( auto * anim_instance = Cast< UGASExtAnimInstance >( actor_info->GetAnimInstance() ) )
+        {
+            anim_instance->InitializeWithAbilitySystem( this );
+        }
+
+        TryActivateAbilitiesOnSpawn();
+    }
 }
 
 void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container )
@@ -640,6 +668,185 @@ void UGASExtAbilitySystemComponent::GiveDefaultAttributes()
     {
         ApplyGameplayEffectSpecToSelf( *new_handle.Data.Get() );
     }
+}
+
+bool UGASExtAbilitySystemComponent::IsActivationGroupBlocked( EGASExtAbilityActivationGroup group ) const
+{
+    auto is_blocked = false;
+
+    switch ( group )
+    {
+        case EGASExtAbilityActivationGroup::Independent:
+        {
+            // Independent abilities are never blocked.
+            is_blocked = false;
+        }
+        break;
+
+        case EGASExtAbilityActivationGroup::ExclusiveReplaceable:
+        case EGASExtAbilityActivationGroup::ExclusiveBlocking:
+        {
+            // Exclusive abilities can activate if nothing is blocking.
+            is_blocked = ( ActivationGroupCounts[ static_cast< uint8 >( EGASExtAbilityActivationGroup::ExclusiveBlocking ) ] > 0 );
+        }
+        break;
+
+        default:
+        {
+            checkf( false, TEXT( "IsActivationGroupBlocked: Invalid ActivationGroup [%d]\n" ), static_cast< uint8 >( group ) );
+        }
+        break;
+    }
+
+    return is_blocked;
+}
+
+void UGASExtAbilitySystemComponent::AddAbilityToActivationGroup( EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ability )
+{
+    check( ability );
+    check( ActivationGroupCounts[ static_cast< uint8 >( group ) ] < INT32_MAX );
+
+    ActivationGroupCounts[ static_cast< uint8 >( group ) ]++;
+
+    switch ( group )
+    {
+        case EGASExtAbilityActivationGroup::Independent:
+        {
+            // Independent abilities do not cancel any other abilities.
+        }
+        break;
+
+        case EGASExtAbilityActivationGroup::ExclusiveReplaceable:
+        case EGASExtAbilityActivationGroup::ExclusiveBlocking:
+        {
+            CancelActivationGroupAbilities( EGASExtAbilityActivationGroup::ExclusiveReplaceable, ability, false );
+        }
+        break;
+
+        default:
+        {
+            checkf( false, TEXT( "AddAbilityToActivationGroup: Invalid ActivationGroup [%d]\n" ), static_cast< uint8 >( group ) );
+        }
+        break;
+    }
+
+    const auto exclusive_count = ActivationGroupCounts[ static_cast< uint8 >( EGASExtAbilityActivationGroup::ExclusiveReplaceable ) ] + ActivationGroupCounts[ static_cast< uint8 >( EGASExtAbilityActivationGroup::ExclusiveBlocking ) ];
+    if ( !ensure( exclusive_count <= 1 ) )
+    {
+        UE_LOG( LogTemp, Error, TEXT( "AddAbilityToActivationGroup: Multiple exclusive abilities are running." ) );
+    }
+}
+
+void UGASExtAbilitySystemComponent::RemoveAbilityFromActivationGroup( const EGASExtAbilityActivationGroup group, const UGASExtGameplayAbility * ability )
+{
+    check( ability );
+    check( ActivationGroupCounts[ static_cast< uint8 >( group ) ] > 0 );
+    check( group < EGASExtAbilityActivationGroup::MAX );
+
+    ActivationGroupCounts[ static_cast< uint8 >( group ) ]--;
+}
+
+void UGASExtAbilitySystemComponent::CancelActivationGroupAbilities( const EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ignore_ability, bool replicate_cancel_ability )
+{
+    const auto should_cancel_func = [ this, group, ignore_ability ]( const UGASExtGameplayAbility * ability, FGameplayAbilitySpecHandle ability_handle ) {
+        return ( ( ability->GetActivationGroup() == group ) && ( ability != ignore_ability ) );
+    };
+
+    CancelAbilitiesByFunc( should_cancel_func, replicate_cancel_ability );
+}
+
+void UGASExtAbilitySystemComponent::CancelAbilitiesByFunc( TShouldCancelAbilityFunc predicate, bool replicate_cancel_ability )
+{
+    ABILITYLIST_SCOPE_LOCK();
+    for ( const FGameplayAbilitySpec & ability_spec : ActivatableAbilities.Items )
+    {
+        if ( !ability_spec.IsActive() )
+        {
+            continue;
+        }
+
+        auto * ability_cdo = CastChecked< UGASExtGameplayAbility >( ability_spec.Ability );
+
+        if ( ability_cdo->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced )
+        {
+            // Cancel all the spawned instances, not the CDO.
+            const auto & instances = ability_spec.GetAbilityInstances();
+            for ( auto * ability_instance : instances )
+            {
+                auto * gas_ext_ability_instance = CastChecked< UGASExtGameplayAbility >( ability_instance );
+
+                if ( predicate( gas_ext_ability_instance, ability_spec.Handle ) )
+                {
+                    if ( gas_ext_ability_instance->CanBeCanceled() )
+                    {
+                        gas_ext_ability_instance->CancelAbility( ability_spec.Handle, AbilityActorInfo.Get(), gas_ext_ability_instance->GetCurrentActivationInfo(), replicate_cancel_ability );
+                    }
+                    else
+                    {
+                        UE_LOG( LogTemp, Error, TEXT( "CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false." ), *gas_ext_ability_instance->GetName() );
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Cancel the non-instanced ability CDO.
+            if ( predicate( ability_cdo, ability_spec.Handle ) )
+            {
+                // Non-instanced abilities can always be canceled.
+                check( ability_cdo->CanBeCanceled() );
+                ability_cdo->CancelAbility( ability_spec.Handle, AbilityActorInfo.Get(), FGameplayAbilityActivationInfo(), replicate_cancel_ability );
+            }
+        }
+    }
+}
+
+void UGASExtAbilitySystemComponent::TryActivateAbilitiesOnSpawn()
+{
+    ABILITYLIST_SCOPE_LOCK();
+    for ( const FGameplayAbilitySpec & ability_spec : ActivatableAbilities.Items )
+    {
+        const auto * ability_cdo = CastChecked< UGASExtGameplayAbility >( ability_spec.Ability );
+        ability_cdo->TryActivateAbilityOnSpawn( AbilityActorInfo.Get(), ability_spec );
+    }
+}
+
+void UGASExtAbilitySystemComponent::NotifyAbilityActivated( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability )
+{
+    Super::NotifyAbilityActivated( Handle, Ability );
+
+    auto * ability = CastChecked< UGASExtGameplayAbility >( Ability );
+
+    AddAbilityToActivationGroup( ability->GetActivationGroup(), ability );
+}
+
+void UGASExtAbilitySystemComponent::NotifyAbilityFailed( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability, const FGameplayTagContainer & FailureReason )
+{
+    Super::NotifyAbilityFailed( Handle, Ability, FailureReason );
+
+    /* :TODO: Failed abilities
+    if ( APawn * Avatar = Cast< APawn >( GetAvatarActor() ) )
+    {
+        if ( !Avatar->IsLocallyControlled() && Ability->IsSupportedForNetworking() )
+        {
+            ClientNotifyAbilityFailed( Ability, FailureReason );
+            return;
+        }
+    }
+
+    HandleAbilityFailed( Ability, FailureReason );*/
+}
+
+void UGASExtAbilitySystemComponent::NotifyAbilityEnded( const FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, const bool was_cancelled )
+{
+    Super::NotifyAbilityEnded( handle, ability, was_cancelled );
+
+    // If AnimatingAbility ended, clear the pointer
+    ClearAnimatingAbilityForAllMeshes( ability );
+
+    const auto * gas_ext_ability = CastChecked< UGASExtGameplayAbility >( ability );
+
+    RemoveAbilityFromActivationGroup( gas_ext_ability->GetActivationGroup(), gas_ext_ability );
 }
 
 void UGASExtAbilitySystemComponent::K2_RemoveGameplayCue( const FGameplayTag gameplay_cue_tag )
