@@ -22,7 +22,7 @@ UGASExtGameplayAbility::UGASExtGameplayAbility()
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
     ActivationGroup = EGASExtAbilityActivationGroup::Independent;
-    bActivateAbilityOnGranted = false;
+    ActivationPolicy = EGASExtAbilityActivationPolicy::OnInputTriggered;
 }
 
 bool UGASExtGameplayAbility::K2_IsLocallyControlled() const
@@ -75,16 +75,6 @@ AController * UGASExtGameplayAbility::GetControllerFromActorInfo() const
     }
 
     return nullptr;
-}
-
-void UGASExtGameplayAbility::OnAvatarSet( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec )
-{
-    Super::OnAvatarSet( actor_info, spec );
-
-    if ( bActivateAbilityOnGranted )
-    {
-        actor_info->AbilitySystemComponent->TryActivateAbility( spec.Handle, false );
-    }
 }
 
 void UGASExtGameplayAbility::ExternalEndAbility()
@@ -195,13 +185,10 @@ void UGASExtGameplayAbility::SetCanBeCanceled( const bool can_be_canceled )
 
 void UGASExtGameplayAbility::TryActivateAbilityOnSpawn( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) const
 {
-    // :TODO: ActivationPolicy
-    return;
-
     const auto is_predicting = ( spec.ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting );
 
     // Try to activate if activation policy is on spawn.
-    if ( actor_info && !spec.IsActive() && !is_predicting /* :TODO: && ( ActivationPolicy == ELyraAbilityActivationPolicy::OnSpawn )*/ )
+    if ( actor_info && !spec.IsActive() && !is_predicting && ( ActivationPolicy == EGASExtAbilityActivationPolicy::OnSpawn ) )
     {
         auto * asc = actor_info->AbilitySystemComponent.Get();
         const auto * avatar_actor = actor_info->AvatarActor.Get();
@@ -278,8 +265,7 @@ void UGASExtGameplayAbility::OnGiveAbility( const FGameplayAbilityActorInfo * ac
 
     ReceiveOnGiveAbility( *actor_info, spec );
 
-    // :TODO:
-    // TryActivateAbilityOnSpawn( actor_info, spec );
+    TryActivateAbilityOnSpawn( actor_info, spec );
 }
 
 void UGASExtGameplayAbility::OnRemoveAbility( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec )

@@ -191,6 +191,8 @@ public:
     typedef TFunctionRef< bool( const UGASExtGameplayAbility * ability, FGameplayAbilitySpecHandle handle ) > TShouldCancelAbilityFunc;
     void CancelAbilitiesByFunc( TShouldCancelAbilityFunc predicate, bool replicate_cancel_ability );
 
+    void CancelInputActivatedAbilities( bool replicate_cancel_ability );
+
 protected:
     void TryActivateAbilitiesOnSpawn();
     void NotifyAbilityActivated( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability ) override;
