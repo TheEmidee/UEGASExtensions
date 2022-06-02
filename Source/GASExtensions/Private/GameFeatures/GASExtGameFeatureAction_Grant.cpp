@@ -127,7 +127,7 @@ void UGASExtGameFeatureAction_Grant::AddToWorld( const FWorldContext & world_con
 {
     if ( const auto * world = world_context.World() )
     {
-        if ( const auto * game_instance = world_context.OwningGameInstance )
+        if ( const auto * game_instance = world_context.OwningGameInstance.Get() )
         {
             if ( world->IsGameWorld() )
             {

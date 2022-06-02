@@ -10,7 +10,7 @@ FGASExtWaitTargetDataReplicationOptions::FGASExtWaitTargetDataReplicationOptions
 
 void UGASExtAT_WaitTargetData::Activate()
 {
-    if ( IsPendingKill() )
+    if ( !IsValid( this ) )
     {
         return;
     }

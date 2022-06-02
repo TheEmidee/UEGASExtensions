@@ -259,7 +259,6 @@ float UGASExtAbilitySystemComponent::PlayMontageForMesh( UGameplayAbility * anim
 
             anim_montage_info.LocalMontageInfo.AnimMontage = new_anim_montage;
             anim_montage_info.LocalMontageInfo.AnimatingAbility = animating_ability;
-            anim_montage_info.LocalMontageInfo.PlayBit = !anim_montage_info.LocalMontageInfo.PlayBit;
 
             if ( ability != nullptr )
             {
@@ -280,7 +279,6 @@ float UGASExtAbilitySystemComponent::PlayMontageForMesh( UGameplayAbility * anim
                     // Those are static parameters, they are only set when the montage is played. They are not changed after that.
                     auto & ability_rep_montage_info = GetGameplayAbilityRepAnimMontageForMesh( mesh );
                     ability_rep_montage_info.RepMontageInfo.AnimMontage = new_anim_montage;
-                    ability_rep_montage_info.RepMontageInfo.ForcePlayBit = !static_cast< bool >( ability_rep_montage_info.RepMontageInfo.ForcePlayBit );
 
                     // Update parameters that change during Montage life time.
                     AnimMontage_UpdateReplicatedDataForMesh( mesh );
@@ -583,7 +581,7 @@ void UGASExtAbilitySystemComponent::GiveDefaultAbilities()
 
     for ( const auto & startup_ability : DefaultAbilities )
     {
-        if ( !ensureAlwaysMsgf( startup_ability != nullptr, TEXT( "%s() One of the DefaultAbilities is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
+        if ( !ensureAlwaysMsgf( startup_ability != nullptr, TEXT( "%s() One of the DefaultAbilities is not valid in %s." ), StringCast< TCHAR >( __FUNCTION__ ).Get(), *GetName() ) )
         {
             continue;
         }
@@ -608,7 +606,7 @@ void UGASExtAbilitySystemComponent::GiveDefaultEffects()
 
     for ( const auto & startup_effect : DefaultEffects )
     {
-        if ( !ensureAlwaysMsgf( startup_effect != nullptr, TEXT( "%s() One of the StartupEffects is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
+        if ( !ensureAlwaysMsgf( startup_effect != nullptr, TEXT( "%s() One of the StartupEffects is not valid in %s." ), StringCast< TCHAR >( __FUNCTION__ ).Get(), *GetName() ) )
         {
             continue;
         }
@@ -626,7 +624,7 @@ void UGASExtAbilitySystemComponent::GiveDefaultAttributes()
 {
     if ( DefaultAttributes == nullptr )
     {
-        UE_LOG( LogTemp, Verbose, TEXT( "%s() Missing DefaultAttributes for %s." ), TEXT( __FUNCTION__ ), *GetNameSafe( GetOwner() ) );
+        UE_LOG( LogTemp, Verbose, TEXT( "%s() Missing DefaultAttributes for %s." ), StringCast< TCHAR >( __FUNCTION__ ).Get(), *GetNameSafe( GetOwner() ) );
         return;
     }
 
@@ -773,11 +771,11 @@ void UGASExtAbilitySystemComponent::AnimMontage_UpdateReplicatedDataForMesh( FGa
     }
 }
 
-void UGASExtAbilitySystemComponent::AnimMontage_UpdateForcedPlayFlagsForMesh( FGameplayAbilityRepAnimMontageForMesh & rep_anim_montage_info )
+void UGASExtAbilitySystemComponent::AnimMontage_UpdateForcedPlayFlagsForMesh( FGameplayAbilityRepAnimMontageForMesh & /*rep_anim_montage_info*/ )
 {
-    const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( rep_anim_montage_info.Mesh );
+    //const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( rep_anim_montage_info.Mesh );
 
-    rep_anim_montage_info.RepMontageInfo.ForcePlayBit = anim_montage_info.LocalMontageInfo.PlayBit;
+    //rep_anim_montage_info.RepMontageInfo.ForcePlayBit = anim_montage_info.LocalMontageInfo.PlayBit;
 }
 
 void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
@@ -817,17 +815,15 @@ void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
             if ( must_debug_montage )
             {
                 ABILITY_LOG( Warning, TEXT( "\n\nOnRep_ReplicatedAnimMontage, %s" ), *GetNameSafe( this ) );
-                ABILITY_LOG( Warning, TEXT( "\tAnimMontage: %s\n\tPlayRate: %f\n\tPosition: %f\n\tBlendTime: %f\n\tNextSectionID: %d\n\tIsStopped: %d\n\tForcePlayBit: %d" ), *GetNameSafe( new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage ), new_rep_montage_info_for_mesh.RepMontageInfo.PlayRate, new_rep_montage_info_for_mesh.RepMontageInfo.Position, new_rep_montage_info_for_mesh.RepMontageInfo.BlendTime, new_rep_montage_info_for_mesh.RepMontageInfo.NextSectionID, new_rep_montage_info_for_mesh.RepMontageInfo.IsStopped, new_rep_montage_info_for_mesh.RepMontageInfo.ForcePlayBit );
+                ABILITY_LOG( Warning, TEXT( "\tAnimMontage: %s\n\tPlayRate: %f\n\tPosition: %f\n\tBlendTime: %f\n\tNextSectionID: %d\n\tIsStopped: %d" ), *GetNameSafe( new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage ), new_rep_montage_info_for_mesh.RepMontageInfo.PlayRate, new_rep_montage_info_for_mesh.RepMontageInfo.Position, new_rep_montage_info_for_mesh.RepMontageInfo.BlendTime, new_rep_montage_info_for_mesh.RepMontageInfo.NextSectionID, new_rep_montage_info_for_mesh.RepMontageInfo.IsStopped );
                 ABILITY_LOG( Warning, TEXT( "\tLocalAnimMontageInfo.AnimMontage: %s\n\tPosition: %f" ), *GetNameSafe( anim_montage_info.LocalMontageInfo.AnimMontage ), anim_instance->Montage_GetPosition( anim_montage_info.LocalMontageInfo.AnimMontage ) );
             }
 
             if ( new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage )
             {
                 // New Montage to play
-                const auto replicated_play_bit = static_cast< bool >( new_rep_montage_info_for_mesh.RepMontageInfo.ForcePlayBit );
-                if ( ( anim_montage_info.LocalMontageInfo.AnimMontage != new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage ) || ( anim_montage_info.LocalMontageInfo.PlayBit != replicated_play_bit ) )
+                if ( anim_montage_info.LocalMontageInfo.AnimMontage != new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage )
                 {
-                    anim_montage_info.LocalMontageInfo.PlayBit = replicated_play_bit;
                     PlayMontageSimulatedForMesh( new_rep_montage_info_for_mesh.Mesh, new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage, new_rep_montage_info_for_mesh.RepMontageInfo.PlayRate );
                 }
 
