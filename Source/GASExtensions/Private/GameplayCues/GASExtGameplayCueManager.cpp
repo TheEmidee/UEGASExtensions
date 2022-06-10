@@ -153,7 +153,7 @@ void UGASExtGameplayCueManager::DumpGameplayCues( const TArray< FString > & Args
     UGASExtGameplayCueManager * gameplay_cue_manager = Cast< UGASExtGameplayCueManager >( UAbilitySystemGlobals::Get().GetGameplayCueManager() );
     if ( !gameplay_cue_manager )
     {
-        UE_LOG( LogGASExt, Error, TEXT( "DumpGameplayCues failed. No ULyraGameplayCueManager found." ) );
+        UE_LOG( LogGASExt, Error, TEXT( "DumpGameplayCues failed. No UGASExtGameplayCueManager found." ) );
         return;
     }
 
@@ -358,7 +358,7 @@ void UGASExtGameplayCueManager::ProcessLoadedTags()
         }
         else
         {
-            UE_LOG( LogGASExt, Warning, TEXT( "ULyraGameplayCueManager::OnGameplayTagLoaded processed loaded tag(s) but RuntimeGameplayCueObjectLibrary.CueSet was null. Skipping processing." ) );
+            UE_LOG( LogGASExt, Warning, TEXT( "UGASExtGameplayCueManager::OnGameplayTagLoaded processed loaded tag(s) but RuntimeGameplayCueObjectLibrary.CueSet was null. Skipping processing." ) );
         }
     }
 }
