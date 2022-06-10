@@ -150,56 +150,59 @@ void UGASExtGameplayCueManager::RefreshGameplayCuePrimaryAsset()
 
 void UGASExtGameplayCueManager::DumpGameplayCues( const TArray< FString > & Args )
 {
-    UGASExtGameplayCueManager * GCM = Cast< UGASExtGameplayCueManager >( UAbilitySystemGlobals::Get().GetGameplayCueManager() );
-    if ( !GCM )
+    UGASExtGameplayCueManager * gameplay_cue_manager = Cast< UGASExtGameplayCueManager >( UAbilitySystemGlobals::Get().GetGameplayCueManager() );
+    if ( !gameplay_cue_manager )
     {
         UE_LOG( LogGASExt, Error, TEXT( "DumpGameplayCues failed. No ULyraGameplayCueManager found." ) );
         return;
     }
 
-    const bool bIncludeRefs = Args.Contains( TEXT( "Refs" ) );
+    const bool include_refs = Args.Contains( TEXT( "Refs" ) );
 
     UE_LOG( LogGASExt, Log, TEXT( "=========== Dumping Always Loaded Gameplay Cue Notifies ===========" ) );
-    for ( UClass * CueClass : GCM->AlwaysLoadedCues )
+    for ( const auto * cue_class : gameplay_cue_manager->AlwaysLoadedCues )
     {
-        UE_LOG( LogGASExt, Log, TEXT( "  %s" ), *GetPathNameSafe( CueClass ) );
+        UE_LOG( LogGASExt, Log, TEXT( "  %s" ), *GetPathNameSafe( cue_class ) );
     }
 
     UE_LOG( LogGASExt, Log, TEXT( "=========== Dumping Preloaded Gameplay Cue Notifies ===========" ) );
-    for ( UClass * CueClass : GCM->PreloadedCues )
+    for ( const auto * cue_class : gameplay_cue_manager->PreloadedCues )
     {
-        TSet< FObjectKey > * ReferencerSet = GCM->PreloadedCueReferencers.Find( CueClass );
-        int32 NumRefs = ReferencerSet ? ReferencerSet->Num() : 0;
-        UE_LOG( LogGASExt, Log, TEXT( "  %s (%d refs)" ), *GetPathNameSafe( CueClass ), NumRefs );
-        if ( bIncludeRefs && ReferencerSet )
+        TSet< FObjectKey > * referencer_set = gameplay_cue_manager->PreloadedCueReferencers.Find( cue_class );
+        int32 num_refs = referencer_set ? referencer_set->Num() : 0;
+
+        UE_LOG( LogGASExt, Log, TEXT( "  %s (%d refs)" ), *GetPathNameSafe( cue_class ), num_refs );
+
+        if ( include_refs && referencer_set )
         {
-            for ( const FObjectKey & Ref : *ReferencerSet )
+            for ( const auto & ref : *referencer_set )
             {
-                UObject * RefObject = Ref.ResolveObjectPtr();
-                UE_LOG( LogGASExt, Log, TEXT( "    ^- %s" ), *GetPathNameSafe( RefObject ) );
+                const auto * ref_object = ref.ResolveObjectPtr();
+                UE_LOG( LogGASExt, Log, TEXT( "    ^- %s" ), *GetPathNameSafe( ref_object ) );
             }
         }
     }
 
     UE_LOG( LogGASExt, Log, TEXT( "=========== Dumping Gameplay Cue Notifies loaded on demand ===========" ) );
-    int32 NumMissingCuesLoaded = 0;
-    if ( GCM->RuntimeGameplayCueObjectLibrary.CueSet )
+
+    int32 num_missing_cues_loaded = 0;
+    if ( gameplay_cue_manager->RuntimeGameplayCueObjectLibrary.CueSet )
     {
-        for ( const FGameplayCueNotifyData & CueData : GCM->RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueData )
+        for ( const auto & cue_data : gameplay_cue_manager->RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueData )
         {
-            if ( CueData.LoadedGameplayCueClass && !GCM->AlwaysLoadedCues.Contains( CueData.LoadedGameplayCueClass ) && !GCM->PreloadedCues.Contains( CueData.LoadedGameplayCueClass ) )
+            if ( cue_data.LoadedGameplayCueClass && !gameplay_cue_manager->AlwaysLoadedCues.Contains( cue_data.LoadedGameplayCueClass ) && !gameplay_cue_manager->PreloadedCues.Contains( cue_data.LoadedGameplayCueClass ) )
             {
-                NumMissingCuesLoaded++;
-                UE_LOG( LogGASExt, Log, TEXT( "  %s" ), *CueData.LoadedGameplayCueClass->GetPathName() );
+                num_missing_cues_loaded++;
+                UE_LOG( LogGASExt, Log, TEXT( "  %s" ), *cue_data.LoadedGameplayCueClass->GetPathName() );
             }
         }
     }
 
     UE_LOG( LogGASExt, Log, TEXT( "=========== Gameplay Cue Notify summary ===========" ) );
-    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues in always loaded list" ), GCM->AlwaysLoadedCues.Num() );
-    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues in preloaded list" ), GCM->PreloadedCues.Num() );
-    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues loaded on demand" ), NumMissingCuesLoaded );
-    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues in total" ), GCM->AlwaysLoadedCues.Num() + GCM->PreloadedCues.Num() + NumMissingCuesLoaded );
+    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues in always loaded list" ), gameplay_cue_manager->AlwaysLoadedCues.Num() );
+    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues in preloaded list" ), gameplay_cue_manager->PreloadedCues.Num() );
+    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues loaded on demand" ), num_missing_cues_loaded );
+    UE_LOG( LogGASExt, Log, TEXT( "  ... %d cues in total" ), gameplay_cue_manager->AlwaysLoadedCues.Num() + gameplay_cue_manager->PreloadedCues.Num() + num_missing_cues_loaded );
 }
 
 UGASExtGameplayCueManager * UGASExtGameplayCueManager::Get()
@@ -293,7 +296,7 @@ void UGASExtGameplayCueManager::HandlePostGarbageCollect()
     bProcessLoadedTagsAfterGC = false;
 }
 
-void UGASExtGameplayCueManager::HandlePostLoadMap( UWorld * world )
+void UGASExtGameplayCueManager::HandlePostLoadMap( UWorld * /*world*/ )
 {
     if ( RuntimeGameplayCueObjectLibrary.CueSet )
     {
