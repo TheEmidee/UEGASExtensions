@@ -16,9 +16,9 @@ struct GASEXTENSIONS_API FGASExtGameplayTagStack : public FFastArraySerializerIt
     FGASExtGameplayTagStack()
     {}
 
-    FGASExtGameplayTagStack( FGameplayTag InTag, int32 InStackCount ) :
-        Tag( InTag ),
-        StackCount( InStackCount )
+    FGASExtGameplayTagStack( FGameplayTag tag, int32 stack_count ) :
+        Tag( tag ),
+        StackCount( stack_count )
     {
     }
 
@@ -44,32 +44,26 @@ struct GASEXTENSIONS_API FGASExtGameplayTagStackContainer : public FFastArraySer
     }
 
     // Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
-    void AddStack( FGameplayTag Tag, int32 StackCount );
+    void AddStack( FGameplayTag tag, int32 stack_count );
 
     // Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
-    void RemoveStack( FGameplayTag Tag, int32 StackCount );
+    void RemoveStack( FGameplayTag tag, int32 stack_count );
 
     // Returns the stack count of the specified tag (or 0 if the tag is not present)
-    int32 GetStackCount( FGameplayTag Tag ) const
-    {
-        return TagToCountMap.FindRef( Tag );
-    }
+    int32 GetStackCount( const FGameplayTag tag ) const;
 
     // Returns true if there is at least one stack of the specified tag
-    bool ContainsTag( FGameplayTag Tag ) const
-    {
-        return TagToCountMap.Contains( Tag );
-    }
+    bool ContainsTag( const FGameplayTag tag ) const;
 
     //~FFastArraySerializer contract
-    void PreReplicatedRemove( const TArrayView< int32 > RemovedIndices, int32 FinalSize );
-    void PostReplicatedAdd( const TArrayView< int32 > AddedIndices, int32 FinalSize );
-    void PostReplicatedChange( const TArrayView< int32 > ChangedIndices, int32 FinalSize );
+    void PreReplicatedRemove( const TArrayView< int32 > removed_indices, int32 final_size );
+    void PostReplicatedAdd( const TArrayView< int32 > added_indices, int32 final_size );
+    void PostReplicatedChange( const TArrayView< int32 > changed_indices, int32 final_size );
     //~End of FFastArraySerializer contract
 
-    bool NetDeltaSerialize( FNetDeltaSerializeInfo & DeltaParms )
+    bool NetDeltaSerialize( FNetDeltaSerializeInfo & delta_parms )
     {
-        return FFastArraySerializer::FastArrayDeltaSerialize< FGASExtGameplayTagStack, FGASExtGameplayTagStackContainer >( Stacks, DeltaParms, *this );
+        return FFastArraySerializer::FastArrayDeltaSerialize< FGASExtGameplayTagStack, FGASExtGameplayTagStackContainer >( Stacks, delta_parms, *this );
     }
 
 private:
@@ -80,6 +74,16 @@ private:
     // Accelerated list of tag stacks for queries
     TMap< FGameplayTag, int32 > TagToCountMap;
 };
+
+FORCEINLINE int32 FGASExtGameplayTagStackContainer::GetStackCount( const FGameplayTag tag ) const
+{
+    return TagToCountMap.FindRef( tag );
+}
+
+FORCEINLINE bool FGASExtGameplayTagStackContainer::ContainsTag( const FGameplayTag tag ) const
+{
+    return TagToCountMap.Contains( tag );
+}
 
 template <>
 struct TStructOpsTypeTraits< FGASExtGameplayTagStackContainer > : public TStructOpsTypeTraitsBase2< FGASExtGameplayTagStackContainer >
