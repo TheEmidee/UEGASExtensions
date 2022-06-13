@@ -253,13 +253,7 @@ bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySy
 
         if ( AbilitySystemComponentTags.HasAny( AllBlockedTags ) )
         {
-            // :TODO:
-            //const auto & GameplayTags = FLyraGameplayTags::Get();
-            //if ( optional_relevant_tags && AbilitySystemComponentTags.HasTag( GameplayTags.Status_Death ) )
-            //{
-            //    // If player is dead and was rejected due to blocking tags, give that feedback
-            //    optional_relevant_tags->AddTag( GameplayTags.Ability_ActivateFail_IsDead );
-            //}
+            AddBlockedAbilityOptionalRelevantTags( AbilitySystemComponentTags, optional_relevant_tags );
 
             blocked = true;
         }
@@ -388,6 +382,10 @@ void UGASExtGameplayAbility::AutoEndTaskWhenAbilityEnds( UAbilityTask * task )
     {
         TasksToEndWhenAbilityEnds.AddUnique( task );
     }
+}
+
+void UGASExtGameplayAbility::AddBlockedAbilityOptionalRelevantTags( const FGameplayTagContainer & ability_system_component_tags, FGameplayTagContainer * optional_relevant_tags ) const
+{
 }
 
 bool UGASExtGameplayAbility::FindAbilityMeshMontage( FGASExtAbilityMeshMontage & ability_mesh_montage, USkeletalMeshComponent * mesh ) const

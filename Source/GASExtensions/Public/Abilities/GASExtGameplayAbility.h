@@ -105,6 +105,9 @@ protected:
     UFUNCTION( BlueprintImplementableEvent )
     void ReceiveOnRemoveAbility( const FGameplayAbilityActorInfo & actor_info, const FGameplayAbilitySpec & spec );
 
+    // Override this function if you want to add tags to the optional relevant tags when an ability is blocked
+    virtual void AddBlockedAbilityOptionalRelevantTags( const FGameplayTagContainer & ability_system_component_tags, FGameplayTagContainer * optional_relevant_tags ) const;
+
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
     EGASExtAbilityActivationGroup ActivationGroup;
 
