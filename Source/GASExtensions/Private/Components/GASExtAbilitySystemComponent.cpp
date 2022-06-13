@@ -222,6 +222,11 @@ void UGASExtAbilitySystemComponent::ApplyAbilityBlockAndCancelTags( const FGamep
     //@TODO: Apply any special logic like blocking input or movement
 }
 
+void UGASExtAbilitySystemComponent::SetTagRelationshipMapping( UGASExtAbilityTagRelationshipMapping * new_mapping )
+{
+    TagRelationshipMapping = new_mapping;
+}
+
 void UGASExtAbilitySystemComponent::GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const
 {
     if ( TagRelationshipMapping != nullptr )

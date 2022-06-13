@@ -100,6 +100,7 @@ public:
     void InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor ) override;
     void RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container ) override;
     void ApplyAbilityBlockAndCancelTags( const FGameplayTagContainer & ability_tags, UGameplayAbility * requesting_ability, bool enable_block_tags, const FGameplayTagContainer & block_tags, bool execute_cancel_tags, const FGameplayTagContainer & cancel_tags ) override;
+    void SetTagRelationshipMapping( UGASExtAbilityTagRelationshipMapping * new_mapping );
     /** Looks at ability tags and gathers additional required and blocking tags */
     void GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const;
 
