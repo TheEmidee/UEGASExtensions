@@ -1,5 +1,6 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
+#include "Abilities/GASExtAbilityTagRelationshipMapping.h"
 #include "Abilities/GASExtGameplayAbility.h"
 #include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
@@ -202,6 +203,30 @@ void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayT
     else if ( ScopedPredictionKey.IsLocalClientKey() )
     {
         gameplay_cue_container.PredictiveRemove( gameplay_cue_tag );
+    }
+}
+
+void UGASExtAbilitySystemComponent::ApplyAbilityBlockAndCancelTags( const FGameplayTagContainer & ability_tags, UGameplayAbility * requesting_ability, bool enable_block_tags, const FGameplayTagContainer & block_tags, bool execute_cancel_tags, const FGameplayTagContainer & cancel_tags )
+{
+    FGameplayTagContainer ModifiedBlockTags = block_tags;
+    FGameplayTagContainer ModifiedCancelTags = cancel_tags;
+
+    if ( TagRelationshipMapping )
+    {
+        // Use the mapping to expand the ability tags into block and cancel tag
+        TagRelationshipMapping->GetAbilityTagsToBlockAndCancel( ModifiedBlockTags, ModifiedCancelTags, ability_tags );
+    }
+
+    Super::ApplyAbilityBlockAndCancelTags( ability_tags, requesting_ability, enable_block_tags, ModifiedBlockTags, execute_cancel_tags, ModifiedCancelTags );
+
+    //@TODO: Apply any special logic like blocking input or movement
+}
+
+void UGASExtAbilitySystemComponent::GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const
+{
+    if ( TagRelationshipMapping != nullptr )
+    {
+        TagRelationshipMapping->GetRequiredAndBlockedActivationTags( activation_required_tags, activation_blocked_tags, ability_tags );
     }
 }
 

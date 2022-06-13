@@ -40,10 +40,10 @@ class GASEXTENSIONS_API UGASExtAbilityTagRelationshipMapping final : public UDat
 
 public:
     /** Given a set of ability tags, parse the tag relationship and fill out tags to block and cancel */
-    void GetAbilityTagsToBlockAndCancel( const FGameplayTagContainer & ability_tags, FGameplayTagContainer * tags_to_block, FGameplayTagContainer * tags_to_cancel ) const;
+    void GetAbilityTagsToBlockAndCancel( FGameplayTagContainer & tags_to_block, FGameplayTagContainer & tags_to_cancel, const FGameplayTagContainer & ability_tags ) const;
 
     /** Given a set of ability tags, add additional required and blocking tags */
-    void GetRequiredAndBlockedActivationTags( const FGameplayTagContainer & ability_tags, FGameplayTagContainer * activation_required, FGameplayTagContainer * activation_blocked ) const;
+    void GetRequiredAndBlockedActivationTags( FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags, const FGameplayTagContainer & ability_tags ) const;
 
     /** Returns true if the specified ability tags are canceled by the passed in action tag */
     bool IsAbilityCancelledByTag( const FGameplayTagContainer & ability_tags, const FGameplayTag & action_tag ) const;

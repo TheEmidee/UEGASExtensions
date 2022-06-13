@@ -1,6 +1,6 @@
 #include "Abilities/GASExtAbilityTagRelationshipMapping.h"
 
-void UGASExtAbilityTagRelationshipMapping::GetAbilityTagsToBlockAndCancel( const FGameplayTagContainer & ability_tags, FGameplayTagContainer * tags_to_block, FGameplayTagContainer * tags_to_cancel ) const
+void UGASExtAbilityTagRelationshipMapping::GetAbilityTagsToBlockAndCancel( FGameplayTagContainer & tags_to_block, FGameplayTagContainer & tags_to_cancel, const FGameplayTagContainer & ability_tags ) const
 {
     for ( const auto & tags : AbilityTagRelationships )
     {
@@ -9,18 +9,12 @@ void UGASExtAbilityTagRelationshipMapping::GetAbilityTagsToBlockAndCancel( const
             continue;
         }
 
-        if ( tags_to_block )
-        {
-            tags_to_block->AppendTags( tags.AbilityTagsToBlock );
-        }
-        if ( tags_to_cancel )
-        {
-            tags_to_cancel->AppendTags( tags.AbilityTagsToCancel );
-        }
+        tags_to_block.AppendTags( tags.AbilityTagsToBlock );
+        tags_to_cancel.AppendTags( tags.AbilityTagsToCancel );
     }
 }
 
-void UGASExtAbilityTagRelationshipMapping::GetRequiredAndBlockedActivationTags( const FGameplayTagContainer & ability_tags, FGameplayTagContainer * activation_required, FGameplayTagContainer * activation_blocked ) const
+void UGASExtAbilityTagRelationshipMapping::GetRequiredAndBlockedActivationTags( FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags, const FGameplayTagContainer & ability_tags ) const
 {
     for ( const auto & tags : AbilityTagRelationships )
     {
@@ -29,14 +23,8 @@ void UGASExtAbilityTagRelationshipMapping::GetRequiredAndBlockedActivationTags( 
             continue;
         }
 
-        if ( activation_required )
-        {
-            activation_required->AppendTags( tags.ActivationRequiredTags );
-        }
-        if ( activation_blocked )
-        {
-            activation_blocked->AppendTags( tags.ActivationBlockedTags );
-        }
+        activation_required_tags.AppendTags( tags.ActivationRequiredTags );
+        activation_blocked_tags.AppendTags( tags.ActivationBlockedTags );
     }
 }
 

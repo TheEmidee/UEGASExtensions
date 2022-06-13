@@ -1,5 +1,6 @@
 #include "Abilities/GASExtGameplayAbility.h"
 
+#include "AbilitySystemGlobals.h"
 #include "GASExtAbilitySystemFunctionLibrary.h"
 
 #include <Abilities/Tasks/AbilityTask.h>
@@ -213,6 +214,112 @@ void UGASExtGameplayAbility::TryActivateAbilityOnSpawn( const FGameplayAbilityAc
 void UGASExtGameplayAbility::OnPawnAvatarSet()
 {
     K2_OnPawnAvatarSet();
+}
+
+bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySystemComponent & ability_system_component, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const
+{
+    bool blocked = false;
+    bool missing = false;
+
+    const auto & ability_system_globals = UAbilitySystemGlobals::Get();
+    const FGameplayTag & blocked_tag = ability_system_globals.ActivateFailTagsBlockedTag;
+    const FGameplayTag & missing_tag = ability_system_globals.ActivateFailTagsMissingTag;
+
+    // Check if any of this ability's tags are currently blocked
+    if ( ability_system_component.AreAbilityTagsBlocked( AbilityTags ) )
+    {
+        blocked = true;
+    }
+
+    static FGameplayTagContainer AllRequiredTags;
+    static FGameplayTagContainer AllBlockedTags;
+
+    AllRequiredTags = ActivationRequiredTags;
+    AllBlockedTags = ActivationBlockedTags;
+
+    // Expand our ability tags to add additional required/blocked tags
+    if ( const auto * gas_ext_asc = Cast< UGASExtAbilitySystemComponent >( &ability_system_component ) )
+    {
+        gas_ext_asc->GetAdditionalActivationTagRequirements( AbilityTags, AllRequiredTags, AllBlockedTags );
+    }
+
+    // Check to see the required/blocked tags for this ability
+    if ( AllBlockedTags.Num() || AllRequiredTags.Num() )
+    {
+        static FGameplayTagContainer AbilitySystemComponentTags;
+
+        AbilitySystemComponentTags.Reset();
+        ability_system_component.GetOwnedGameplayTags( AbilitySystemComponentTags );
+
+        if ( AbilitySystemComponentTags.HasAny( AllBlockedTags ) )
+        {
+            // :TODO:
+            //const auto & GameplayTags = FLyraGameplayTags::Get();
+            //if ( optional_relevant_tags && AbilitySystemComponentTags.HasTag( GameplayTags.Status_Death ) )
+            //{
+            //    // If player is dead and was rejected due to blocking tags, give that feedback
+            //    optional_relevant_tags->AddTag( GameplayTags.Ability_ActivateFail_IsDead );
+            //}
+
+            blocked = true;
+        }
+
+        if ( !AbilitySystemComponentTags.HasAll( AllRequiredTags ) )
+        {
+            missing = true;
+        }
+    }
+
+    if ( source_tags != nullptr )
+    {
+        if ( SourceBlockedTags.Num() || SourceRequiredTags.Num() )
+        {
+            if ( source_tags->HasAny( SourceBlockedTags ) )
+            {
+                blocked = true;
+            }
+
+            if ( !source_tags->HasAll( SourceRequiredTags ) )
+            {
+                missing = true;
+            }
+        }
+    }
+
+    if ( target_tags != nullptr )
+    {
+        if ( TargetBlockedTags.Num() || TargetRequiredTags.Num() )
+        {
+            if ( target_tags->HasAny( TargetBlockedTags ) )
+            {
+                blocked = true;
+            }
+
+            if ( !target_tags->HasAll( TargetRequiredTags ) )
+            {
+                missing = true;
+            }
+        }
+    }
+
+    if ( blocked )
+    {
+        if ( optional_relevant_tags != nullptr && blocked_tag.IsValid() )
+        {
+            optional_relevant_tags->AddTag( blocked_tag );
+        }
+        return false;
+    }
+    if ( missing )
+    {
+        if ( optional_relevant_tags != nullptr && missing_tag.IsValid() )
+        {
+            optional_relevant_tags->AddTag( missing_tag );
+        }
+        return false;
+    }
+
+    return true;
 }
 
 bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const

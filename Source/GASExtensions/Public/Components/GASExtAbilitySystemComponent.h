@@ -7,6 +7,7 @@
 
 #include "GASExtAbilitySystemComponent.generated.h"
 
+class UGASExtAbilityTagRelationshipMapping;
 class UGASExtGameplayAbility;
 
 /**
@@ -98,6 +99,9 @@ public:
     void TickComponent( float delta_time, enum ELevelTick tick_type, FActorComponentTickFunction * this_tick_function ) override;
     void InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor ) override;
     void RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container ) override;
+    void ApplyAbilityBlockAndCancelTags( const FGameplayTagContainer & ability_tags, UGameplayAbility * requesting_ability, bool enable_block_tags, const FGameplayTagContainer & block_tags, bool execute_cancel_tags, const FGameplayTagContainer & cancel_tags ) override;
+    /** Looks at ability tags and gathers additional required and blocking tags */
+    void GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const;
 
 #if WITH_EDITOR
     EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
@@ -287,6 +291,10 @@ private:
 
     UPROPERTY( EditDefaultsOnly )
     TArray< TSubclassOf< UAttributeSet > > AdditionalAttributeSetClass;
+
+    // If set, this table is used to look up tag relationships for activate and cancel
+    UPROPERTY()
+    UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
 
     /*
      * For tags not bound to gameplay effects
