@@ -81,6 +81,8 @@ public:
     EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
 #endif
 
+    static const FName NAME_AbilityReady;
+
 private:
     void AddToWorld( const FWorldContext & world_context ) override;
 
