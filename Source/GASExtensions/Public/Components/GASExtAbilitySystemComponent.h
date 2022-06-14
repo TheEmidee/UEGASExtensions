@@ -294,7 +294,8 @@ private:
     TArray< TSubclassOf< UAttributeSet > > AdditionalAttributeSetClass;
 
     // If set, this table is used to look up tag relationships for activate and cancel
-    UPROPERTY()
+    // :TODO: Remove EditDefaultsOnly when it can be set through experiences
+    UPROPERTY( EditDefaultsOnly )
     UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
 
     /*
