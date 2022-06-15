@@ -126,7 +126,7 @@ void UGASExtAbilitySystemComponent::TickComponent( const float delta_time, const
 void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor )
 {
     const auto * actor_info = AbilityActorInfo.Get();
-    const bool bHasNewPawnAvatar = Cast< APawn >( avatar_actor ) != nullptr && avatar_actor != actor_info->AvatarActor;
+    const bool has_new_pawn_avatar = Cast< APawn >( avatar_actor ) != nullptr && avatar_actor != actor_info->AvatarActor;
 
     Super::InitAbilityActorInfo( owner_actor, avatar_actor );
 
@@ -138,7 +138,7 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
         OnRep_ReplicatedAnimMontageForMesh();
     }
 
-    if ( bHasNewPawnAvatar )
+    if ( has_new_pawn_avatar )
     {
         // Notify all abilities that a new pawn avatar has been set
         for ( const auto & ability_spec : ActivatableAbilities.Items )
@@ -208,16 +208,16 @@ void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayT
 
 void UGASExtAbilitySystemComponent::ApplyAbilityBlockAndCancelTags( const FGameplayTagContainer & ability_tags, UGameplayAbility * requesting_ability, bool enable_block_tags, const FGameplayTagContainer & block_tags, bool execute_cancel_tags, const FGameplayTagContainer & cancel_tags )
 {
-    FGameplayTagContainer ModifiedBlockTags = block_tags;
-    FGameplayTagContainer ModifiedCancelTags = cancel_tags;
+    auto modified_block_tags = block_tags;
+    auto modified_cancel_tags = cancel_tags;
 
-    if ( TagRelationshipMapping )
+    if ( TagRelationshipMapping != nullptr )
     {
         // Use the mapping to expand the ability tags into block and cancel tag
-        TagRelationshipMapping->GetAbilityTagsToBlockAndCancel( ModifiedBlockTags, ModifiedCancelTags, ability_tags );
+        TagRelationshipMapping->GetAbilityTagsToBlockAndCancel( modified_block_tags, modified_cancel_tags, ability_tags );
     }
 
-    Super::ApplyAbilityBlockAndCancelTags( ability_tags, requesting_ability, enable_block_tags, ModifiedBlockTags, execute_cancel_tags, ModifiedCancelTags );
+    Super::ApplyAbilityBlockAndCancelTags( ability_tags, requesting_ability, enable_block_tags, modified_block_tags, execute_cancel_tags, modified_cancel_tags );
 
     //@TODO: Apply any special logic like blocking input or movement
 }

@@ -1,9 +1,9 @@
 #include "Abilities/GASExtGameplayAbility.h"
 
-#include "AbilitySystemGlobals.h"
 #include "GASExtAbilitySystemFunctionLibrary.h"
 
 #include <Abilities/Tasks/AbilityTask.h>
+#include <AbilitySystemGlobals.h>
 #include <Components/GASExtAbilitySystemComponent.h>
 #include <GameFramework/PlayerController.h>
 #include <GameplayTask.h>
@@ -218,12 +218,12 @@ void UGASExtGameplayAbility::OnPawnAvatarSet()
 
 bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySystemComponent & ability_system_component, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const
 {
-    bool blocked = false;
-    bool missing = false;
+    auto blocked = false;
+    auto missing = false;
 
     const auto & ability_system_globals = UAbilitySystemGlobals::Get();
-    const FGameplayTag & blocked_tag = ability_system_globals.ActivateFailTagsBlockedTag;
-    const FGameplayTag & missing_tag = ability_system_globals.ActivateFailTagsMissingTag;
+    const auto & blocked_tag = ability_system_globals.ActivateFailTagsBlockedTag;
+    const auto & missing_tag = ability_system_globals.ActivateFailTagsMissingTag;
 
     // Check if any of this ability's tags are currently blocked
     if ( ability_system_component.AreAbilityTagsBlocked( AbilityTags ) )
@@ -231,11 +231,8 @@ bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySy
         blocked = true;
     }
 
-    static FGameplayTagContainer AllRequiredTags;
-    static FGameplayTagContainer AllBlockedTags;
-
-    AllRequiredTags = ActivationRequiredTags;
-    AllBlockedTags = ActivationBlockedTags;
+    static auto AllRequiredTags = ActivationRequiredTags;
+    static auto AllBlockedTags = ActivationBlockedTags;
 
     // Expand our ability tags to add additional required/blocked tags
     if ( const auto * gas_ext_asc = Cast< UGASExtAbilitySystemComponent >( &ability_system_component ) )
