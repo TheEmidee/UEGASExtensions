@@ -2,11 +2,13 @@
 
 #include "Components/GameFrameworkComponentManager.h"
 #include "GFEGameFeatureAction_WorldActionBase.h"
+#include "Abilities/GASExtAbilitySet.h"
 
 #include <CoreMinimal.h>
 
 #include "GASExtGameFeatureAction_AddAbilities.generated.h"
 
+class UGASExtAbilitySet;
 struct FGameFeatureDeactivatingContext;
 
 // This comes from the sample ValleyOfTheAncient
@@ -60,6 +62,9 @@ struct FGASExtGameFeatureAbilitiesEntry
     UPROPERTY( EditAnywhere, Category = "Attributes" )
     TArray< FGASExtGameFeatureAttributesMapping > GrantedAttributes;
 
+    UPROPERTY( EditAnywhere, Category = "Attributes", meta = ( AssetBundles = "Client,Server" ) )
+    TArray< TSoftObjectPtr< const UGASExtAbilitySet > > GrantedAbilitySets;
+
     UPROPERTY( EditAnywhere, Category = "Tags" )
     FGameplayTagContainer LooseGameplayTags;
 };
@@ -107,6 +112,7 @@ private:
         TArray< FGameplayAbilitySpecHandle > Abilities;
         TArray< UAttributeSet * > Attributes;
         TArray< FActiveGameplayEffectHandle > Effects;
+        TArray< FGASExtAbilitySet_GrantedHandles > AbilitySetHandles;
         FGameplayTagContainer Tags;
     };
     TMap< AActor *, FActorExtensions > ActiveExtensions;

@@ -23,7 +23,7 @@ void FGASExtAbilitySet_GrantedHandles::AddAttributeSet( UAttributeSet * set )
     GrantedAttributeSets.Add( set );
 }
 
-void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UGASExtAbilitySystemComponent * asc )
+void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UAbilitySystemComponent * asc )
 {
     check( asc );
 
@@ -59,7 +59,7 @@ void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UGASExtAbilitySyst
     GrantedAttributeSets.Reset();
 }
 
-void UGASExtAbilitySet::GiveToAbilitySystem( UGASExtAbilitySystemComponent * asc, FGASExtAbilitySet_GrantedHandles * out_granted_handles, UObject * source_object ) const
+void UGASExtAbilitySet::GiveToAbilitySystem( UAbilitySystemComponent * asc, FGASExtAbilitySet_GrantedHandles * out_granted_handles, UObject * source_object ) const
 {
     check( asc );
 

@@ -79,11 +79,7 @@ EDataValidationResult UGASExtGameFeatureAction_AddAbilities::IsDataValid( TArray
                     errors.Emplace( FText::Format( LOCTEXT( "EntryHasNullActor", "Null ActorClass at index {0} in AbilitiesList" ), FText::AsNumber( entry_index ) ) );
                 }
 
-                if ( entry.GrantedAbilities.Num() == 0 
-                    && entry.GrantedAttributes.Num() == 0 
-                    && entry.GrantedEffects.Num() == 0 
-                    && entry.LooseGameplayTags.IsEmpty()
-                    )
+                if ( entry.GrantedAbilities.Num() == 0 && entry.GrantedAttributes.Num() == 0 && entry.GrantedEffects.Num() == 0 && entry.LooseGameplayTags.IsEmpty() )
                 {
                     errors.Emplace( FText::Format( LOCTEXT( "EntryHasNoAddOns", "Empty item at index {0} in AbilitiesList" ), FText::AsNumber( entry_index ) ) );
                 }
@@ -116,6 +112,16 @@ EDataValidationResult UGASExtGameFeatureAction_AddAbilities::IsDataValid( TArray
                         errors.Emplace( FText::Format( LOCTEXT( "EntryHasNullEffect", "Null Effect at index {0} in AbilitiesList[{1}].GrantedEffects" ), FText::AsNumber( effect_index ), FText::AsNumber( entry_index ) ) );
                     }
                     ++effect_index;
+                }
+
+                auto attribute_set_index = 0;
+                for ( const auto & attribute_set_ptr : entry.GrantedAbilitySets )
+                {
+                    if ( attribute_set_ptr.IsNull() )
+                    {
+                        errors.Emplace( FText::Format( LOCTEXT( "EntryHasNullAttributeSet", "Null AbilitySet at index {0} in AbilitiesList[{1}].GrantedAbilitySets" ), FText::AsNumber( attribute_set_index ), FText::AsNumber( entry_index ) ) );
+                    }
+                    ++attribute_set_index;
                 }
 
                 ++entry_index;
@@ -195,6 +201,7 @@ void UGASExtGameFeatureAction_AddAbilities::AddActorAbilities( AActor * actor, c
         FActorExtensions AddedExtensions;
         AddedExtensions.Abilities.Reserve( abilities_entry.GrantedAbilities.Num() );
         AddedExtensions.Attributes.Reserve( abilities_entry.GrantedAttributes.Num() );
+        AddedExtensions.AbilitySetHandles.Reserve( abilities_entry.GrantedAbilitySets.Num() );
 
         for ( const auto & ability : abilities_entry.GrantedAbilities )
         {
@@ -258,6 +265,14 @@ void UGASExtGameFeatureAction_AddAbilities::AddActorAbilities( AActor * actor, c
             }
         }
 
+        for ( const auto & ability_set_ptr : abilities_entry.GrantedAbilitySets )
+        {
+            if ( const auto * ability_set = ability_set_ptr.Get() )
+            {
+                ability_set->GiveToAbilitySystem( ability_system_component, &AddedExtensions.AbilitySetHandles.AddDefaulted_GetRef() );
+            }
+        }
+
         ability_system_component->AddLooseGameplayTags( abilities_entry.LooseGameplayTags );
         AddedExtensions.Tags.AppendTags( abilities_entry.LooseGameplayTags );
 
@@ -291,6 +306,11 @@ void UGASExtGameFeatureAction_AddAbilities::RemoveActorAbilities( AActor * actor
             for ( const auto effect_handle : actor_extensions->Effects )
             {
                 ability_system_component->RemoveActiveGameplayEffect( effect_handle );
+            }
+
+            for ( auto & set_handle : actor_extensions->AbilitySetHandles )
+            {
+                set_handle.TakeFromAbilitySystem( ability_system_component );
             }
 
             ability_system_component->RemoveLooseGameplayTags( actor_extensions->Tags );

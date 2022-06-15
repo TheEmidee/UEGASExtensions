@@ -51,7 +51,7 @@ public:
     void AddGameplayEffectHandle( const FActiveGameplayEffectHandle & handle );
     void AddAttributeSet( UAttributeSet * set );
 
-    void TakeFromAbilitySystem( UGASExtAbilitySystemComponent * asc );
+    void TakeFromAbilitySystem( UAbilitySystemComponent * asc );
 
 protected:
     UPROPERTY()
@@ -70,7 +70,7 @@ class GASEXTENSIONS_API UGASExtAbilitySet final : public UPrimaryDataAsset
     GENERATED_BODY()
 
 public:
-    void GiveToAbilitySystem( UGASExtAbilitySystemComponent * asc, FGASExtAbilitySet_GrantedHandles * out_granted_handles, UObject * source_object = nullptr ) const;
+    void GiveToAbilitySystem( UAbilitySystemComponent * asc, FGASExtAbilitySet_GrantedHandles * out_granted_handles, UObject * source_object = nullptr ) const;
 
 protected:
     UPROPERTY( EditDefaultsOnly, Category = "Gameplay Abilities", meta = ( TitleProperty = Ability ) )
