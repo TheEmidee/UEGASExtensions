@@ -1,15 +1,15 @@
-#include "GameFeatures/GASExtGameFeatureAction_Grant.h"
+#include "GameFeatures/GASExtGameFeatureAction_AddAbilities.h"
 
 #include "DVEDataValidator.h"
 
 #include <Engine/AssetManager.h>
 #include <GameFeaturesSubsystemSettings.h>
 
-#define LOCTEXT_NAMESPACE "UGASExtGameFeatureAction_Grant"
+#define LOCTEXT_NAMESPACE "UGASExtGameFeatureAction_AddAbilities"
 
-const FName UGASExtGameFeatureAction_Grant::NAME_AbilityReady( "AbilitiesReady" );
+const FName UGASExtGameFeatureAction_AddAbilities::NAME_AbilityReady( "AbilitiesReady" );
 
-void UGASExtGameFeatureAction_Grant::OnGameFeatureActivating()
+void UGASExtGameFeatureAction_AddAbilities::OnGameFeatureActivating()
 {
     if ( !ensureAlways( ActiveExtensions.Num() == 0 ) ||
          !ensureAlways( ComponentRequests.Num() == 0 ) )
@@ -19,14 +19,14 @@ void UGASExtGameFeatureAction_Grant::OnGameFeatureActivating()
     Super::OnGameFeatureActivating();
 }
 
-void UGASExtGameFeatureAction_Grant::OnGameFeatureDeactivating( FGameFeatureDeactivatingContext & context )
+void UGASExtGameFeatureAction_AddAbilities::OnGameFeatureDeactivating( FGameFeatureDeactivatingContext & context )
 {
     Super::OnGameFeatureDeactivating( context );
     Reset();
 }
 
 #if WITH_EDITORONLY_DATA
-void UGASExtGameFeatureAction_Grant::AddAdditionalAssetBundleData( FAssetBundleData & asset_bundle_data )
+void UGASExtGameFeatureAction_AddAbilities::AddAdditionalAssetBundleData( FAssetBundleData & asset_bundle_data )
 {
     if ( UAssetManager::IsValid() )
     {
@@ -67,7 +67,7 @@ void UGASExtGameFeatureAction_Grant::AddAdditionalAssetBundleData( FAssetBundleD
 #endif
 
 #if WITH_EDITOR
-EDataValidationResult UGASExtGameFeatureAction_Grant::IsDataValid( TArray< FText > & validation_errors )
+EDataValidationResult UGASExtGameFeatureAction_AddAbilities::IsDataValid( TArray< FText > & validation_errors )
 {
     return FDVEDataValidator( validation_errors )
         .CustomValidation< TArray< FGASExtGameFeatureAbilitiesEntry > >( AbilitiesList, []( TArray< FText > & errors, TArray< FGASExtGameFeatureAbilitiesEntry > abilities_list ) {
@@ -125,7 +125,7 @@ EDataValidationResult UGASExtGameFeatureAction_Grant::IsDataValid( TArray< FText
 }
 #endif
 
-void UGASExtGameFeatureAction_Grant::AddToWorld( const FWorldContext & world_context )
+void UGASExtGameFeatureAction_AddAbilities::AddToWorld( const FWorldContext & world_context )
 {
     if ( const auto * world = world_context.World() )
     {
@@ -158,7 +158,7 @@ void UGASExtGameFeatureAction_Grant::AddToWorld( const FWorldContext & world_con
     }
 }
 
-void UGASExtGameFeatureAction_Grant::Reset()
+void UGASExtGameFeatureAction_AddAbilities::Reset()
 {
     while ( ActiveExtensions.Num() > 0 )
     {
@@ -169,7 +169,7 @@ void UGASExtGameFeatureAction_Grant::Reset()
     ComponentRequests.Empty();
 }
 
-void UGASExtGameFeatureAction_Grant::HandleActorExtension( AActor * actor, FName event_name, int32 entry_index )
+void UGASExtGameFeatureAction_AddAbilities::HandleActorExtension( AActor * actor, FName event_name, int32 entry_index )
 {
     if ( !AbilitiesList.IsValidIndex( entry_index ) )
     {
@@ -182,13 +182,13 @@ void UGASExtGameFeatureAction_Grant::HandleActorExtension( AActor * actor, FName
     {
         RemoveActorAbilities( actor );
     }
-    else if ( event_name == UGameFrameworkComponentManager::NAME_ExtensionAdded || event_name == UGASExtGameFeatureAction_Grant::NAME_AbilityReady )
+    else if ( event_name == UGameFrameworkComponentManager::NAME_ExtensionAdded || event_name == UGASExtGameFeatureAction_AddAbilities::NAME_AbilityReady )
     {
         AddActorAbilities( actor, entry );
     }
 }
 
-void UGASExtGameFeatureAction_Grant::AddActorAbilities( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry )
+void UGASExtGameFeatureAction_AddAbilities::AddActorAbilities( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry )
 {
     if ( auto * ability_system_component = FindOrAddComponentForActor< UAbilitySystemComponent >( actor, abilities_entry ) )
     {
@@ -265,7 +265,7 @@ void UGASExtGameFeatureAction_Grant::AddActorAbilities( AActor * actor, const FG
     }
 }
 
-void UGASExtGameFeatureAction_Grant::RemoveActorAbilities( AActor * actor )
+void UGASExtGameFeatureAction_AddAbilities::RemoveActorAbilities( AActor * actor )
 {
     if ( auto * actor_extensions = ActiveExtensions.Find( actor ) )
     {
@@ -300,7 +300,7 @@ void UGASExtGameFeatureAction_Grant::RemoveActorAbilities( AActor * actor )
     }
 }
 
-UActorComponent * UGASExtGameFeatureAction_Grant::FindOrAddComponentForActor( UClass * component_type, AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry )
+UActorComponent * UGASExtGameFeatureAction_AddAbilities::FindOrAddComponentForActor( UClass * component_type, AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry )
 {
     auto * component = actor->FindComponentByClass( component_type );
 

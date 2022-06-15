@@ -5,7 +5,7 @@
 
 #include <CoreMinimal.h>
 
-#include "GASExtGameFeatureAction_Grant.generated.h"
+#include "GASExtGameFeatureAction_AddAbilities.generated.h"
 
 struct FGameFeatureDeactivatingContext;
 
@@ -64,8 +64,8 @@ struct FGASExtGameFeatureAbilitiesEntry
     FGameplayTagContainer LooseGameplayTags;
 };
 
-UCLASS()
-class GASEXTENSIONS_API UGASExtGameFeatureAction_Grant final : public UGFEGameFeatureAction_WorldActionBase
+UCLASS( meta = ( DisplayName = "Add Abilities" ) )
+class GASEXTENSIONS_API UGASExtGameFeatureAction_AddAbilities final : public UGFEGameFeatureAction_WorldActionBase
 {
     GENERATED_BODY()
 
@@ -110,6 +110,5 @@ private:
         FGameplayTagContainer Tags;
     };
     TMap< AActor *, FActorExtensions > ActiveExtensions;
-
     TArray< TSharedPtr< FComponentRequestHandle > > ComponentRequests;
 };
