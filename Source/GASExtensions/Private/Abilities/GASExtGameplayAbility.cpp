@@ -3,6 +3,7 @@
 #include "GASExtAbilitySystemFunctionLibrary.h"
 
 #include <Abilities/Tasks/AbilityTask.h>
+#include <AbilitySystemGlobals.h>
 #include <Components/GASExtAbilitySystemComponent.h>
 #include <GameFramework/PlayerController.h>
 #include <GameplayTask.h>
@@ -215,6 +216,103 @@ void UGASExtGameplayAbility::OnPawnAvatarSet()
     K2_OnPawnAvatarSet();
 }
 
+bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySystemComponent & ability_system_component, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const
+{
+    auto blocked = false;
+    auto missing = false;
+
+    const auto & ability_system_globals = UAbilitySystemGlobals::Get();
+    const auto & blocked_tag = ability_system_globals.ActivateFailTagsBlockedTag;
+    const auto & missing_tag = ability_system_globals.ActivateFailTagsMissingTag;
+
+    // Check if any of this ability's tags are currently blocked
+    if ( ability_system_component.AreAbilityTagsBlocked( AbilityTags ) )
+    {
+        blocked = true;
+    }
+
+    static auto AllRequiredTags = ActivationRequiredTags;
+    static auto AllBlockedTags = ActivationBlockedTags;
+
+    // Expand our ability tags to add additional required/blocked tags
+    if ( const auto * gas_ext_asc = Cast< UGASExtAbilitySystemComponent >( &ability_system_component ) )
+    {
+        gas_ext_asc->GetAdditionalActivationTagRequirements( AbilityTags, AllRequiredTags, AllBlockedTags );
+    }
+
+    // Check to see the required/blocked tags for this ability
+    if ( AllBlockedTags.Num() || AllRequiredTags.Num() )
+    {
+        static FGameplayTagContainer AbilitySystemComponentTags;
+
+        AbilitySystemComponentTags.Reset();
+        ability_system_component.GetOwnedGameplayTags( AbilitySystemComponentTags );
+
+        if ( AbilitySystemComponentTags.HasAny( AllBlockedTags ) )
+        {
+            AddBlockedAbilityOptionalRelevantTags( AbilitySystemComponentTags, optional_relevant_tags );
+
+            blocked = true;
+        }
+
+        if ( !AbilitySystemComponentTags.HasAll( AllRequiredTags ) )
+        {
+            missing = true;
+        }
+    }
+
+    if ( source_tags != nullptr )
+    {
+        if ( SourceBlockedTags.Num() || SourceRequiredTags.Num() )
+        {
+            if ( source_tags->HasAny( SourceBlockedTags ) )
+            {
+                blocked = true;
+            }
+
+            if ( !source_tags->HasAll( SourceRequiredTags ) )
+            {
+                missing = true;
+            }
+        }
+    }
+
+    if ( target_tags != nullptr )
+    {
+        if ( TargetBlockedTags.Num() || TargetRequiredTags.Num() )
+        {
+            if ( target_tags->HasAny( TargetBlockedTags ) )
+            {
+                blocked = true;
+            }
+
+            if ( !target_tags->HasAll( TargetRequiredTags ) )
+            {
+                missing = true;
+            }
+        }
+    }
+
+    if ( blocked )
+    {
+        if ( optional_relevant_tags != nullptr && blocked_tag.IsValid() )
+        {
+            optional_relevant_tags->AddTag( blocked_tag );
+        }
+        return false;
+    }
+    if ( missing )
+    {
+        if ( optional_relevant_tags != nullptr && missing_tag.IsValid() )
+        {
+            optional_relevant_tags->AddTag( missing_tag );
+        }
+        return false;
+    }
+
+    return true;
+}
+
 bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const
 {
     if ( !actor_info || !actor_info->AbilitySystemComponent.IsValid() )
@@ -281,6 +379,10 @@ void UGASExtGameplayAbility::AutoEndTaskWhenAbilityEnds( UAbilityTask * task )
     {
         TasksToEndWhenAbilityEnds.AddUnique( task );
     }
+}
+
+void UGASExtGameplayAbility::AddBlockedAbilityOptionalRelevantTags( const FGameplayTagContainer & ability_system_component_tags, FGameplayTagContainer * optional_relevant_tags ) const
+{
 }
 
 bool UGASExtGameplayAbility::FindAbilityMeshMontage( FGASExtAbilityMeshMontage & ability_mesh_montage, USkeletalMeshComponent * mesh ) const

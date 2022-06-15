@@ -85,6 +85,7 @@ public:
     void TryActivateAbilityOnSpawn( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) const;
 
     virtual void OnPawnAvatarSet();
+    bool DoesAbilitySatisfyTagRequirements( const UAbilitySystemComponent & ability_system_component, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const override;
 
 protected:
     UFUNCTION( BlueprintImplementableEvent, Category = Ability, DisplayName = "OnPawnAvatarSet" )
@@ -103,6 +104,9 @@ protected:
 
     UFUNCTION( BlueprintImplementableEvent )
     void ReceiveOnRemoveAbility( const FGameplayAbilityActorInfo & actor_info, const FGameplayAbilitySpec & spec );
+
+    // Override this function if you want to add tags to the optional relevant tags when an ability is blocked
+    virtual void AddBlockedAbilityOptionalRelevantTags( const FGameplayTagContainer & ability_system_component_tags, FGameplayTagContainer * optional_relevant_tags ) const;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Activation" )
     EGASExtAbilityActivationGroup ActivationGroup;

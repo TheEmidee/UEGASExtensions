@@ -7,6 +7,8 @@
 
 #define LOCTEXT_NAMESPACE "UGASExtGameFeatureAction_Grant"
 
+const FName UGASExtGameFeatureAction_Grant::NAME_AbilityReady( "AbilitiesReady" );
+
 void UGASExtGameFeatureAction_Grant::OnGameFeatureActivating()
 {
     if ( !ensureAlways( ActiveExtensions.Num() == 0 ) ||
@@ -180,7 +182,7 @@ void UGASExtGameFeatureAction_Grant::HandleActorExtension( AActor * actor, FName
     {
         RemoveActorAbilities( actor );
     }
-    else if ( event_name == UGameFrameworkComponentManager::NAME_ExtensionAdded || event_name == UGameFrameworkComponentManager::NAME_GameActorReady )
+    else if ( event_name == UGameFrameworkComponentManager::NAME_ExtensionAdded || event_name == UGASExtGameFeatureAction_Grant::NAME_AbilityReady )
     {
         AddActorAbilities( actor, entry );
     }

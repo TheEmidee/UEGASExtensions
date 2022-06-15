@@ -148,16 +148,16 @@ void UGASExtGameplayCueManager::RefreshGameplayCuePrimaryAsset()
     UAssetManager::Get().AddDynamicAsset( primary_asset_id, FSoftObjectPath(), bundle_data );
 }
 
-void UGASExtGameplayCueManager::DumpGameplayCues( const TArray< FString > & Args )
+void UGASExtGameplayCueManager::DumpGameplayCues( const TArray< FString > & args )
 {
-    UGASExtGameplayCueManager * gameplay_cue_manager = Cast< UGASExtGameplayCueManager >( UAbilitySystemGlobals::Get().GetGameplayCueManager() );
+    auto * gameplay_cue_manager = Cast< UGASExtGameplayCueManager >( UAbilitySystemGlobals::Get().GetGameplayCueManager() );
     if ( !gameplay_cue_manager )
     {
         UE_LOG( LogGASExt, Error, TEXT( "DumpGameplayCues failed. No UGASExtGameplayCueManager found." ) );
         return;
     }
 
-    const bool include_refs = Args.Contains( TEXT( "Refs" ) );
+    const bool include_refs = args.Contains( TEXT( "Refs" ) );
 
     UE_LOG( LogGASExt, Log, TEXT( "=========== Dumping Always Loaded Gameplay Cue Notifies ===========" ) );
     for ( const auto * cue_class : gameplay_cue_manager->AlwaysLoadedCues )
@@ -168,8 +168,8 @@ void UGASExtGameplayCueManager::DumpGameplayCues( const TArray< FString > & Args
     UE_LOG( LogGASExt, Log, TEXT( "=========== Dumping Preloaded Gameplay Cue Notifies ===========" ) );
     for ( const auto * cue_class : gameplay_cue_manager->PreloadedCues )
     {
-        TSet< FObjectKey > * referencer_set = gameplay_cue_manager->PreloadedCueReferencers.Find( cue_class );
-        int32 num_refs = referencer_set ? referencer_set->Num() : 0;
+        auto * referencer_set = gameplay_cue_manager->PreloadedCueReferencers.Find( cue_class );
+        auto num_refs = referencer_set ? referencer_set->Num() : 0;
 
         UE_LOG( LogGASExt, Log, TEXT( "  %s (%d refs)" ), *GetPathNameSafe( cue_class ), num_refs );
 
@@ -185,7 +185,7 @@ void UGASExtGameplayCueManager::DumpGameplayCues( const TArray< FString > & Args
 
     UE_LOG( LogGASExt, Log, TEXT( "=========== Dumping Gameplay Cue Notifies loaded on demand ===========" ) );
 
-    int32 num_missing_cues_loaded = 0;
+    auto num_missing_cues_loaded = 0;
     if ( gameplay_cue_manager->RuntimeGameplayCueObjectLibrary.CueSet )
     {
         for ( const auto & cue_data : gameplay_cue_manager->RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueData )
@@ -269,16 +269,16 @@ void UGASExtGameplayCueManager::OnGameplayTagLoaded( const FGameplayTag & tag )
         TGraphTask< FGameplayCueTagThreadSynchronizeGraphTask >::CreateTask().ConstructAndDispatchWhenReady( []() {
             if ( GIsRunning )
             {
-                if ( UGASExtGameplayCueManager * StrongThis = Get() )
+                if ( auto * strong_this = Get() )
                 {
                     // If we are garbage collecting we cannot call StaticFindObject (or a few other static uobject functions), so we'll just wait until the GC is over and process the tags then
                     if ( IsGarbageCollecting() )
                     {
-                        StrongThis->bProcessLoadedTagsAfterGC = true;
+                        strong_this->bProcessLoadedTagsAfterGC = true;
                     }
                     else
                     {
-                        StrongThis->ProcessLoadedTags();
+                        strong_this->ProcessLoadedTags();
                     }
                 }
             }
@@ -394,12 +394,12 @@ void UGASExtGameplayCueManager::ProcessTagToPreload( const FGameplayTag & tag, U
 
     check( RuntimeGameplayCueObjectLibrary.CueSet );
 
-    int32 * data_idx = RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueDataMap.Find( tag );
+    const auto * data_idx = RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueDataMap.Find( tag );
     if ( data_idx != nullptr && RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueData.IsValidIndex( *data_idx ) )
     {
-        const FGameplayCueNotifyData & cue_data = RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueData[ *data_idx ];
+        const auto & cue_data = RuntimeGameplayCueObjectLibrary.CueSet->GameplayCueData[ *data_idx ];
 
-        if ( UClass * loaded_gameplay_cue_class = FindObject< UClass >( nullptr, *cue_data.GameplayCueNotifyObj.ToString() ) )
+        if ( auto * loaded_gameplay_cue_class = FindObject< UClass >( nullptr, *cue_data.GameplayCueNotifyObj.ToString() ) )
         {
             RegisterPreloadedCue( loaded_gameplay_cue_class, owning_object );
         }
@@ -427,7 +427,7 @@ void UGASExtGameplayCueManager::RegisterPreloadedCue( UClass * loaded_gameplay_c
 {
     check( loaded_gameplay_cue_class );
 
-    const bool always_loaded_cue = owning_object == nullptr;
+    const auto always_loaded_cue = owning_object == nullptr;
 
     if ( always_loaded_cue )
     {
@@ -438,7 +438,7 @@ void UGASExtGameplayCueManager::RegisterPreloadedCue( UClass * loaded_gameplay_c
     else if ( ( owning_object != loaded_gameplay_cue_class ) && ( owning_object != loaded_gameplay_cue_class->GetDefaultObject() ) && !AlwaysLoadedCues.Contains( loaded_gameplay_cue_class ) )
     {
         PreloadedCues.Add( loaded_gameplay_cue_class );
-        TSet< FObjectKey > & referencer_set = PreloadedCueReferencers.FindOrAdd( loaded_gameplay_cue_class );
+        auto & referencer_set = PreloadedCueReferencers.FindOrAdd( loaded_gameplay_cue_class );
         referencer_set.Add( owning_object );
     }
 }

@@ -1,5 +1,6 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
+#include "Abilities/GASExtAbilityTagRelationshipMapping.h"
 #include "Abilities/GASExtGameplayAbility.h"
 #include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
@@ -125,7 +126,7 @@ void UGASExtAbilitySystemComponent::TickComponent( const float delta_time, const
 void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor )
 {
     const auto * actor_info = AbilityActorInfo.Get();
-    const bool bHasNewPawnAvatar = Cast< APawn >( avatar_actor ) != nullptr && avatar_actor != actor_info->AvatarActor;
+    const bool has_new_pawn_avatar = Cast< APawn >( avatar_actor ) != nullptr && avatar_actor != actor_info->AvatarActor;
 
     Super::InitAbilityActorInfo( owner_actor, avatar_actor );
 
@@ -137,7 +138,7 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
         OnRep_ReplicatedAnimMontageForMesh();
     }
 
-    if ( bHasNewPawnAvatar )
+    if ( has_new_pawn_avatar )
     {
         // Notify all abilities that a new pawn avatar has been set
         for ( const auto & ability_spec : ActivatableAbilities.Items )
@@ -202,6 +203,35 @@ void UGASExtAbilitySystemComponent::RemoveGameplayCue_Internal( const FGameplayT
     else if ( ScopedPredictionKey.IsLocalClientKey() )
     {
         gameplay_cue_container.PredictiveRemove( gameplay_cue_tag );
+    }
+}
+
+void UGASExtAbilitySystemComponent::ApplyAbilityBlockAndCancelTags( const FGameplayTagContainer & ability_tags, UGameplayAbility * requesting_ability, bool enable_block_tags, const FGameplayTagContainer & block_tags, bool execute_cancel_tags, const FGameplayTagContainer & cancel_tags )
+{
+    auto modified_block_tags = block_tags;
+    auto modified_cancel_tags = cancel_tags;
+
+    if ( TagRelationshipMapping != nullptr )
+    {
+        // Use the mapping to expand the ability tags into block and cancel tag
+        TagRelationshipMapping->GetAbilityTagsToBlockAndCancel( modified_block_tags, modified_cancel_tags, ability_tags );
+    }
+
+    Super::ApplyAbilityBlockAndCancelTags( ability_tags, requesting_ability, enable_block_tags, modified_block_tags, execute_cancel_tags, modified_cancel_tags );
+
+    //@TODO: Apply any special logic like blocking input or movement
+}
+
+void UGASExtAbilitySystemComponent::SetTagRelationshipMapping( UGASExtAbilityTagRelationshipMapping * new_mapping )
+{
+    TagRelationshipMapping = new_mapping;
+}
+
+void UGASExtAbilitySystemComponent::GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const
+{
+    if ( TagRelationshipMapping != nullptr )
+    {
+        TagRelationshipMapping->GetRequiredAndBlockedActivationTags( activation_required_tags, activation_blocked_tags, ability_tags );
     }
 }
 
