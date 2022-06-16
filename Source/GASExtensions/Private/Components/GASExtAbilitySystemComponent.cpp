@@ -66,12 +66,6 @@ UGASExtAbilitySystemComponent::UGASExtAbilitySystemComponent()
 void UGASExtAbilitySystemComponent::InitializeComponent()
 {
     Super::InitializeComponent();
-
-    for ( const auto & attribute_set_class : AdditionalAttributeSetClass )
-    {
-        auto * attribute_set = NewObject< UAttributeSet >( GetOwner(), attribute_set_class );
-        AddAttributeSetSubobject( attribute_set );
-    }
 }
 
 void UGASExtAbilitySystemComponent::BeginPlay()
@@ -81,10 +75,6 @@ void UGASExtAbilitySystemComponent::BeginPlay()
     if ( bGiveAbilitiesAndEffectsInBeginPlay )
     {
         GiveAbilitySet();
-
-        /*GiveDefaultAbilities();
-        GiveDefaultEffects();
-        GiveDefaultAttributes();*/
     }
 
     AddLooseGameplayTags( LooseTagsContainer );
@@ -640,29 +630,7 @@ void UGASExtAbilitySystemComponent::GiveAbilitySet()
         return;
     }
 
-    if ( AbilitySet != nullptr )
     {
-        AbilitySet->GiveToAbilitySystem( this, nullptr );
-    }
-}
-
-void UGASExtAbilitySystemComponent::GiveDefaultAttributes()
-{
-    if ( DefaultAttributes == nullptr )
-    {
-        UE_LOG( LogTemp, Verbose, TEXT( "%s() Missing DefaultAttributes for %s." ), TEXT( __FUNCTION__ ), *GetNameSafe( GetOwner() ) );
-        return;
-    }
-
-    // Can run on Server and Client
-    auto effect_context = MakeEffectContext();
-    effect_context.AddSourceObject( this );
-
-    const auto new_handle = MakeOutgoingSpec( DefaultAttributes, 1, effect_context );
-
-    if ( new_handle.IsValid() )
-    {
-        ApplyGameplayEffectSpecToSelf( *new_handle.Data.Get() );
     }
 }
 
