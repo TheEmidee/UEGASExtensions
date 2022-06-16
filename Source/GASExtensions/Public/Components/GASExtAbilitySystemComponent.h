@@ -7,6 +7,7 @@
 
 #include "GASExtAbilitySystemComponent.generated.h"
 
+class UGASExtAbilitySet;
 class UGASExtAbilityTagRelationshipMapping;
 class UGASExtGameplayAbility;
 
@@ -297,6 +298,10 @@ private:
     // :TODO: Remove EditDefaultsOnly when it can be set through experiences
     UPROPERTY( EditDefaultsOnly )
     UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
+
+    // :TODO: Remove when it can be set through pawn data
+    UPROPERTY( EditDefaultsOnly )
+    UGASExtAbilitySet * AbilitySet;
 
     /*
      * For tags not bound to gameplay effects
