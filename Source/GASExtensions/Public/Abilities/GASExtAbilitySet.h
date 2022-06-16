@@ -18,6 +18,9 @@ struct FGASExtAbilitySet_GameplayAbility
 
     UPROPERTY( EditDefaultsOnly, Meta = ( Categories = "InputTag" ) )
     FGameplayTag InputTag;
+
+    UPROPERTY( EditDefaultsOnly, Meta = ( Categories = "InputTag" ) )
+    int32 InputId;
 };
 
 USTRUCT( BlueprintType )
@@ -42,7 +45,7 @@ struct FGASExtAbilitySet_AttributeSet
 };
 
 USTRUCT( BlueprintType )
-struct FGASExtAbilitySet_GrantedHandles
+struct GASEXTENSIONS_API FGASExtAbilitySet_GrantedHandles
 {
     GENERATED_BODY()
 
