@@ -287,7 +287,7 @@ private:
 
     // :TODO: Remove when it can be set through pawn data
     UPROPERTY( EditDefaultsOnly )
-    UGASExtAbilitySet * AbilitySet;
+    TArray< const UGASExtAbilitySet * > AbilitySets;
 
     /*
      * For tags not bound to gameplay effects

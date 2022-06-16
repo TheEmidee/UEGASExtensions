@@ -630,7 +630,9 @@ void UGASExtAbilitySystemComponent::GiveAbilitySet()
         return;
     }
 
+    for ( const auto * ability_set : AbilitySets )
     {
+        ability_set->GiveToAbilitySystem( this, nullptr );
     }
 }
 
