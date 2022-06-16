@@ -2,8 +2,15 @@
 
 #include <CoreMinimal.h>
 #include <Engine/DataAsset.h>
+#include <GameplayAbilitySpec.h>
+#include <GameplayTags.h>
 
 #include "GASExtAbilitySet.generated.h"
+
+class UGASExtGameplayAbility;
+class UGameplayEffect;
+class UAttributeSet;
+class UAbilitySystemComponent;
 
 USTRUCT( BlueprintType )
 struct FGASExtAbilitySet_GameplayAbility

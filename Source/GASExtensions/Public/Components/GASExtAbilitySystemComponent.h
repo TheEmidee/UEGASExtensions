@@ -183,6 +183,8 @@ public:
     template < typename _ATTRIBUTE_SET_CLASS_ >
     _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
 
+    void GiveAbilitySet();
+
     void GiveDefaultAbilities();
     void GiveDefaultEffects();
     void GiveDefaultAttributes();

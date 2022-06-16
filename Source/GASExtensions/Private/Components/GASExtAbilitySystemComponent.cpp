@@ -4,6 +4,7 @@
 #include "Abilities/GASExtGameplayAbility.h"
 #include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
+#include "Abilities/GASExtAbilitySet.h"
 
 #include <AbilitySystemGlobals.h>
 #include <Animation/AnimInstance.h>
@@ -79,9 +80,11 @@ void UGASExtAbilitySystemComponent::BeginPlay()
 
     if ( bGiveAbilitiesAndEffectsInBeginPlay )
     {
-        GiveDefaultAbilities();
+        GiveAbilitySet();
+
+        /*GiveDefaultAbilities();
         GiveDefaultEffects();
-        GiveDefaultAttributes();
+        GiveDefaultAttributes();*/
     }
 
     AddLooseGameplayTags( LooseTagsContainer );
@@ -630,6 +633,19 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionTimeLeftForMesh( US
     }
 
     return -1.f;
+}
+
+void UGASExtAbilitySystemComponent::GiveAbilitySet()
+{
+    if ( !GetOwner()->HasAuthority() )
+    {
+        return;
+    }
+
+    if ( AbilitySet != nullptr )
+    {
+        AbilitySet->GiveToAbilitySystem( this, nullptr );
+    }
 }
 
 void UGASExtAbilitySystemComponent::GiveDefaultAbilities()
