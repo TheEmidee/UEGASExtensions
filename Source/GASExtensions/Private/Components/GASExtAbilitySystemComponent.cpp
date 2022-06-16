@@ -244,8 +244,6 @@ EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText 
     Super::IsDataValid( validation_errors );
 
     return FDVEDataValidator( validation_errors )
-        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultEffects ) )
-        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultAbilities ) )
         .Result();
 }
 #endif
@@ -645,54 +643,6 @@ void UGASExtAbilitySystemComponent::GiveAbilitySet()
     if ( AbilitySet != nullptr )
     {
         AbilitySet->GiveToAbilitySystem( this, nullptr );
-    }
-}
-
-void UGASExtAbilitySystemComponent::GiveDefaultAbilities()
-{
-    if ( !GetOwner()->HasAuthority() )
-    {
-        return;
-    }
-
-    for ( const auto & startup_ability : DefaultAbilities )
-    {
-        if ( !ensureAlwaysMsgf( startup_ability != nullptr, TEXT( "%s() One of the DefaultAbilities is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
-        {
-            continue;
-        }
-
-        GiveAbility( FGameplayAbilitySpec(
-            startup_ability,
-            1,
-            startup_ability->GetDefaultObject< UGASExtGameplayAbility >()->GetInputID(),
-            this ) );
-    }
-}
-
-void UGASExtAbilitySystemComponent::GiveDefaultEffects()
-{
-    if ( !GetOwner()->HasAuthority() )
-    {
-        return;
-    }
-
-    auto effect_context = MakeEffectContext();
-    effect_context.AddSourceObject( this );
-
-    for ( const auto & startup_effect : DefaultEffects )
-    {
-        if ( !ensureAlwaysMsgf( startup_effect != nullptr, TEXT( "%s() One of the StartupEffects is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
-        {
-            continue;
-        }
-
-        const auto new_handle = MakeOutgoingSpec( startup_effect, 1, effect_context );
-
-        if ( new_handle.IsValid() )
-        {
-            ApplyGameplayEffectSpecToTarget( *new_handle.Data.Get(), this );
-        }
     }
 }
 

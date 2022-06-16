@@ -184,9 +184,6 @@ public:
     _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
 
     void GiveAbilitySet();
-
-    void GiveDefaultAbilities();
-    void GiveDefaultEffects();
     void GiveDefaultAttributes();
 
     void SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play );
@@ -280,12 +277,6 @@ private:
     void ServerCurrentMontageSetPlayRateForMesh( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
     void ServerCurrentMontageSetPlayRateForMesh_Implementation( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
     bool ServerCurrentMontageSetPlayRateForMesh_Validate( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TArray< TSubclassOf< UGASExtGameplayAbility > > DefaultAbilities;
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TArray< TSubclassOf< UGameplayEffect > > DefaultEffects;
 
     UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
     TSubclassOf< UGameplayEffect > DefaultAttributes;
