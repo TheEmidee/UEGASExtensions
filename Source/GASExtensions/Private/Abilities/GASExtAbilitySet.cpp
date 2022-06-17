@@ -33,7 +33,7 @@ void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UAbilitySystemComp
         return;
     }
 
-    for ( const FGameplayAbilitySpecHandle & handle : AbilitySpecHandles )
+    for ( const auto & handle : AbilitySpecHandles )
     {
         if ( handle.IsValid() )
         {
@@ -41,7 +41,7 @@ void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UAbilitySystemComp
         }
     }
 
-    for ( const FActiveGameplayEffectHandle & handle : GameplayEffectHandles )
+    for ( const auto & handle : GameplayEffectHandles )
     {
         if ( handle.IsValid() )
         {
@@ -49,7 +49,7 @@ void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UAbilitySystemComp
         }
     }
 
-    for ( UAttributeSet * set : GrantedAttributeSets )
+    for ( auto * set : GrantedAttributeSets )
     {
         asc->GetSpawnedAttributes_Mutable().Remove( set );
     }
@@ -96,7 +96,7 @@ void UGASExtAbilitySet::GiveToAbilitySystem( UAbilitySystemComponent * asc, FGAS
     }
 
     // Grant the gameplay effects.
-    for ( int32 effect_index = 0; effect_index < GrantedGameplayEffects.Num(); ++effect_index )
+    for ( auto effect_index = 0; effect_index < GrantedGameplayEffects.Num(); ++effect_index )
     {
         const auto & effect_to_grant = GrantedGameplayEffects[ effect_index ];
 
