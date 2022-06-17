@@ -7,6 +7,7 @@
 
 #include "GASExtAbilitySystemComponent.generated.h"
 
+class UGASExtAbilitySet;
 class UGASExtAbilityTagRelationshipMapping;
 class UGASExtGameplayAbility;
 
@@ -182,9 +183,7 @@ public:
     template < typename _ATTRIBUTE_SET_CLASS_ >
     _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
 
-    void GiveDefaultAbilities();
-    void GiveDefaultEffects();
-    void GiveDefaultAttributes();
+    void GiveAbilitySet();
 
     void SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play );
 
@@ -279,24 +278,16 @@ private:
     bool ServerCurrentMontageSetPlayRateForMesh_Validate( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
 
     UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TArray< TSubclassOf< UGASExtGameplayAbility > > DefaultAbilities;
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TArray< TSubclassOf< UGameplayEffect > > DefaultEffects;
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TSubclassOf< UGameplayEffect > DefaultAttributes;
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
     uint8 bGiveAbilitiesAndEffectsInBeginPlay : 1;
-
-    UPROPERTY( EditDefaultsOnly )
-    TArray< TSubclassOf< UAttributeSet > > AdditionalAttributeSetClass;
 
     // If set, this table is used to look up tag relationships for activate and cancel
     // :TODO: Remove EditDefaultsOnly when it can be set through experiences
     UPROPERTY( EditDefaultsOnly )
     UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
+
+    // :TODO: Remove when it can be set through pawn data
+    UPROPERTY( EditDefaultsOnly )
+    TArray< const UGASExtAbilitySet * > AbilitySets;
 
     /*
      * For tags not bound to gameplay effects

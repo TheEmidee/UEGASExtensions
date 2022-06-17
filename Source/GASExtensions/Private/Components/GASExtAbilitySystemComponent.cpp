@@ -4,6 +4,7 @@
 #include "Abilities/GASExtGameplayAbility.h"
 #include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
+#include "Abilities/GASExtAbilitySet.h"
 
 #include <AbilitySystemGlobals.h>
 #include <Animation/AnimInstance.h>
@@ -65,12 +66,6 @@ UGASExtAbilitySystemComponent::UGASExtAbilitySystemComponent()
 void UGASExtAbilitySystemComponent::InitializeComponent()
 {
     Super::InitializeComponent();
-
-    for ( const auto & attribute_set_class : AdditionalAttributeSetClass )
-    {
-        auto * attribute_set = NewObject< UAttributeSet >( GetOwner(), attribute_set_class );
-        AddAttributeSetSubobject( attribute_set );
-    }
 }
 
 void UGASExtAbilitySystemComponent::BeginPlay()
@@ -79,9 +74,7 @@ void UGASExtAbilitySystemComponent::BeginPlay()
 
     if ( bGiveAbilitiesAndEffectsInBeginPlay )
     {
-        GiveDefaultAbilities();
-        GiveDefaultEffects();
-        GiveDefaultAttributes();
+        GiveAbilitySet();
     }
 
     AddLooseGameplayTags( LooseTagsContainer );
@@ -241,8 +234,6 @@ EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText 
     Super::IsDataValid( validation_errors );
 
     return FDVEDataValidator( validation_errors )
-        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultEffects ) )
-        .NoNullItem( VALIDATOR_GET_PROPERTY( DefaultAbilities ) )
         .Result();
 }
 #endif
@@ -632,71 +623,16 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionTimeLeftForMesh( US
     return -1.f;
 }
 
-void UGASExtAbilitySystemComponent::GiveDefaultAbilities()
+void UGASExtAbilitySystemComponent::GiveAbilitySet()
 {
     if ( !GetOwner()->HasAuthority() )
     {
         return;
     }
 
-    for ( const auto & startup_ability : DefaultAbilities )
+    for ( const auto * ability_set : AbilitySets )
     {
-        if ( !ensureAlwaysMsgf( startup_ability != nullptr, TEXT( "%s() One of the DefaultAbilities is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
-        {
-            continue;
-        }
-
-        GiveAbility( FGameplayAbilitySpec(
-            startup_ability,
-            1,
-            startup_ability->GetDefaultObject< UGASExtGameplayAbility >()->GetInputID(),
-            this ) );
-    }
-}
-
-void UGASExtAbilitySystemComponent::GiveDefaultEffects()
-{
-    if ( !GetOwner()->HasAuthority() )
-    {
-        return;
-    }
-
-    auto effect_context = MakeEffectContext();
-    effect_context.AddSourceObject( this );
-
-    for ( const auto & startup_effect : DefaultEffects )
-    {
-        if ( !ensureAlwaysMsgf( startup_effect != nullptr, TEXT( "%s() One of the StartupEffects is not valid in %s." ), TEXT( __FUNCTION__ ), *GetName() ) )
-        {
-            continue;
-        }
-
-        const auto new_handle = MakeOutgoingSpec( startup_effect, 1, effect_context );
-
-        if ( new_handle.IsValid() )
-        {
-            ApplyGameplayEffectSpecToTarget( *new_handle.Data.Get(), this );
-        }
-    }
-}
-
-void UGASExtAbilitySystemComponent::GiveDefaultAttributes()
-{
-    if ( DefaultAttributes == nullptr )
-    {
-        UE_LOG( LogTemp, Verbose, TEXT( "%s() Missing DefaultAttributes for %s." ), TEXT( __FUNCTION__ ), *GetNameSafe( GetOwner() ) );
-        return;
-    }
-
-    // Can run on Server and Client
-    auto effect_context = MakeEffectContext();
-    effect_context.AddSourceObject( this );
-
-    const auto new_handle = MakeOutgoingSpec( DefaultAttributes, 1, effect_context );
-
-    if ( new_handle.IsValid() )
-    {
-        ApplyGameplayEffectSpecToSelf( *new_handle.Data.Get() );
+        ability_set->GiveToAbilitySystem( this, nullptr );
     }
 }
 
