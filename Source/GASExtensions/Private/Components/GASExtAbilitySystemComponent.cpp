@@ -228,6 +228,11 @@ void UGASExtAbilitySystemComponent::GetAdditionalActivationTagRequirements( cons
     }
 }
 
+void UGASExtAbilitySystemComponent::ClearAbilityInput()
+{
+    // :TODO:
+}
+
 #if WITH_EDITOR
 EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText > & validation_errors )
 {

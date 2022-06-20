@@ -105,6 +105,8 @@ public:
     /** Looks at ability tags and gathers additional required and blocking tags */
     void GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const;
 
+    void ClearAbilityInput();
+
 #if WITH_EDITOR
     EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
 #endif
