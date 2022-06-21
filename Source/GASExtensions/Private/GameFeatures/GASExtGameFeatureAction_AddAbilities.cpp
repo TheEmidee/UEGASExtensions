@@ -41,7 +41,7 @@ void UGASExtGameFeatureAction_AddAbilities::AddAdditionalAssetBundleData( FAsset
             {
                 add_bundle_asset( ability.AbilityType.ToSoftObjectPath() );
 
-                /* :TODO: Re-enable with UE5
+                /* :TODO: UE5 - Re-enable
                 if ( !Ability.InputAction.IsNull() )
                 {
                     AddBundleAsset( Ability.InputAction.ToSoftObjectPath() );
@@ -291,7 +291,7 @@ void UGASExtGameFeatureAction_AddAbilities::RemoveActorAbilities( AActor * actor
                 ability_system_component->GetSpawnedAttributes_Mutable().Remove( attribute_set );
             }
 
-            /* :TODO: Un comment with UE5
+            /* :TODO: ASC Inputs
             UAbilityInputBindingComponent * InputComponent = actor->FindComponentByClass< UAbilityInputBindingComponent >();
             */
             for ( const auto ability_handle : actor_extensions->Abilities )

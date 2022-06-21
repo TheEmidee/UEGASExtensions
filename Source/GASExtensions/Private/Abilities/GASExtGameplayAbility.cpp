@@ -324,9 +324,7 @@ bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandl
     }
 
     auto * ability_system_component = CastChecked< UGASExtAbilitySystemComponent >( actor_info->AbilitySystemComponent.Get() );
-    // :TODO:
-    // const FLyraGameplayTags & GameplayTags = FLyraGameplayTags::Get();
-
+    
     if ( !Super::CanActivateAbility( handle, actor_info, source_tags, target_tags, optional_relevant_tags ) )
     {
         return false;
@@ -334,7 +332,7 @@ bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandl
 
     if ( ability_system_component->IsActivationGroupBlocked( ActivationGroup ) )
     {
-        // :TODO:
+        // :TODO: Ability Failure
         /*if ( OptionalRelevantTags )
         {
             OptionalRelevantTags->AddTag( GameplayTags.Ability_ActivateFail_ActivationGroup );
