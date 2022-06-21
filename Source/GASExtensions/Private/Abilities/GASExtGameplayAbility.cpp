@@ -231,8 +231,11 @@ bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySy
         blocked = true;
     }
 
-    static auto AllRequiredTags = ActivationRequiredTags;
-    static auto AllBlockedTags = ActivationBlockedTags;
+    static FGameplayTagContainer AllRequiredTags;
+    static FGameplayTagContainer AllBlockedTags;
+
+    AllRequiredTags = ActivationRequiredTags;
+    AllBlockedTags = ActivationBlockedTags;
 
     // Expand our ability tags to add additional required/blocked tags
     if ( const auto * gas_ext_asc = Cast< UGASExtAbilitySystemComponent >( &ability_system_component ) )
