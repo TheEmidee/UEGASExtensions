@@ -105,6 +105,8 @@ public:
     /** Looks at ability tags and gathers additional required and blocking tags */
     void GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const;
 
+    void ClearAbilityInput();
+
 #if WITH_EDITOR
     EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
 #endif
@@ -184,8 +186,6 @@ public:
     _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
 
     void GiveAbilitySet();
-
-    void SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play );
 
     bool IsActivationGroupBlocked( EGASExtAbilityActivationGroup group ) const;
     void AddAbilityToActivationGroup( EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ability );
@@ -281,7 +281,7 @@ private:
     uint8 bGiveAbilitiesAndEffectsInBeginPlay : 1;
 
     // If set, this table is used to look up tag relationships for activate and cancel
-    // :TODO: Remove EditDefaultsOnly when it can be set through experiences
+    // :TODO: Experiences - Remove EditDefaultsOnly when it can be set through experiences
     UPROPERTY( EditDefaultsOnly )
     UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
 
@@ -318,9 +318,4 @@ FORCEINLINE bool UGASExtAbilitySystemComponent::ShouldDoServerAbilityRPCBatch() 
 {
     // :TODO:
     return false;
-}
-
-FORCEINLINE void UGASExtAbilitySystemComponent::SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play )
-{
-    bGiveAbilitiesAndEffectsInBeginPlay = give_abilities_and_effects_in_begin_play;
 }

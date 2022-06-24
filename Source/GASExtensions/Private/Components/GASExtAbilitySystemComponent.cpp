@@ -228,6 +228,11 @@ void UGASExtAbilitySystemComponent::GetAdditionalActivationTagRequirements( cons
     }
 }
 
+void UGASExtAbilitySystemComponent::ClearAbilityInput()
+{
+    // :TODO: ASC Inputs
+}
+
 #if WITH_EDITOR
 EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText > & validation_errors )
 {
@@ -800,7 +805,7 @@ void UGASExtAbilitySystemComponent::NotifyAbilityFailed( const FGameplayAbilityS
 {
     Super::NotifyAbilityFailed( Handle, Ability, FailureReason );
 
-    /* :TODO: Failed abilities
+    /* :TODO: Ability Failure
     if ( APawn * Avatar = Cast< APawn >( GetAvatarActor() ) )
     {
         if ( !Avatar->IsLocallyControlled() && Ability->IsSupportedForNetworking() )

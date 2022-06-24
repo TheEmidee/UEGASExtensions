@@ -231,8 +231,11 @@ bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySy
         blocked = true;
     }
 
-    static auto AllRequiredTags = ActivationRequiredTags;
-    static auto AllBlockedTags = ActivationBlockedTags;
+    static FGameplayTagContainer AllRequiredTags;
+    static FGameplayTagContainer AllBlockedTags;
+
+    AllRequiredTags = ActivationRequiredTags;
+    AllBlockedTags = ActivationBlockedTags;
 
     // Expand our ability tags to add additional required/blocked tags
     if ( const auto * gas_ext_asc = Cast< UGASExtAbilitySystemComponent >( &ability_system_component ) )
@@ -321,9 +324,7 @@ bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandl
     }
 
     auto * ability_system_component = CastChecked< UGASExtAbilitySystemComponent >( actor_info->AbilitySystemComponent.Get() );
-    // :TODO:
-    // const FLyraGameplayTags & GameplayTags = FLyraGameplayTags::Get();
-
+    
     if ( !Super::CanActivateAbility( handle, actor_info, source_tags, target_tags, optional_relevant_tags ) )
     {
         return false;
@@ -331,7 +332,7 @@ bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandl
 
     if ( ability_system_component->IsActivationGroupBlocked( ActivationGroup ) )
     {
-        // :TODO:
+        // :TODO: Ability Failure
         /*if ( OptionalRelevantTags )
         {
             OptionalRelevantTags->AddTag( GameplayTags.Ability_ActivateFail_ActivationGroup );

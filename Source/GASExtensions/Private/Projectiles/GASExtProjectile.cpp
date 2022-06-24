@@ -27,7 +27,6 @@ AGASExtProjectile::AGASExtProjectile()
 
     bReplicates = true;
     SetReplicatingMovement( true );
-    // :TODO: change this to a better value
     NetUpdateFrequency = 100.0f;
 
     ImpactDetectionType = EGASExtProjectileImpactDetectionType::Hit;
