@@ -23,7 +23,7 @@ void UGASExtAT_WaitPrimitiveComponentHit::OnDestroy( bool ability_ended )
 {
     if ( auto * primitive_component = GetPrimitiveComponent() )
     {
-        primitive_component->OnComponentHit.AddDynamic( this, &ThisClass::OnComponentHit );
+        primitive_component->OnComponentHit.RemoveDynamic( this, &ThisClass::OnComponentHit );
     }
 
     Super::OnDestroy( ability_ended );
