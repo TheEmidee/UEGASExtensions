@@ -316,6 +316,30 @@ bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySy
     return true;
 }
 
+void UGASExtGameplayAbility::ExecuteGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
+{
+    if ( auto * const asc = GetGASExtAbilitySystemComponentFromActorInfo() )
+    {
+        asc->ExecuteGameplayCueLocal( gameplay_cue_tag, parameters );
+    }
+}
+
+void UGASExtGameplayAbility::AddGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
+{
+    if ( auto * const asc = GetGASExtAbilitySystemComponentFromActorInfo() )
+    {
+        asc->AddGameplayCueLocal( gameplay_cue_tag, parameters );
+    }
+}
+
+void UGASExtGameplayAbility::RemoveGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
+{
+    if ( auto * const asc = GetGASExtAbilitySystemComponentFromActorInfo() )
+    {
+        asc->RemoveGameplayCueLocal( gameplay_cue_tag, parameters );
+    }
+}
+
 bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandle handle, const FGameplayAbilityActorInfo * actor_info, const FGameplayTagContainer * source_tags, const FGameplayTagContainer * target_tags, FGameplayTagContainer * optional_relevant_tags ) const
 {
     if ( !actor_info || !actor_info->AbilitySystemComponent.IsValid() )
