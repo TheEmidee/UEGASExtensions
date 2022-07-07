@@ -80,6 +80,8 @@ class GASEXTENSIONS_API UGASExtAbilitySet final : public UPrimaryDataAsset
     GENERATED_BODY()
 
 public:
+    FPrimaryAssetId GetPrimaryAssetId() const override;
+
     void GiveToAbilitySystem( UAbilitySystemComponent * asc, FGASExtAbilitySet_GrantedHandles * out_granted_handles, UObject * source_object = nullptr ) const;
 
 protected:

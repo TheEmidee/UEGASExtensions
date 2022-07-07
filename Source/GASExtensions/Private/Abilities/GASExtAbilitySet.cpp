@@ -59,6 +59,11 @@ void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UAbilitySystemComp
     GrantedAttributeSets.Reset();
 }
 
+FPrimaryAssetId UGASExtAbilitySet::GetPrimaryAssetId() const
+{
+    return FPrimaryAssetId( TEXT( "AbilitySet" ), GetPackage()->GetFName() );
+}
+
 void UGASExtAbilitySet::GiveToAbilitySystem( UAbilitySystemComponent * asc, FGASExtAbilitySet_GrantedHandles * out_granted_handles, UObject * source_object ) const
 {
     check( asc );
