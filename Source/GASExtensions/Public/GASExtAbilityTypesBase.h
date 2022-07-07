@@ -15,6 +15,34 @@ class UGameplayEffect;
 class UGASExtTargetType;
 
 UENUM( BlueprintType )
+enum class EGASExtAbilityActivationPolicy : uint8
+{
+    // Try to activate the ability when the input is triggered.
+    OnInputTriggered,
+
+    // Continually try to activate the ability while the input is active.
+    WhileInputActive,
+
+    // Try to activate the ability when an avatar is assigned.
+    OnSpawn
+};
+
+UENUM( BlueprintType )
+enum class EGASExtAbilityActivationGroup : uint8
+{
+    // Ability runs independently of all other abilities.
+    Independent,
+
+    // Ability is canceled and replaced by other exclusive abilities.
+    ExclusiveReplaceable,
+
+    // Ability blocks all other exclusive abilities from activating.
+    ExclusiveBlocking,
+
+    MAX UMETA( Hidden )
+};
+
+UENUM( BlueprintType )
 enum class EGASExtTargetTraceType : uint8
 {
     Line,

@@ -2,8 +2,7 @@
 
 This plug-in is a collection of abilities, tasks, and other things to expand upon the Gameplay Ability System (GAS) of Unreal.
 
-The initial work comes from the repository https://github.com/tranek/GASShooter and more features were added after (like the hitscan task)
+The initial work comes from the [GASShooter repository](https://github.com/tranek/GASShooter). \
+Other improvements were added from the [Lyra sample game](https://docs.unrealengine.com/5.0/en-US/lyra-sample-game-in-unreal-engine/).
 
-This plugin depends upon the plugin https://github.com/TheEmidee/UE4GameBaseFramework because of some IsDataValid functions, which use macros defined in that other module.
-
-It is planned to move those data validation macros in a separate module later.
+This plugin depends upon some plugins I created and you can find on my github page : https://github.com/TheEmidee/.

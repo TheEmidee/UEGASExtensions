@@ -1,15 +1,19 @@
 #pragma once
 
+#include "GASExtAbilityTypesBase.h"
+
 #include <AbilitySystemComponent.h>
 #include <CoreMinimal.h>
 
 #include "GASExtAbilitySystemComponent.generated.h"
 
+class UGASExtAbilitySet;
+class UGASExtAbilityTagRelationshipMapping;
 class UGASExtGameplayAbility;
 
 /**
-* Data about montages that were played locally (all montages in case of server. predictive montages in case of client). Never replicated directly.
-*/
+ * Data about montages that were played locally (all montages in case of server. predictive montages in case of client). Never replicated directly.
+ */
 USTRUCT()
 struct GASEXTENSIONS_API FGameplayAbilityLocalAnimMontageForMesh
 {
@@ -40,8 +44,8 @@ public:
 };
 
 /**
-* Data about montages that is replicated to simulated clients.
-*/
+ * Data about montages that is replicated to simulated clients.
+ */
 USTRUCT()
 struct GASEXTENSIONS_API FGameplayAbilityRepAnimMontageForMesh
 {
@@ -95,8 +99,13 @@ public:
     bool GetShouldTick() const override;
     void TickComponent( float delta_time, enum ELevelTick tick_type, FActorComponentTickFunction * this_tick_function ) override;
     void InitAbilityActorInfo( AActor * owner_actor, AActor * avatar_actor ) override;
-    void NotifyAbilityEnded( FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, bool was_cancelled ) override;
     void RemoveGameplayCue_Internal( const FGameplayTag gameplay_cue_tag, FActiveGameplayCueContainer & gameplay_cue_container ) override;
+    void ApplyAbilityBlockAndCancelTags( const FGameplayTagContainer & ability_tags, UGameplayAbility * requesting_ability, bool enable_block_tags, const FGameplayTagContainer & block_tags, bool execute_cancel_tags, const FGameplayTagContainer & cancel_tags ) override;
+    void SetTagRelationshipMapping( UGASExtAbilityTagRelationshipMapping * new_mapping );
+    /** Looks at ability tags and gathers additional required and blocking tags */
+    void GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const;
+
+    void ClearAbilityInput();
 
 #if WITH_EDITOR
     EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
@@ -108,13 +117,13 @@ public:
     UFUNCTION( BlueprintCallable )
     void OurCancelAllAbilities();
 
-    UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue" ) )
+    UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "parameters", GameplayTagFilter = "GameplayCue" ) )
     void ExecuteGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters );
 
-    UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue" ) )
+    UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "parameters", GameplayTagFilter = "GameplayCue" ) )
     void AddGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters );
 
-    UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "GameplayCueParameters", GameplayTagFilter = "GameplayCue" ) )
+    UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "parameters", GameplayTagFilter = "GameplayCue" ) )
     void RemoveGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters );
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -176,13 +185,24 @@ public:
     template < typename _ATTRIBUTE_SET_CLASS_ >
     _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
 
-    void GiveDefaultAbilities();
-    void GiveDefaultEffects();
-    void GiveDefaultAttributes();
+    void GiveAbilitySet();
 
-    void SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play );
+    bool IsActivationGroupBlocked( EGASExtAbilityActivationGroup group ) const;
+    void AddAbilityToActivationGroup( EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ability );
+    void RemoveAbilityFromActivationGroup( EGASExtAbilityActivationGroup group, const UGASExtGameplayAbility * ability );
+    void CancelActivationGroupAbilities( EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ignore_ability, bool replicate_cancel_ability );
+
+    typedef TFunctionRef< bool( const UGASExtGameplayAbility * ability, FGameplayAbilitySpecHandle handle ) > TShouldCancelAbilityFunc;
+    void CancelAbilitiesByFunc( TShouldCancelAbilityFunc predicate, bool replicate_cancel_ability );
+
+    void CancelInputActivatedAbilities( bool replicate_cancel_ability );
 
 protected:
+    void TryActivateAbilitiesOnSpawn();
+    void NotifyAbilityActivated( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability ) override;
+    void NotifyAbilityFailed( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability, const FGameplayTagContainer & FailureReason ) override;
+    void NotifyAbilityEnded( FGameplayAbilitySpecHandle handle, UGameplayAbility * ability, bool was_cancelled ) override;
+
     UFUNCTION( BlueprintCallable )
     void K2_RemoveGameplayCue( FGameplayTag gameplay_cue_tag );
 
@@ -258,25 +278,25 @@ private:
     bool ServerCurrentMontageSetPlayRateForMesh_Validate( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
 
     UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TArray< TSubclassOf< UGASExtGameplayAbility > > DefaultAbilities;
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TArray< TSubclassOf< UGameplayEffect > > DefaultEffects;
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    TSubclassOf< UGameplayEffect > DefaultAttributes;
-
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
     uint8 bGiveAbilitiesAndEffectsInBeginPlay : 1;
 
+    // If set, this table is used to look up tag relationships for activate and cancel
+    // :TODO: Experiences - Remove EditDefaultsOnly when it can be set through experiences
     UPROPERTY( EditDefaultsOnly )
-    TArray< TSubclassOf< UAttributeSet > > AdditionalAttributeSetClass;
+    UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
+
+    // :TODO: Remove when it can be set through pawn data
+    UPROPERTY( EditDefaultsOnly )
+    TArray< const UGASExtAbilitySet * > AbilitySets;
 
     /*
-    * For tags not bound to gameplay effects
-    */
+     * For tags not bound to gameplay effects
+     */
     UPROPERTY( EditAnywhere )
     FGameplayTagContainer LooseTagsContainer;
+
+    // Number of abilities running in each activation group.
+    int32 ActivationGroupCounts[ static_cast< uint8 >( EGASExtAbilityActivationGroup::MAX ) ];
 };
 
 template < typename _ATTRIBUTE_SET_CLASS_ >
@@ -298,9 +318,4 @@ FORCEINLINE bool UGASExtAbilitySystemComponent::ShouldDoServerAbilityRPCBatch() 
 {
     // :TODO:
     return false;
-}
-
-FORCEINLINE void UGASExtAbilitySystemComponent::SetGiveAbilitiesAndEffectsInBeginPlay( bool give_abilities_and_effects_in_begin_play )
-{
-    bGiveAbilitiesAndEffectsInBeginPlay = give_abilities_and_effects_in_begin_play;
 }

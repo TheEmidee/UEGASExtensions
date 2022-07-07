@@ -2,11 +2,13 @@
 
 #include "Components/GameFrameworkComponentManager.h"
 #include "GFEGameFeatureAction_WorldActionBase.h"
+#include "Abilities/GASExtAbilitySet.h"
 
 #include <CoreMinimal.h>
 
-#include "GASExtGameFeatureAction_Grant.generated.h"
+#include "GASExtGameFeatureAction_AddAbilities.generated.h"
 
+class UGASExtAbilitySet;
 struct FGameFeatureDeactivatingContext;
 
 // This comes from the sample ValleyOfTheAncient
@@ -60,12 +62,15 @@ struct FGASExtGameFeatureAbilitiesEntry
     UPROPERTY( EditAnywhere, Category = "Attributes" )
     TArray< FGASExtGameFeatureAttributesMapping > GrantedAttributes;
 
+    UPROPERTY( EditAnywhere, Category = "Attributes", meta = ( AssetBundles = "Client,Server" ) )
+    TArray< TSoftObjectPtr< const UGASExtAbilitySet > > GrantedAbilitySets;
+
     UPROPERTY( EditAnywhere, Category = "Tags" )
     FGameplayTagContainer LooseGameplayTags;
 };
 
-UCLASS()
-class GASEXTENSIONS_API UGASExtGameFeatureAction_Grant final : public UGFEGameFeatureAction_WorldActionBase
+UCLASS( meta = ( DisplayName = "Add Abilities" ) )
+class GASEXTENSIONS_API UGASExtGameFeatureAction_AddAbilities final : public UGFEGameFeatureAction_WorldActionBase
 {
     GENERATED_BODY()
 
@@ -80,6 +85,8 @@ public:
 #if WITH_EDITOR
     EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
 #endif
+
+    static const FName NAME_AbilityReady;
 
 private:
     void AddToWorld( const FWorldContext & world_context ) override;
@@ -105,9 +112,9 @@ private:
         TArray< FGameplayAbilitySpecHandle > Abilities;
         TArray< UAttributeSet * > Attributes;
         TArray< FActiveGameplayEffectHandle > Effects;
+        TArray< FGASExtAbilitySet_GrantedHandles > AbilitySetHandles;
         FGameplayTagContainer Tags;
     };
     TMap< AActor *, FActorExtensions > ActiveExtensions;
-
     TArray< TSharedPtr< FComponentRequestHandle > > ComponentRequests;
 };

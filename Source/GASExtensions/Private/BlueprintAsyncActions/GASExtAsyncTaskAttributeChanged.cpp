@@ -2,7 +2,7 @@
 
 UGASExtAsyncTaskAttributeChanged * UGASExtAsyncTaskAttributeChanged::ListenForAttributeChange( UAbilitySystemComponent * ability_system_component, const FGameplayAttribute attribute )
 {
-    auto wait_for_attribute_changed_task = NewObject< UGASExtAsyncTaskAttributeChanged >();
+    auto * wait_for_attribute_changed_task = NewObject< UGASExtAsyncTaskAttributeChanged >();
     wait_for_attribute_changed_task->ASC = ability_system_component;
     wait_for_attribute_changed_task->AttributeToListenFor = attribute;
 
@@ -19,7 +19,7 @@ UGASExtAsyncTaskAttributeChanged * UGASExtAsyncTaskAttributeChanged::ListenForAt
 
 UGASExtAsyncTaskAttributeChanged * UGASExtAsyncTaskAttributeChanged::ListenForAttributesChange( UAbilitySystemComponent * ability_system_component, TArray< FGameplayAttribute > attributes )
 {
-    auto wait_for_attribute_changed_task = NewObject< UGASExtAsyncTaskAttributeChanged >();
+    auto * wait_for_attribute_changed_task = NewObject< UGASExtAsyncTaskAttributeChanged >();
     wait_for_attribute_changed_task->ASC = ability_system_component;
     wait_for_attribute_changed_task->AttributesToListenFor = attributes;
 
