@@ -8,6 +8,7 @@
 #include <GameplayCueSet.h>
 #include <GameplayCue_Types.h>
 #include <GameplayTagsManager.h>
+#include <UObject/UObjectThreadContext.h>
 
 enum class EGASExtEditorLoadMode
 {
