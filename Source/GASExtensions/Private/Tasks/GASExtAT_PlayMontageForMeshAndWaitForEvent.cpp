@@ -19,7 +19,7 @@ void UGASExtAT_PlayMontageForMeshAndWaitForEvent::Activate()
 
     if ( Mesh == nullptr )
     {
-        UE_LOG( LogTemp, Error, TEXT( "%s invalid Mesh" ), TEXT( __FUNCTION__ ) );
+        UE_LOG( LogTemp, Error, TEXT( "%s invalid Mesh" ), StringCast< TCHAR >( __FUNCTION__ ).Get() );
         return;
     }
 

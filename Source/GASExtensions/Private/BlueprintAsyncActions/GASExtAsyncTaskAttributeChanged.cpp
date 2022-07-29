@@ -50,7 +50,7 @@ void UGASExtAsyncTaskAttributeChanged::EndTask()
     }
 
     SetReadyToDestroy();
-    MarkPendingKill();
+    MarkAsGarbage();
 }
 
 void UGASExtAsyncTaskAttributeChanged::AttributeChanged( const FOnAttributeChangeData & data ) const

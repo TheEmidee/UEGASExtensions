@@ -16,7 +16,7 @@ UGASExtAT_WaitTargetDataUsingActor * UGASExtAT_WaitTargetDataUsingActor::WaitTar
 
 void UGASExtAT_WaitTargetDataUsingActor::Activate()
 {
-    if ( IsPendingKill() )
+    if ( !IsValid( this ) )
     {
         return;
     }
@@ -200,7 +200,7 @@ void UGASExtAT_WaitTargetDataUsingActor::FinalizeTargetActor() const
 
 void UGASExtAT_WaitTargetDataUsingActor::RegisterTargetDataCallbacks()
 {
-    if ( !ensure( IsPendingKill() == false ) )
+    if ( !ensure( IsValid( this ) ) )
     {
         return;
     }

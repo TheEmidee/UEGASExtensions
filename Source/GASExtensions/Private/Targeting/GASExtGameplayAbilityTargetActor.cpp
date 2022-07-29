@@ -143,7 +143,7 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
     {
         auto & hit_result = PersistentHitResults[ index ];
 
-        if ( /*hit_result.bBlockingHit ||*/ !hit_result.Actor.IsValid() || FVector::DistSquared( trace_start, hit_result.Actor.Get()->GetActorLocation() ) > FMath::Square( TraceMaxRange ) )
+        if ( /*hit_result.bBlockingHit ||*/ !hit_result.HasValidHitObjectHandle() || FVector::DistSquared( trace_start, hit_result.GetActor()->GetActorLocation() ) > FMath::Square( TraceMaxRange ) )
         {
             RemoveTargetFromPersistentResult( index );
         }
@@ -217,10 +217,10 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
             for ( auto index = hit_results.Num() - 1; index >= 0; index-- )
             {
                 const auto & hit_result = hit_results[ index ];
-                if ( hit_result.Actor.IsValid() )
+                if ( hit_result.HasValidHitObjectHandle() )
                 {
                     if ( PersistentHitResults.FindByPredicate( [ &hit_result ]( const FHitResult & other_hit_result ) {
-                             return other_hit_result.Actor.Get() == hit_result.Actor.Get();
+                             return other_hit_result.GetActor() == hit_result.GetActor();
                          } ) != nullptr )
                     {
                         continue;
@@ -240,7 +240,7 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
             // Loop forward and use the first valid hit
             for ( const auto & hit_result : hit_results )
             {
-                if ( hit_result.Actor.IsValid() || bAllowEmptyHitResult )
+                if ( hit_result.HasValidHitObjectHandle() || bAllowEmptyHitResult )
                 {
                     ClearPersistentHitResults();
                     AddTargetToPersistentResult( hit_result );
