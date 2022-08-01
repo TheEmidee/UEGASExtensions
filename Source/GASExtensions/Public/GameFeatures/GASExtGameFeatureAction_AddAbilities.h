@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Abilities/GASExtAbilitySet.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "GFEGameFeatureAction_WorldActionBase.h"
-#include "Abilities/GASExtAbilitySet.h"
 
 #include <CoreMinimal.h>
 
@@ -75,7 +75,7 @@ class GASEXTENSIONS_API UGASExtGameFeatureAction_AddAbilities final : public UGF
     GENERATED_BODY()
 
 public:
-    void OnGameFeatureActivating() override;
+    void OnGameFeatureActivating( FGameFeatureActivatingContext & context ) override;
     void OnGameFeatureDeactivating( FGameFeatureDeactivatingContext & context ) override;
 
 #if WITH_EDITORONLY_DATA
@@ -89,24 +89,6 @@ public:
     static const FName NAME_AbilityReady;
 
 private:
-    void AddToWorld( const FWorldContext & world_context ) override;
-
-    void Reset();
-    void HandleActorExtension( AActor * actor, FName event_name, int32 entry_index );
-    void AddActorAbilities( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry );
-    void RemoveActorAbilities( AActor * actor );
-
-    template < class ComponentType >
-    ComponentType * FindOrAddComponentForActor( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry )
-    {
-        return Cast< ComponentType >( FindOrAddComponentForActor( ComponentType::StaticClass(), actor, abilities_entry ) );
-    }
-
-    UActorComponent * FindOrAddComponentForActor( UClass * component_type, AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry );
-
-    UPROPERTY( EditAnywhere, Category = "Abilities", meta = ( TitleProperty = "ActorClass", ShowOnlyInnerProperties ) )
-    TArray< FGASExtGameFeatureAbilitiesEntry > AbilitiesList;
-
     struct FActorExtensions
     {
         TArray< FGameplayAbilitySpecHandle > Abilities;
@@ -115,6 +97,29 @@ private:
         TArray< FGASExtAbilitySet_GrantedHandles > AbilitySetHandles;
         FGameplayTagContainer Tags;
     };
-    TMap< AActor *, FActorExtensions > ActiveExtensions;
-    TArray< TSharedPtr< FComponentRequestHandle > > ComponentRequests;
+
+    struct FPerContextData
+    {
+        TMap< AActor *, FActorExtensions > ActiveExtensions;
+        TArray< TSharedPtr< FComponentRequestHandle > > ComponentRequests;
+    };
+
+    void AddToWorld( const FWorldContext & world_context, const FGameFeatureStateChangeContext & change_context ) override;
+    void Reset( FPerContextData & );
+    void HandleActorExtension( AActor * actor, FName event_name, int32 entry_index, FGameFeatureStateChangeContext change_context );
+    void AddActorAbilities( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry, FPerContextData & active_data );
+    void RemoveActorAbilities( AActor * actor, FPerContextData & );
+
+    template < class ComponentType >
+    ComponentType * FindOrAddComponentForActor( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry, FPerContextData & active_data )
+    {
+        return Cast< ComponentType >( FindOrAddComponentForActor( ComponentType::StaticClass(), actor, abilities_entry, active_data ) );
+    }
+
+    UActorComponent * FindOrAddComponentForActor( UClass * component_type, AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry, FPerContextData & active_data ) const;
+
+    UPROPERTY( EditAnywhere, Category = "Abilities", meta = ( TitleProperty = "ActorClass", ShowOnlyInnerProperties ) )
+    TArray< FGASExtGameFeatureAbilitiesEntry > AbilitiesList;
+
+    TMap< FGameFeatureStateChangeContext, FPerContextData > ContextData;
 };

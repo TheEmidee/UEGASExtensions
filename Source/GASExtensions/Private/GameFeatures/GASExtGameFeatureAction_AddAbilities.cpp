@@ -9,20 +9,24 @@
 
 const FName UGASExtGameFeatureAction_AddAbilities::NAME_AbilityReady( "AbilitiesReady" );
 
-void UGASExtGameFeatureAction_AddAbilities::OnGameFeatureActivating()
+void UGASExtGameFeatureAction_AddAbilities::OnGameFeatureActivating( FGameFeatureActivatingContext & context )
 {
-    if ( !ensureAlways( ActiveExtensions.Num() == 0 ) ||
-         !ensureAlways( ComponentRequests.Num() == 0 ) )
+    if ( auto & active_data = ContextData.FindOrAdd( context ); !ensureAlways( active_data.ActiveExtensions.Num() == 0 ) ||
+                                                                !ensureAlways( active_data.ComponentRequests.Num() == 0 ) )
     {
-        Reset();
+        Reset( active_data );
     }
-    Super::OnGameFeatureActivating();
+    Super::OnGameFeatureActivating( context );
 }
 
 void UGASExtGameFeatureAction_AddAbilities::OnGameFeatureDeactivating( FGameFeatureDeactivatingContext & context )
 {
     Super::OnGameFeatureDeactivating( context );
-    Reset();
+
+    if ( FPerContextData * active_data = ContextData.Find( context ); ensure( active_data ) )
+    {
+        Reset( *active_data );
+    }
 }
 
 #if WITH_EDITORONLY_DATA
@@ -131,12 +135,14 @@ EDataValidationResult UGASExtGameFeatureAction_AddAbilities::IsDataValid( TArray
 }
 #endif
 
-void UGASExtGameFeatureAction_AddAbilities::AddToWorld( const FWorldContext & world_context )
+void UGASExtGameFeatureAction_AddAbilities::AddToWorld( const FWorldContext & world_context, const FGameFeatureStateChangeContext & change_context )
 {
     if ( const auto * world = world_context.World() )
     {
-        if ( const auto * game_instance = world_context.OwningGameInstance )
+        if ( const auto * game_instance = world_context.OwningGameInstance.Get() )
         {
+            auto & [ ActiveExtensions, ComponentRequests ] = ContextData.FindOrAdd( change_context );
+
             if ( world->IsGameWorld() )
             {
                 if ( auto * component_manager = UGameInstance::GetSubsystem< UGameFrameworkComponentManager >( game_instance ) )
@@ -152,7 +158,8 @@ void UGASExtGameFeatureAction_AddAbilities::AddToWorld( const FWorldContext & wo
                         const auto add_abilities_delegate = UGameFrameworkComponentManager::FExtensionHandlerDelegate::CreateUObject(
                             this,
                             &ThisClass::HandleActorExtension,
-                            entry_index );
+                            entry_index,
+                            change_context );
                         auto extension_request_handle = component_manager->AddExtensionHandler( entry.ActorClass, add_abilities_delegate );
 
                         ComponentRequests.Emplace( extension_request_handle );
@@ -164,20 +171,22 @@ void UGASExtGameFeatureAction_AddAbilities::AddToWorld( const FWorldContext & wo
     }
 }
 
-void UGASExtGameFeatureAction_AddAbilities::Reset()
+void UGASExtGameFeatureAction_AddAbilities::Reset( FPerContextData & active_data )
 {
-    while ( ActiveExtensions.Num() > 0 )
+    while ( active_data.ActiveExtensions.Num() > 0 )
     {
-        const auto extension_iterator = ActiveExtensions.CreateIterator();
-        RemoveActorAbilities( extension_iterator->Key );
+        const auto extension_iterator = active_data.ActiveExtensions.CreateIterator();
+        RemoveActorAbilities( extension_iterator->Key, active_data );
     }
 
-    ComponentRequests.Empty();
+    active_data.ComponentRequests.Empty();
 }
 
-void UGASExtGameFeatureAction_AddAbilities::HandleActorExtension( AActor * actor, FName event_name, int32 entry_index )
+void UGASExtGameFeatureAction_AddAbilities::HandleActorExtension( AActor * actor, FName event_name, int32 entry_index, FGameFeatureStateChangeContext change_context )
 {
-    if ( !AbilitiesList.IsValidIndex( entry_index ) )
+    auto * active_data = ContextData.Find( change_context );
+
+    if ( !AbilitiesList.IsValidIndex( entry_index ) || active_data == nullptr )
     {
         return;
     }
@@ -186,17 +195,29 @@ void UGASExtGameFeatureAction_AddAbilities::HandleActorExtension( AActor * actor
 
     if ( event_name == UGameFrameworkComponentManager::NAME_ExtensionRemoved || event_name == UGameFrameworkComponentManager::NAME_ReceiverRemoved )
     {
-        RemoveActorAbilities( actor );
+        RemoveActorAbilities( actor, *active_data );
     }
     else if ( event_name == UGameFrameworkComponentManager::NAME_ExtensionAdded || event_name == UGASExtGameFeatureAction_AddAbilities::NAME_AbilityReady )
     {
-        AddActorAbilities( actor, entry );
+        AddActorAbilities( actor, entry, *active_data );
     }
 }
 
-void UGASExtGameFeatureAction_AddAbilities::AddActorAbilities( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry )
+void UGASExtGameFeatureAction_AddAbilities::AddActorAbilities( AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry, UGASExtGameFeatureAction_AddAbilities::FPerContextData & active_data )
 {
-    if ( auto * ability_system_component = FindOrAddComponentForActor< UAbilitySystemComponent >( actor, abilities_entry ) )
+    check( actor != nullptr );
+    if ( !actor->HasAuthority() )
+    {
+        return;
+    }
+
+    // early out if Actor already has ability extensions applied
+    if ( active_data.ActiveExtensions.Find( actor ) != nullptr )
+    {
+        return;
+    }
+
+    if ( auto * ability_system_component = FindOrAddComponentForActor< UAbilitySystemComponent >( actor, abilities_entry, active_data ) )
     {
         FActorExtensions AddedExtensions;
         AddedExtensions.Abilities.Reserve( abilities_entry.GrantedAbilities.Num() );
@@ -276,13 +297,13 @@ void UGASExtGameFeatureAction_AddAbilities::AddActorAbilities( AActor * actor, c
         ability_system_component->AddLooseGameplayTags( abilities_entry.LooseGameplayTags );
         AddedExtensions.Tags.AppendTags( abilities_entry.LooseGameplayTags );
 
-        ActiveExtensions.Add( actor, AddedExtensions );
+        active_data.ActiveExtensions.Add( actor, AddedExtensions );
     }
 }
 
-void UGASExtGameFeatureAction_AddAbilities::RemoveActorAbilities( AActor * actor )
+void UGASExtGameFeatureAction_AddAbilities::RemoveActorAbilities( AActor * actor, FPerContextData & active_data )
 {
-    if ( auto * actor_extensions = ActiveExtensions.Find( actor ) )
+    if ( auto * actor_extensions = active_data.ActiveExtensions.Find( actor ) )
     {
         if ( auto * ability_system_component = actor->FindComponentByClass< UAbilitySystemComponent >() )
         {
@@ -316,11 +337,11 @@ void UGASExtGameFeatureAction_AddAbilities::RemoveActorAbilities( AActor * actor
             ability_system_component->RemoveLooseGameplayTags( actor_extensions->Tags );
         }
 
-        ActiveExtensions.Remove( actor );
+        active_data.ActiveExtensions.Remove( actor );
     }
 }
 
-UActorComponent * UGASExtGameFeatureAction_AddAbilities::FindOrAddComponentForActor( UClass * component_type, AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry )
+UActorComponent * UGASExtGameFeatureAction_AddAbilities::FindOrAddComponentForActor( UClass * component_type, AActor * actor, const FGASExtGameFeatureAbilitiesEntry & abilities_entry, FPerContextData & active_data ) const
 {
     auto * component = actor->FindComponentByClass( component_type );
 
@@ -348,7 +369,7 @@ UActorComponent * UGASExtGameFeatureAction_AddAbilities::FindOrAddComponentForAc
         if ( auto * component_manager = UGameInstance::GetSubsystem< UGameFrameworkComponentManager >( game_instance ) )
         {
             const auto request_handle = component_manager->AddComponentRequest( abilities_entry.ActorClass, component_type );
-            ComponentRequests.Add( request_handle );
+            active_data.ComponentRequests.Add( request_handle );
         }
 
         if ( component == nullptr )

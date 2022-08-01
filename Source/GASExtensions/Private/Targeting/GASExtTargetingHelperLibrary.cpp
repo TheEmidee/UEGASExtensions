@@ -88,7 +88,7 @@ void UGASExtTargetingHelperLibrary::FilterHitResults( TArray< FHitResult > & hit
     {
         auto & hit_result = hit_results[ index ];
 
-        if ( !hit_result.Actor.IsValid() || target_data_filter_handle.FilterPassesForActor( hit_result.Actor ) )
+        if ( !hit_result.HasValidHitObjectHandle() || target_data_filter_handle.FilterPassesForActor( hit_result.GetActor() ) )
         {
             hit_result.TraceStart = trace_start;
             hit_result.TraceEnd = trace_end;

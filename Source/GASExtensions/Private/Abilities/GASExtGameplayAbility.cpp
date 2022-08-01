@@ -8,16 +8,6 @@
 #include <GameFramework/PlayerController.h>
 #include <GameplayTask.h>
 
-// :TODO: UE5 defines this macro in GameplayAbility.h
-#define ENSURE_ABILITY_IS_INSTANTIATED_OR_RETURN( FunctionName, ReturnValue )                                                                                \
-    {                                                                                                                                                        \
-        if ( !ensure( IsInstantiated() ) )                                                                                                                   \
-        {                                                                                                                                                    \
-            ABILITY_LOG( Error, TEXT( "%s: " #FunctionName " cannot be called on a non-instanced ability. Check the instancing policy." ), *GetPathName() ); \
-            return ReturnValue;                                                                                                                              \
-        }                                                                                                                                                    \
-    }
-
 UGASExtGameplayAbility::UGASExtGameplayAbility()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;

@@ -313,7 +313,6 @@ float UGASExtAbilitySystemComponent::PlayMontageForMesh( UGameplayAbility * anim
 
             anim_montage_info.LocalMontageInfo.AnimMontage = new_anim_montage;
             anim_montage_info.LocalMontageInfo.AnimatingAbility = animating_ability;
-            anim_montage_info.LocalMontageInfo.PlayBit = !anim_montage_info.LocalMontageInfo.PlayBit;
 
             if ( ability != nullptr )
             {
@@ -334,7 +333,6 @@ float UGASExtAbilitySystemComponent::PlayMontageForMesh( UGameplayAbility * anim
                     // Those are static parameters, they are only set when the montage is played. They are not changed after that.
                     auto & ability_rep_montage_info = GetGameplayAbilityRepAnimMontageForMesh( mesh );
                     ability_rep_montage_info.RepMontageInfo.AnimMontage = new_anim_montage;
-                    ability_rep_montage_info.RepMontageInfo.ForcePlayBit = !static_cast< bool >( ability_rep_montage_info.RepMontageInfo.ForcePlayBit );
 
                     // Update parameters that change during Montage life time.
                     AnimMontage_UpdateReplicatedDataForMesh( mesh );
@@ -604,11 +602,11 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionLengthForMesh( USke
             }
             // Otherwise we are the last section, so take delta with Montage total time.
 
-            return ( current_anim_montage->SequenceLength - composite_sections[ current_section_id ].GetTime() );
+            return ( current_anim_montage->GetPlayLength() - composite_sections[ current_section_id ].GetTime() );
         }
 
         // if we have no sections, just return total length of Montage.
-        return current_anim_montage->SequenceLength;
+        return current_anim_montage->GetPlayLength();
     }
 
     return 0.0f;
@@ -961,11 +959,11 @@ void UGASExtAbilitySystemComponent::AnimMontage_UpdateReplicatedDataForMesh( FGa
     }
 }
 
-void UGASExtAbilitySystemComponent::AnimMontage_UpdateForcedPlayFlagsForMesh( FGameplayAbilityRepAnimMontageForMesh & rep_anim_montage_info )
+void UGASExtAbilitySystemComponent::AnimMontage_UpdateForcedPlayFlagsForMesh( FGameplayAbilityRepAnimMontageForMesh & /*rep_anim_montage_info*/ )
 {
-    const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( rep_anim_montage_info.Mesh );
+    //const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( rep_anim_montage_info.Mesh );
 
-    rep_anim_montage_info.RepMontageInfo.ForcePlayBit = anim_montage_info.LocalMontageInfo.PlayBit;
+    //rep_anim_montage_info.RepMontageInfo.ForcePlayBit = anim_montage_info.LocalMontageInfo.PlayBit;
 }
 
 void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
@@ -1005,17 +1003,15 @@ void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
             if ( must_debug_montage )
             {
                 ABILITY_LOG( Warning, TEXT( "\n\nOnRep_ReplicatedAnimMontage, %s" ), *GetNameSafe( this ) );
-                ABILITY_LOG( Warning, TEXT( "\tAnimMontage: %s\n\tPlayRate: %f\n\tPosition: %f\n\tBlendTime: %f\n\tNextSectionID: %d\n\tIsStopped: %d\n\tForcePlayBit: %d" ), *GetNameSafe( new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage ), new_rep_montage_info_for_mesh.RepMontageInfo.PlayRate, new_rep_montage_info_for_mesh.RepMontageInfo.Position, new_rep_montage_info_for_mesh.RepMontageInfo.BlendTime, new_rep_montage_info_for_mesh.RepMontageInfo.NextSectionID, new_rep_montage_info_for_mesh.RepMontageInfo.IsStopped, new_rep_montage_info_for_mesh.RepMontageInfo.ForcePlayBit );
+                ABILITY_LOG( Warning, TEXT( "\tAnimMontage: %s\n\tPlayRate: %f\n\tPosition: %f\n\tBlendTime: %f\n\tNextSectionID: %d\n\tIsStopped: %d" ), *GetNameSafe( new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage ), new_rep_montage_info_for_mesh.RepMontageInfo.PlayRate, new_rep_montage_info_for_mesh.RepMontageInfo.Position, new_rep_montage_info_for_mesh.RepMontageInfo.BlendTime, new_rep_montage_info_for_mesh.RepMontageInfo.NextSectionID, new_rep_montage_info_for_mesh.RepMontageInfo.IsStopped );
                 ABILITY_LOG( Warning, TEXT( "\tLocalAnimMontageInfo.AnimMontage: %s\n\tPosition: %f" ), *GetNameSafe( anim_montage_info.LocalMontageInfo.AnimMontage ), anim_instance->Montage_GetPosition( anim_montage_info.LocalMontageInfo.AnimMontage ) );
             }
 
             if ( new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage )
             {
                 // New Montage to play
-                const auto replicated_play_bit = static_cast< bool >( new_rep_montage_info_for_mesh.RepMontageInfo.ForcePlayBit );
-                if ( ( anim_montage_info.LocalMontageInfo.AnimMontage != new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage ) || ( anim_montage_info.LocalMontageInfo.PlayBit != replicated_play_bit ) )
+                if ( anim_montage_info.LocalMontageInfo.AnimMontage != new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage )
                 {
-                    anim_montage_info.LocalMontageInfo.PlayBit = replicated_play_bit;
                     PlayMontageSimulatedForMesh( new_rep_montage_info_for_mesh.Mesh, new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage, new_rep_montage_info_for_mesh.RepMontageInfo.PlayRate );
                 }
 

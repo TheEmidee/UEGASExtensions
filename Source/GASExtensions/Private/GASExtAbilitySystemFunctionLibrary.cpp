@@ -144,9 +144,9 @@ FGameplayTagContainer UGASExtAbilitySystemFunctionLibrary::GetTargetTagContainer
 
 void UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC( UAbilitySystemComponent * asc, FGameplayTag event_tag, FGameplayEventData payload )
 {
-    if ( asc != nullptr && !asc->IsPendingKill() )
+    if ( IsValid( asc ) )
     {
-        FScopedPredictionWindow NewScopedWindow( asc, true );
+        FScopedPredictionWindow new_scoped_window( asc, true );
         asc->HandleGameplayEvent( event_tag, &payload );
     }
     else

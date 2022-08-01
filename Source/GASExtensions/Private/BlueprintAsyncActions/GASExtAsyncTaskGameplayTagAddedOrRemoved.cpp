@@ -37,7 +37,7 @@ void UGASExtAsyncTaskGameplayTagAddedOrRemoved::EndTask()
     }
 
     SetReadyToDestroy();
-    MarkPendingKill();
+    MarkAsGarbage();
 }
 
 void UGASExtAsyncTaskGameplayTagAddedOrRemoved::Activate()
