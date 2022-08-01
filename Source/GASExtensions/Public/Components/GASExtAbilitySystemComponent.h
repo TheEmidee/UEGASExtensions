@@ -88,9 +88,6 @@ class GASEXTENSIONS_API UGASExtAbilitySystemComponent : public UAbilitySystemCom
 public:
     UGASExtAbilitySystemComponent();
 
-    void InitializeComponent() override;
-    void BeginPlay() override;
-
     bool ShouldDoServerAbilityRPCBatch() const override;
 
     // ReSharper disable once CppInconsistentNaming
@@ -185,8 +182,6 @@ public:
     template < typename _ATTRIBUTE_SET_CLASS_ >
     _ATTRIBUTE_SET_CLASS_ * GetAttributeSet();
 
-    void GiveAbilitySet();
-
     bool IsActivationGroupBlocked( EGASExtAbilityActivationGroup group ) const;
     void AddAbilityToActivationGroup( EGASExtAbilityActivationGroup group, UGASExtGameplayAbility * ability );
     void RemoveAbilityFromActivationGroup( EGASExtAbilityActivationGroup group, const UGASExtGameplayAbility * ability );
@@ -277,23 +272,9 @@ private:
     void ServerCurrentMontageSetPlayRateForMesh_Implementation( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
     bool ServerCurrentMontageSetPlayRateForMesh_Validate( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate );
 
-    UPROPERTY( EditDefaultsOnly, Category = "Defaults" )
-    uint8 bGiveAbilitiesAndEffectsInBeginPlay : 1;
-
     // If set, this table is used to look up tag relationships for activate and cancel
-    // :TODO: Experiences - Remove EditDefaultsOnly when it can be set through experiences
-    UPROPERTY( EditDefaultsOnly )
+    UPROPERTY()
     UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
-
-    // :TODO: Remove when it can be set through pawn data
-    UPROPERTY( EditDefaultsOnly )
-    TArray< const UGASExtAbilitySet * > AbilitySets;
-
-    /*
-     * For tags not bound to gameplay effects
-     */
-    UPROPERTY( EditAnywhere )
-    FGameplayTagContainer LooseTagsContainer;
 
     // Number of abilities running in each activation group.
     int32 ActivationGroupCounts[ static_cast< uint8 >( EGASExtAbilityActivationGroup::MAX ) ];
