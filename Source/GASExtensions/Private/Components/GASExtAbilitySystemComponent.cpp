@@ -58,26 +58,7 @@ bool FGameplayAbilityRepAnimMontageForMesh::NetSerialize( FArchive & ar, UPackag
 
 UGASExtAbilitySystemComponent::UGASExtAbilitySystemComponent()
 {
-    bGiveAbilitiesAndEffectsInBeginPlay = true;
-
     FMemory::Memset( ActivationGroupCounts, 0, sizeof( ActivationGroupCounts ) );
-}
-
-void UGASExtAbilitySystemComponent::InitializeComponent()
-{
-    Super::InitializeComponent();
-}
-
-void UGASExtAbilitySystemComponent::BeginPlay()
-{
-    Super::BeginPlay();
-
-    if ( bGiveAbilitiesAndEffectsInBeginPlay )
-    {
-        GiveAbilitySet();
-    }
-
-    AddLooseGameplayTags( LooseTagsContainer );
 }
 
 // ReSharper disable once CppInconsistentNaming
@@ -624,19 +605,6 @@ float UGASExtAbilitySystemComponent::GetCurrentMontageSectionTimeLeftForMesh( US
     }
 
     return -1.f;
-}
-
-void UGASExtAbilitySystemComponent::GiveAbilitySet()
-{
-    if ( !GetOwner()->HasAuthority() )
-    {
-        return;
-    }
-
-    for ( const auto * ability_set : AbilitySets )
-    {
-        ability_set->GiveToAbilitySystem( this, nullptr );
-    }
 }
 
 bool UGASExtAbilitySystemComponent::IsActivationGroupBlocked( EGASExtAbilityActivationGroup group ) const
