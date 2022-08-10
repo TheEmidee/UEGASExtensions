@@ -1,10 +1,10 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
+#include "Abilities/GASExtAbilitySet.h"
 #include "Abilities/GASExtAbilityTagRelationshipMapping.h"
 #include "Abilities/GASExtGameplayAbility.h"
 #include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
-#include "Abilities/GASExtAbilitySet.h"
 
 #include <AbilitySystemGlobals.h>
 #include <Animation/AnimInstance.h>
@@ -292,8 +292,11 @@ float UGASExtAbilitySystemComponent::PlayMontageForMesh( UGameplayAbility * anim
                 UE_LOG( LogRootMotion, Log, TEXT( "UAbilitySystemComponent::PlayMontage %s, Role: %s" ), *GetNameSafe( new_anim_montage ), *UEnum::GetValueAsString( TEXT( "Engine.ENetRole" ), anim_instance->GetOwningActor()->GetLocalRole() ) );
             }
 
+            const auto current_local_play_instance_id = anim_montage_info.LocalMontageInfo.PlayInstanceId;
+
             anim_montage_info.LocalMontageInfo.AnimMontage = new_anim_montage;
             anim_montage_info.LocalMontageInfo.AnimatingAbility = animating_ability;
+            anim_montage_info.LocalMontageInfo.PlayInstanceId = ( current_local_play_instance_id < UINT8_MAX ? current_local_play_instance_id + 1 : 0 );
 
             if ( ability != nullptr )
             {
@@ -313,7 +316,12 @@ float UGASExtAbilitySystemComponent::PlayMontageForMesh( UGameplayAbility * anim
                 {
                     // Those are static parameters, they are only set when the montage is played. They are not changed after that.
                     auto & ability_rep_montage_info = GetGameplayAbilityRepAnimMontageForMesh( mesh );
+                    const auto current_rep_play_instance_id = ability_rep_montage_info.RepMontageInfo.PlayInstanceId;
+
                     ability_rep_montage_info.RepMontageInfo.AnimMontage = new_anim_montage;
+                    ability_rep_montage_info.RepMontageInfo.PlayInstanceId = current_rep_play_instance_id < UINT8_MAX ? current_rep_play_instance_id + 1 : 0;
+
+                    ability_rep_montage_info.RepMontageInfo.SectionIdToPlay = 0;
 
                     // Update parameters that change during Montage life time.
                     AnimMontage_UpdateReplicatedDataForMesh( mesh );
@@ -978,8 +986,10 @@ void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
             if ( new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage )
             {
                 // New Montage to play
-                if ( anim_montage_info.LocalMontageInfo.AnimMontage != new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage )
+                if ( ( anim_montage_info.LocalMontageInfo.AnimMontage != new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage ) ||
+                     ( anim_montage_info.LocalMontageInfo.PlayInstanceId != new_rep_montage_info_for_mesh.RepMontageInfo.PlayInstanceId ) )
                 {
+                    anim_montage_info.LocalMontageInfo.PlayInstanceId = new_rep_montage_info_for_mesh.RepMontageInfo.PlayInstanceId;
                     PlayMontageSimulatedForMesh( new_rep_montage_info_for_mesh.Mesh, new_rep_montage_info_for_mesh.RepMontageInfo.AnimMontage, new_rep_montage_info_for_mesh.RepMontageInfo.PlayRate );
                 }
 
