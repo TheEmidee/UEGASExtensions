@@ -1,5 +1,7 @@
 #include "GASExtensions/Public/Abilities/GASExtActor.h"
 
+#include "Abilities/GASExtAbilitySet.h"
+
 AGASExtActor::AGASExtActor()
 {
     AbilitySystemComponent = CreateDefaultSubobject< UGASExtAbilitySystemComponent >( TEXT( "AbilitySystemComponent" ) );
@@ -13,4 +15,29 @@ AGASExtActor::AGASExtActor()
 UAbilitySystemComponent * AGASExtActor::GetAbilitySystemComponent() const
 {
     return AbilitySystemComponent;
+}
+
+void AGASExtActor::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    check( AbilitySystemComponent != nullptr );
+    AbilitySystemComponent->InitAbilityActorInfo( this, this );
+}
+
+void AGASExtActor::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if ( !HasAuthority() )
+    {
+        return;
+    }
+
+    for ( const auto * ability_set : AbilitySets )
+    {
+        ability_set->GiveToAbilitySystem( AbilitySystemComponent, nullptr );
+    }
+
+    AbilitySystemComponent->SetTagRelationshipMapping( TagRelationshipMapping );
 }
