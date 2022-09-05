@@ -247,10 +247,10 @@ void UGASExtAbilitySystemComponent::OurCancelAllAbilities()
     CancelAbilities( &GameplayTagContainer );
 }
 
-void UGASExtAbilitySystemComponent::CancelAbilitiesByTag( const FGameplayTag & tag, bool replicate_cancel_ability )
+void UGASExtAbilitySystemComponent::CancelAbilitiesByTag( const FGameplayTag tag, bool replicate_cancel_ability )
 {
     const auto should_cancel_func = [ this, tag ]( const UGASExtGameplayAbility * ability, FGameplayAbilitySpecHandle /*ability_handle*/ ) {
-        return ability->AbilityTags.HasTagExact( tag );
+        return ability->AbilityTags.HasTag( tag );
     };
 
     CancelAbilitiesByFunc( should_cancel_func, replicate_cancel_ability );

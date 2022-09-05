@@ -116,7 +116,7 @@ public:
 
     // Will cancel any active ability that has this tag
     UFUNCTION( BlueprintCallable )
-    void CancelAbilitiesByTag( const FGameplayTag & tag, bool replicate_cancel_ability );
+    void CancelAbilitiesByTag( FGameplayTag tag, bool replicate_cancel_ability );
 
     UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "parameters", GameplayTagFilter = "GameplayCue" ) )
     void ExecuteGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters );
