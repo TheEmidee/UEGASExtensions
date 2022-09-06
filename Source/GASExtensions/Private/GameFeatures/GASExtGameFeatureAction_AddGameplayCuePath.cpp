@@ -1,30 +1,31 @@
 #include "GameFeatures/GASExtGameFeatureAction_AddGameplayCuePath.h"
 
-#include "AbilitySystemGlobals.h"
-#include "GameFeatureData.h"
-#include "GameplayCueSet.h"
 #include "GameplayCues/GASExtGameplayCueManager.h"
+
+#include <AbilitySystemGlobals.h>
+#include <GameFeatureData.h>
+#include <GameplayCueSet.h>
 
 #define LOCTEXT_NAMESPACE "GameFeatures"
 
 #if WITH_EDITOR
 EDataValidationResult UGASExtGameFeatureAction_AddGameplayCuePath::IsDataValid( TArray< FText > & validation_errors )
 {
-    EDataValidationResult Result = Super::IsDataValid( validation_errors );
+    auto result = Super::IsDataValid( validation_errors );
 
-    FText ErrorReason = FText::GetEmpty();
+    auto error_reason = FText::GetEmpty();
     for ( const FDirectoryPath & Directory : DirectoryPathsToAdd )
     {
         if ( Directory.Path.IsEmpty() )
         {
-            const FText InvalidCuePathError = FText::Format( LOCTEXT( "InvalidCuePathError", "'{0}' is not a valid path!" ), FText::FromString( Directory.Path ) );
-            validation_errors.Emplace( InvalidCuePathError );
-            validation_errors.Emplace( ErrorReason );
-            Result = CombineDataValidationResults( Result, EDataValidationResult::Invalid );
+            const auto invalid_cue_path_error = FText::Format( LOCTEXT( "invalid_cue_path_error", "'{0}' is not a valid path!" ), FText::FromString( Directory.Path ) );
+            validation_errors.Emplace( invalid_cue_path_error );
+            validation_errors.Emplace( error_reason );
+            result = CombineDataValidationResults( result, EDataValidationResult::Invalid );
         }
     }
 
-    return CombineDataValidationResults( Result, EDataValidationResult::Valid );
+    return CombineDataValidationResults( result, EDataValidationResult::Valid );
 }
 #endif
 
@@ -32,7 +33,7 @@ void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureRegistering( co
 {
     TRACE_CPUPROFILER_EVENT_SCOPE( ULyraGameFeature_AddGameplayCuePaths::OnGameFeatureRegistering );
 
-    const FString PluginRootPath = TEXT( "/" ) + plugin_name;
+    const auto plugin_root_path = TEXT( "/" ) + plugin_name;
     for ( const auto * action : game_feature_data->GetActions() )
     {
         if ( const auto * game_feature_action_add_gameplay_cue_path = Cast< UGASExtGameFeatureAction_AddGameplayCuePath >( action ) )
@@ -47,7 +48,7 @@ void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureRegistering( co
                 for ( const auto & [ path ] : dirs_to_add )
                 {
                     auto mutable_path = path;
-                    UGameFeaturesSubsystem::FixPluginPackagePath( mutable_path, PluginRootPath, false );
+                    UGameFeaturesSubsystem::FixPluginPackagePath( mutable_path, plugin_root_path, false );
                     gameplay_cue_manager->AddGameplayCueNotifyPath( mutable_path, /** bShouldRescanCueAssets = */ false );
                 }
 
@@ -71,12 +72,12 @@ void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureRegistering( co
 
 void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureUnregistering( const UGameFeatureData * game_feature_data, const FString & plugin_name )
 {
-    const FString PluginRootPath = TEXT( "/" ) + plugin_name;
+    const auto plugin_root_path = TEXT( "/" ) + plugin_name;
     for ( const UGameFeatureAction * action : game_feature_data->GetActions() )
     {
         if ( const auto * game_feature_action_add_gameplay_cue_path = Cast< UGASExtGameFeatureAction_AddGameplayCuePath >( game_feature_data ) )
         {
-            const TArray< FDirectoryPath > & dirs_to_add = game_feature_action_add_gameplay_cue_path->GetDirectoryPathsToAdd();
+            const auto & dirs_to_add = game_feature_action_add_gameplay_cue_path->GetDirectoryPathsToAdd();
 
             if ( auto * gcm = UAbilitySystemGlobals::Get().GetGameplayCueManager() )
             {
@@ -84,7 +85,7 @@ void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureUnregistering( 
                 for ( const auto & [ path ] : dirs_to_add )
                 {
                     auto mutable_path = path;
-                    UGameFeaturesSubsystem::FixPluginPackagePath( mutable_path, PluginRootPath, false );
+                    UGameFeaturesSubsystem::FixPluginPackagePath( mutable_path, plugin_root_path, false );
                     num_removed += gcm->RemoveGameplayCueNotifyPath( mutable_path, /** bShouldRescanCueAssets = */ false );
                 }
 
