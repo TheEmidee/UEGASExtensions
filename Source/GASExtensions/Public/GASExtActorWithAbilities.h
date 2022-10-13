@@ -31,4 +31,7 @@ private:
 
     UPROPERTY( EditDefaultsOnly )
     TArray< const UGASExtAbilitySet * > AbilitySets;
+
+    UPROPERTY( EditDefaultsOnly )
+    EGameplayEffectReplicationMode GameplayEffectReplicationMode;
 };

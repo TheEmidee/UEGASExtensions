@@ -8,6 +8,7 @@ AGASExtActorWithAbilities::AGASExtActorWithAbilities()
 
     AbilitySystemComponent = CreateDefaultSubobject< UGASExtAbilitySystemComponent >( TEXT( "AbilitySystemComponent" ) );
     AbilitySystemComponent->SetIsReplicated( true );
+    AbilitySystemComponent->SetReplicationMode( GameplayEffectReplicationMode );
 }
 
 UAbilitySystemComponent * AGASExtActorWithAbilities::GetAbilitySystemComponent() const
