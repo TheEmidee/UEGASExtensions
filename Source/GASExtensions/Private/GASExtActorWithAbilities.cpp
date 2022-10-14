@@ -39,4 +39,10 @@ void AGASExtActorWithAbilities::BeginPlay()
     }
 
     AbilitySystemComponent->SetTagRelationshipMapping( TagRelationshipMapping );
+
+    for ( const auto & effect : AdditionalDefaultEffects )
+    {
+        const auto spec_handle = AbilitySystemComponent->MakeOutgoingSpec( effect, 0, FGameplayEffectContextHandle() );
+        AbilitySystemComponent->ApplyGameplayEffectSpecToSelf( *spec_handle.Data.Get() );
+    }
 }

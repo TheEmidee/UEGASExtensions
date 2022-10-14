@@ -34,4 +34,7 @@ private:
 
     UPROPERTY( EditDefaultsOnly )
     EGameplayEffectReplicationMode GameplayEffectReplicationMode;
+
+    UPROPERTY( EditDefaultsOnly )
+    TArray< TSubclassOf< UGameplayEffect > > AdditionalDefaultEffects;
 };
