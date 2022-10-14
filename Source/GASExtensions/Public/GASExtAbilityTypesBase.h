@@ -103,7 +103,7 @@ struct GASEXTENSIONS_API FGASExtGameplayEffectContainer
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
     UGASExtTargetType * TargetType;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "TargetTypeClass != nullptr", EditConditionHides ) )
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "TargetType != nullptr", EditConditionHides ) )
     EGASExtGetTargetDataExecutionType TargetDataExecutionType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
