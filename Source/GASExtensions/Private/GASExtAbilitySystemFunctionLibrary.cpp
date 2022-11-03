@@ -110,7 +110,7 @@ FGameplayEffectSpecHandle UGASExtAbilitySystemFunctionLibrary::MakeGameplayEffec
     return FGameplayEffectSpecHandle( effect_spec );
 }
 
-FGameplayAbilitySpecHandle UGASExtAbilitySystemFunctionLibrary::GiveAbility( UAbilitySystemComponent * asc, TSubclassOf<UGameplayAbility> ability, int32 level, UObject * source_object )
+FGameplayAbilitySpecHandle UGASExtAbilitySystemFunctionLibrary::GiveAbility( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level, UObject * source_object )
 {
     FGameplayAbilitySpec spec( ability, level, INDEX_NONE, source_object );
     return asc->GiveAbility( spec );
@@ -154,7 +154,7 @@ void UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC( UAbilitySystem
         ABILITY_LOG( Error, TEXT( "UGASExtAbilitySystemFunctionLibrary::SendGameplayEventToASC: Invalid ability system component" ) );
     }
 }
-    
+
 bool UGASExtAbilitySystemFunctionLibrary::DoesASCHaveAttributeSetForAttribute( UAbilitySystemComponent * asc, FGameplayAttribute attribute )
 {
     if ( asc == nullptr )
@@ -163,4 +163,14 @@ bool UGASExtAbilitySystemFunctionLibrary::DoesASCHaveAttributeSetForAttribute( U
     }
 
     return asc->HasAttributeSetForAttribute( attribute );
+}
+
+TSubclassOf< UGameplayEffect > UGASExtAbilitySystemFunctionLibrary::GetGameplayEffectClassFromSpecHandle( FGameplayEffectSpecHandle spec_handle )
+{
+    if ( const auto * spec = spec_handle.Data.Get() )
+    {
+        return spec->Def->GetClass();
+    }
+
+    return nullptr;
 }

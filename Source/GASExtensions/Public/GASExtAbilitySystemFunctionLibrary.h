@@ -54,4 +54,7 @@ public:
 
     UFUNCTION( BlueprintPure, Category = "Ability|Attributes" )
     static bool DoesASCHaveAttributeSetForAttribute( UAbilitySystemComponent * asc, FGameplayAttribute attribute );
+
+    UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
+    static TSubclassOf< UGameplayEffect > GetGameplayEffectClassFromSpecHandle( FGameplayEffectSpecHandle spec_handle );
 };
