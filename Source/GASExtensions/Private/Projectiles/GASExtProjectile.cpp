@@ -109,10 +109,11 @@ bool AGASExtProjectile::ShouldIgnoreHit_Implementation( AActor * other_actor, UP
 
 void AGASExtProjectile::ApplyGameplayEffects()
 {
-    for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
+    for ( const auto & effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
     {
-        effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
-        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult, true );
+        auto * context = effect_spec.Data->GetContext().Get();
+        context->SetEffectCauser( this );
+        context->AddHitResult( LastHitResult, true );
     }
 
     UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
