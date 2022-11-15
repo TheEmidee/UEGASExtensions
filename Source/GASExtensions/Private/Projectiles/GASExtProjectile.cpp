@@ -100,7 +100,25 @@ void AGASExtProjectile::Release( float /*time_held*/ )
 {
 }
 
-void AGASExtProjectile::ProcessHit_Implementation( const FHitResult & hit_result )
+bool AGASExtProjectile::ShouldIgnoreHit_Implementation( AActor * other_actor, UPrimitiveComponent * other_component )
+{
+    const auto * instigator = GetInstigator();
+
+    return instigator == nullptr || bIgnoreImpactWithInstigator && other_actor == instigator;
+}
+
+void AGASExtProjectile::ApplyGameplayEffects()
+{
+    for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
+    {
+        effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
+        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult, true );
+    }
+
+    UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
+}
+
+void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
 {
     if ( ShouldIgnoreHit( hit_result.GetActor(), hit_result.GetComponent() ) )
     {
@@ -138,24 +156,6 @@ void AGASExtProjectile::ProcessHit_Implementation( const FHitResult & hit_result
     }
 
     PostProcessHit( hit_result );
-}
-
-bool AGASExtProjectile::ShouldIgnoreHit_Implementation( AActor * other_actor, UPrimitiveComponent * other_component )
-{
-    const auto * instigator = GetInstigator();
-
-    return instigator == nullptr || bIgnoreImpactWithInstigator && other_actor == instigator;
-}
-
-void AGASExtProjectile::ApplyGameplayEffects()
-{
-    for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
-    {
-        effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
-        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult, true );
-    }
-
-    UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
 }
 
 void AGASExtProjectile::PostProcessHit( const FHitResult & /*hit_result*/ )
