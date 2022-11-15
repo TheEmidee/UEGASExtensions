@@ -147,7 +147,18 @@ bool AGASExtProjectile::ShouldIgnoreHit_Implementation( AActor * other_actor, UP
     return instigator == nullptr || bIgnoreImpactWithInstigator && other_actor == instigator;
 }
 
-void AGASExtProjectile::PostProcessHit_Implementation( const FHitResult & /*hit_result*/ )
+void AGASExtProjectile::ApplyGameplayEffects()
+{
+    for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
+    {
+        effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
+        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult, true );
+    }
+
+    UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
+}
+
+void AGASExtProjectile::PostProcessHit( const FHitResult & /*hit_result*/ )
 {
     if ( !bShouldApplyGameplayEffectsOnDestroyed )
     {
@@ -158,17 +169,6 @@ void AGASExtProjectile::PostProcessHit_Implementation( const FHitResult & /*hit_
     {
         Destroy();
     }
-}
-
-void AGASExtProjectile::ApplyGameplayEffects()
-{
-    for ( const auto effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
-    {
-        effect_spec.Data->GetContext().Get()->SetEffectCauser( this );
-        effect_spec.Data->GetContext().Get()->AddHitResult( LastHitResult, true );
-    }
-
-    UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
 }
 
 void AGASExtProjectile::OnImpactActorSpawned( AActor * /*spawned_actor*/ )

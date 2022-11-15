@@ -53,6 +53,7 @@ protected:
     UFUNCTION( BlueprintImplementableEvent, meta = ( AllowPrivateAccess = true ) )
     void UpdateDestroyedGameplayCueParameters( FGameplayCueParameters & gameplay_cue_parameters );
 
+    // Called on both Server and Clients
     UFUNCTION( BlueprintImplementableEvent, meta = ( AllowPrivateAccess = true ) )
     void ReceiveOnHit( const FHitResult & hit_result );
 
@@ -60,13 +61,13 @@ protected:
     void ProcessHit( const FHitResult & hit_result );
 
     UFUNCTION( BlueprintNativeEvent, Category = "Projectile" )
-    void PostProcessHit( const FHitResult & hit_result );
-
-    UFUNCTION( BlueprintNativeEvent, Category = "Projectile" )
     bool ShouldIgnoreHit( AActor * other_actor, UPrimitiveComponent * other_component );
 
     UFUNCTION( BlueprintCallable )
     void ApplyGameplayEffects();
+
+    // Called on Server only
+    void PostProcessHit( const FHitResult & hit_result );
 
     virtual void OnImpactActorSpawned( AActor * spawned_actor );
 
