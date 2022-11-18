@@ -33,6 +33,7 @@ AGASExtProjectile::AGASExtProjectile()
     bIgnoreImpactWithInstigator = true;
     IsInOverlap = false;
     bShouldApplyGameplayEffectsOnDestroyed = false;
+    bUseHitResultAsLocationForGameplayEffects = true;
 }
 
 void AGASExtProjectile::PostInitializeComponents()
@@ -113,7 +114,11 @@ void AGASExtProjectile::ApplyGameplayEffects()
     {
         auto * context = effect_spec.Data->GetContext().Get();
         context->SetEffectCauser( this );
-        context->AddHitResult( LastHitResult, true );
+
+        if ( bUseHitResultAsLocationForGameplayEffects )
+        {
+            context->AddHitResult( LastHitResult, true );
+        }
     }
 
     UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
