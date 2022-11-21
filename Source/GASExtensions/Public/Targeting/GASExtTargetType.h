@@ -53,15 +53,13 @@ public:
     FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const override;
 };
 
-UCLASS()
-class GASEXTENSIONS_API UGASExtTargetType_SphereOverlapAtHitResult final : public UGASExtTargetType
+UCLASS( Abstract )
+class GASEXTENSIONS_API UGASExtTargetType_SphereOverlapBase : public UGASExtTargetType
 {
     GENERATED_BODY()
 
 public:
-    UGASExtTargetType_SphereOverlapAtHitResult();
-
-    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const override;
+    UGASExtTargetType_SphereOverlapBase();
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly )
     FScalableFloat SphereRadius;
@@ -80,4 +78,25 @@ public:
 
     UPROPERTY( EditAnywhere, meta = ( EditCondition = "bDrawsDebug" ) )
     float DrawDebugDuration;
+
+protected:
+    FGameplayAbilityTargetDataHandle GetTargetDataAtLocation( AActor * ability_owner, const FVector location ) const;
+};
+
+UCLASS()
+class GASEXTENSIONS_API UGASExtTargetType_SphereOverlapAtHitResult final : public UGASExtTargetType_SphereOverlapBase
+{
+    GENERATED_BODY()
+
+public:
+    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const override;
+};
+
+UCLASS()
+class GASEXTENSIONS_API UGASExtTargetType_SphereOverlapAtAbilityOwner final : public UGASExtTargetType_SphereOverlapBase
+{
+    GENERATED_BODY()
+
+public:
+    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const override;
 };

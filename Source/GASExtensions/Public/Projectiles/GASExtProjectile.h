@@ -120,6 +120,10 @@ private:
     UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
     TSubclassOf< AActor > ImpactSpawnActorClass;
 
+    // Set to false when the hit result (last hit of the projectile) should not be used for effect applications
+    UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
+    uint8 bUseHitResultAsLocationForGameplayEffects : 1;
+
     UPROPERTY()
     UGASExtAbilitySystemComponent * AbilitySystemComponent;
 

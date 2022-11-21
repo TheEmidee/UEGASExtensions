@@ -22,7 +22,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_GetOwner::GetTargetData( AAct
     return FGameplayAbilityTargetDataHandle( new_data );
 }
 
-UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHitResult()
+UGASExtTargetType_SphereOverlapBase::UGASExtTargetType_SphereOverlapBase()
 {
     SphereRadius = 1.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
@@ -33,11 +33,11 @@ UGASExtTargetType_SphereOverlapAtHitResult::UGASExtTargetType_SphereOverlapAtHit
     SphereCenterOffset = FVector::ZeroVector;
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapBase::GetTargetDataAtLocation( AActor * ability_owner, const FVector location ) const
 {
     TArray< AActor * > hit_actors;
 
-    const auto sphere_center = ability_owner->GetActorLocation() + SphereCenterOffset;
+    const auto sphere_center = location + SphereCenterOffset;
 
     UKismetSystemLibrary::SphereOverlapActors( ability_owner, sphere_center, SphereRadius.GetValue(), ObjectTypes, nullptr, TArray< AActor * > { ability_owner }, hit_actors );
 
@@ -81,4 +81,14 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::Get
     new_data->TargetActorArray.Append( hit_actors );
 
     return FGameplayAbilityTargetDataHandle( new_data );
+}
+
+FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & /*event_data*/ ) const
+{
+    return GetTargetDataAtLocation( ability_owner, hit_result.ImpactPoint );
+}
+
+FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtAbilityOwner::GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const
+{
+    return GetTargetDataAtLocation( ability_owner, ability_owner->GetActorLocation() );
 }
