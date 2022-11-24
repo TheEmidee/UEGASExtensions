@@ -16,7 +16,7 @@ class GASEXTENSIONS_API UGASExtAT_WaitAbilityEnd final : public UAbilityTask
 
 public:
     UFUNCTION( BlueprintCallable, Category = "Ability|Tasks", meta = ( HidePin = "owning_ability", DefaultToSelf = "owning_ability", BlueprintInternalUseOnly = "TRUE" ) )
-    static UGASExtAT_WaitAbilityEnd * WaitAbilityEnd( UGameplayAbility * owning_ability, UAbilitySystemComponent * asc, const FGameplayAbilitySpecHandle & ability_spec_handle );
+    static UGASExtAT_WaitAbilityEnd * WaitAbilityEnd( UGameplayAbility * owning_ability, const FGameplayAbilitySpecHandle & ability_spec_handle, UAbilitySystemComponent * optional_asc = nullptr );
 
     void Activate() override;
 
@@ -25,13 +25,11 @@ protected:
     FGASExtOnAbilityEndedDelegate OnAbilityEndedDelegate;
 
 private:
-    void OnDestroy( bool ability_ended ) override;
-
     UFUNCTION()
     void OnAbilityEnded( const FAbilityEndedData & ability_ended_data );
 
     UPROPERTY()
-    UAbilitySystemComponent * ASC;
+    UAbilitySystemComponent * OptionalASC;
 
     FGameplayAbilitySpecHandle AbilitySpecHandle;
     FDelegateHandle DelegateHandle;
