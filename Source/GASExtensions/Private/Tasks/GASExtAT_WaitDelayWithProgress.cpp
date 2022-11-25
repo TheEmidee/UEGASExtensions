@@ -1,12 +1,8 @@
 #include "Tasks/GASExtAT_WaitDelayWithProgress.h"
 
-UGASExtAT_WaitDelayWithProgress * UGASExtAT_WaitDelayWithProgress::WaitDelayWithProgress( UGameplayAbility * owning_ability )
-{
-    auto * my_obj = NewAbilityTask< UGASExtAT_WaitDelayWithProgress >( owning_ability );
-    return my_obj;
-}
+#include <TimerManager.h>
 
-UGASExtAT_WaitDelayWithProgress * UGASExtAT_WaitDelayWithProgress::WaitDelayWithProgress( UGameplayAbility * owning_ability, float time, int progress_step, float optional_time_skip )
+UGASExtAT_WaitDelayWithProgress * UGASExtAT_WaitDelayWithProgress::WaitDelayWithProgress( UGameplayAbility * owning_ability, float time, int progress_step, float optional_time_skip /*= 0.0f*/ )
 {
     auto * my_obj = NewAbilityTask< UGASExtAT_WaitDelayWithProgress >( owning_ability );
     my_obj->Time = time;
@@ -19,15 +15,42 @@ void UGASExtAT_WaitDelayWithProgress::Activate()
 {
     Super::Activate();
 
-    if ( OptionalTimeSkip >= Time )
+    if ( OptionalTimeSkip >= Time || Time <= 0.0f )
     {
+        if ( ShouldBroadcastAbilityTaskDelegates() )
+        {
+            OnDelayFinishedDelegate.Broadcast();
+        }
         return;
     }
 
-    UWorld* World = GetWorld();
-    TimeStarted = World->GetTimeSeconds();
+    ProgressRate = Time * ( ProgressionPercentage / 100.0f );
+    RemainingTime = Time - OptionalTimeSkip;
 
-    // Use a dummy timer handle as we don't need to store it for later but we don't need to look for something to clear
-    FTimerHandle TimerHandle;
-    World->GetTimerManager().SetTimer(TimerHandle, this, &UAbilityTask_WaitDelay::OnTimeFinish, Time, false);
+    UpdateTimer();
+}
+
+void UGASExtAT_WaitDelayWithProgress::OnProgressUpdate()
+{
+    if ( ShouldBroadcastAbilityTaskDelegates() )
+    {
+        if ( RemainingTime > 0.0f )
+        {
+            OnProgressUpdateDelegate.Broadcast( ( 1.0f - ( RemainingTime / Time ) ) * 100.0f );
+            UpdateTimer();
+            return;
+        }
+
+        OnDelayFinishedDelegate.Broadcast();
+        EndTask();
+    }
+}
+
+void UGASExtAT_WaitDelayWithProgress::UpdateTimer()
+{
+    const auto rate = ProgressRate < RemainingTime ? ProgressRate : RemainingTime;
+    RemainingTime -= rate;
+
+    const auto * world = GetWorld();
+    world->GetTimerManager().SetTimer( TimerHandle, this, &UGASExtAT_WaitDelayWithProgress::OnProgressUpdate, rate, false );
 }
