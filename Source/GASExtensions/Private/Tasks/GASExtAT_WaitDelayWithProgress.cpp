@@ -27,7 +27,8 @@ void UGASExtAT_WaitDelayWithProgress::Activate()
     ProgressRate = Time * ( ProgressionPercentage / 100.0f );
     RemainingTime = Time - OptionalTimeSkip;
 
-    UpdateTimer();
+    const auto remaining_rate = ProgressRate - FMath::Fmod( RemainingTime, ProgressRate );
+    StartTimer( remaining_rate );
 }
 
 void UGASExtAT_WaitDelayWithProgress::OnProgressUpdate()
@@ -42,15 +43,15 @@ void UGASExtAT_WaitDelayWithProgress::OnProgressUpdate()
         }
 
         OnProgressUpdateDelegate.Broadcast( ( 1.0f - ( RemainingTime / Time ) ) * 100.0f );
-        UpdateTimer();
+        StartTimer( ProgressRate );
     }
 }
 
-void UGASExtAT_WaitDelayWithProgress::UpdateTimer()
+void UGASExtAT_WaitDelayWithProgress::StartTimer( float progress_rate )
 {
-    const auto rate = ProgressRate < RemainingTime ? ProgressRate : RemainingTime;
-    RemainingTime -= rate;
+    progress_rate = progress_rate < RemainingTime ? progress_rate : RemainingTime;
+    RemainingTime -= progress_rate;
 
     const auto * world = GetWorld();
-    world->GetTimerManager().SetTimer( TimerHandle, this, &UGASExtAT_WaitDelayWithProgress::OnProgressUpdate, rate, false );
+    world->GetTimerManager().SetTimer( TimerHandle, this, &UGASExtAT_WaitDelayWithProgress::OnProgressUpdate, progress_rate, false );
 }

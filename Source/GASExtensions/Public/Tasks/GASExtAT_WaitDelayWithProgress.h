@@ -29,7 +29,7 @@ private:
     UFUNCTION()
     void OnProgressUpdate();
 
-    void UpdateTimer();
+    void StartTimer( float progress_rate );
 
     float Time;
     int ProgressionPercentage;
