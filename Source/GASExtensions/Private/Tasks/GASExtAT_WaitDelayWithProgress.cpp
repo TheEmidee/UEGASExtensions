@@ -2,11 +2,11 @@
 
 #include <TimerManager.h>
 
-UGASExtAT_WaitDelayWithProgress * UGASExtAT_WaitDelayWithProgress::WaitDelayWithProgress( UGameplayAbility * owning_ability, float time, int progress_step, float optional_time_skip /*= 0.0f*/ )
+UGASExtAT_WaitDelayWithProgress * UGASExtAT_WaitDelayWithProgress::WaitDelayWithProgress( UGameplayAbility * owning_ability, float time, int progress_percentage, float optional_time_skip /*= 0.0f*/ )
 {
     auto * my_obj = NewAbilityTask< UGASExtAT_WaitDelayWithProgress >( owning_ability );
     my_obj->Time = time;
-    my_obj->ProgressionPercentage = progress_step;
+    my_obj->ProgressionPercentage = progress_percentage;
     my_obj->OptionalTimeSkip = optional_time_skip;
     return my_obj;
 }
@@ -19,7 +19,7 @@ void UGASExtAT_WaitDelayWithProgress::Activate()
     {
         if ( ShouldBroadcastAbilityTaskDelegates() )
         {
-            OnDelayFinishedDelegate.Broadcast();
+            OnDelayFinishedDelegate.Broadcast( 100.0f );
         }
         return;
     }
@@ -34,15 +34,15 @@ void UGASExtAT_WaitDelayWithProgress::OnProgressUpdate()
 {
     if ( ShouldBroadcastAbilityTaskDelegates() )
     {
-        if ( RemainingTime > 0.0f )
+        if ( FMath::IsNearlyZero( RemainingTime, 0.0001f ) )
         {
-            OnProgressUpdateDelegate.Broadcast( ( 1.0f - ( RemainingTime / Time ) ) * 100.0f );
-            UpdateTimer();
+            OnDelayFinishedDelegate.Broadcast( 100.0f );
+            EndTask();
             return;
         }
 
-        OnDelayFinishedDelegate.Broadcast();
-        EndTask();
+        OnProgressUpdateDelegate.Broadcast( ( 1.0f - ( RemainingTime / Time ) ) * 100.0f );
+        UpdateTimer();
     }
 }
 

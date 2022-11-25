@@ -5,8 +5,7 @@
 
 #include "GASExtAT_WaitDelayWithProgress.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE( FGASExtOnDelayFinishedDelegate );
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FGASExtOnProgressUpdateDelegate, float, progress_percentage );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FGASExtWaitDelayWithProgressDelegate, float, progress_percentage );
 
 UCLASS()
 class GASEXTENSIONS_API UGASExtAT_WaitDelayWithProgress final : public UAbilityTask
@@ -15,16 +14,16 @@ class GASEXTENSIONS_API UGASExtAT_WaitDelayWithProgress final : public UAbilityT
 
 public:
     UFUNCTION( BlueprintCallable, Category = "Ability|Tasks", meta = ( HidePin = "owning_ability", DefaultToSelf = "owning_ability", BlueprintInternalUseOnly = "TRUE" ) )
-    static UGASExtAT_WaitDelayWithProgress * WaitDelayWithProgress( UGameplayAbility * owning_ability, float time, int progress_step, float optional_time_skip = 0.0f );
+    static UGASExtAT_WaitDelayWithProgress * WaitDelayWithProgress( UGameplayAbility * owning_ability, float time, int progress_percentage, float optional_time_skip = 0.0f );
 
     void Activate() override;
 
 protected:
     UPROPERTY( BlueprintAssignable )
-    FGASExtOnDelayFinishedDelegate OnDelayFinishedDelegate;
+    FGASExtWaitDelayWithProgressDelegate OnDelayFinishedDelegate;
 
     UPROPERTY( BlueprintAssignable )
-    FGASExtOnProgressUpdateDelegate OnProgressUpdateDelegate;
+    FGASExtWaitDelayWithProgressDelegate OnProgressUpdateDelegate;
 
 private:
     UFUNCTION()
