@@ -19,11 +19,11 @@ class GASEXTENSIONS_API UGASExtAbilitySystemFunctionLibrary final : public UBlue
     GENERATED_BODY()
 
 public:
-    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects", meta = ( DefaultToSelf = "ability", AutoCreateRefTerm = "event_data" ) )
-    static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data, int level = 1 );
+    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects", meta = ( AutoCreateRefTerm = "event_data" ) )
+    static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data );
 
-    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects", meta = ( DefaultToSelf = "ability", AutoCreateRefTerm = "event_data" ) )
-    static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainerAndHitResult( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data, FHitResult hit_result, int level = 1 );
+    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects", meta = ( AutoCreateRefTerm = "event_data" ) )
+    static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainerAndHitResult( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data, FHitResult hit_result );
 
     UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects" )
     static TArray< FActiveGameplayEffectHandle > ApplyGameplayEffectContainerSpec( UPARAM( ref ) FGASExtGameplayEffectContainerSpec & effect_container_spec );
