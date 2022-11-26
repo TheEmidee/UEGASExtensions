@@ -151,9 +151,6 @@ private:
     UFUNCTION( BlueprintCallable, Category = "Ability|Animation", Meta = ( AdvancedDisplay = "OverrideBlendOutTime" ) )
     void MontageStopForAllMeshes( float override_blend_out_time = -1.0f );
 
-    UFUNCTION( BlueprintCallable, Category = "GameplayEffects", meta = ( AutoCreateRefTerm = "event_data" ) )
-    FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data ) const;
-
     /** Active montages being played by this ability */
     UPROPERTY()
     TArray< FGASExtAbilityMeshMontage > CurrentAbilityMeshMontages;
