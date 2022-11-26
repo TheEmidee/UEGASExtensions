@@ -466,3 +466,8 @@ void UGASExtGameplayAbility::MontageStopForAllMeshes( const float override_blend
         }
     }
 }
+
+FGASExtGameplayEffectContainerSpec UGASExtGameplayAbility::MakeEffectContainerSpecFromEffectContainer( const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data ) const
+{
+    return UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainer( this, effect_container, event_data );
+}
