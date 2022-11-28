@@ -57,4 +57,6 @@ public:
 
     UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
     static TSubclassOf< UGameplayEffect > GetGameplayEffectClassFromSpecHandle( FGameplayEffectSpecHandle spec_handle );
+
+    static void CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( FGameplayEffectSpec * gameplay_effect_spec );
 };

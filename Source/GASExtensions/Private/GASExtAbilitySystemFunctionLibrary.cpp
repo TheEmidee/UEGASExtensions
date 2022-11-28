@@ -180,3 +180,22 @@ TSubclassOf< UGameplayEffect > UGASExtAbilitySystemFunctionLibrary::GetGameplayE
 
     return nullptr;
 }
+
+void UGASExtAbilitySystemFunctionLibrary::CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( FGameplayEffectSpec * gameplay_effect_spec )
+{
+    if ( gameplay_effect_spec == nullptr )
+    {
+        return;
+    }
+
+    for ( auto handle : gameplay_effect_spec->TargetEffectSpecs )
+    {
+        if ( !handle.Data.IsValid() )
+        {
+            continue;
+        }
+
+        handle.Data->SetByCallerTagMagnitudes.Append( gameplay_effect_spec->SetByCallerTagMagnitudes );
+        CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( handle.Data.Get() );
+    }
+}
