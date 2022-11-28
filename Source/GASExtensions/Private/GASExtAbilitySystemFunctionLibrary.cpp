@@ -199,3 +199,24 @@ void UGASExtAbilitySystemFunctionLibrary::CopySetByCallerTagMagnitudesFromSpecTo
         CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( handle.Data.Get() );
     }
 }
+
+void UGASExtAbilitySystemFunctionLibrary::AddDynamicAssetTagToSpecAndChildren( FGameplayEffectSpec * gameplay_effect_spec, const FGameplayTag gameplay_tag )
+{
+    if ( gameplay_effect_spec == nullptr )
+    {
+        return;
+    }
+
+    gameplay_effect_spec->AddDynamicAssetTag( gameplay_tag );
+
+    for ( auto handle : gameplay_effect_spec->TargetEffectSpecs )
+    {
+        if ( !handle.Data.IsValid() )
+        {
+            continue;
+        }
+
+        handle.Data->AddDynamicAssetTag( gameplay_tag );
+        AddDynamicAssetTagToSpecAndChildren( handle.Data.Get(), gameplay_tag );
+    }
+}
