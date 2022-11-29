@@ -35,6 +35,11 @@ void UGASExtAT_WaitDelayWithProgress::OnProgressUpdate()
 {
     if ( ShouldBroadcastAbilityTaskDelegates() )
     {
+        // We multiply by 10.000, round to int and then divide by 100 to prevent small floating point errors
+        // but still keeps 2 decimals if applicable
+        const float progress_percentage = FMath::RoundToFloat( ( 1.0f - ( RemainingTime / Time ) ) * 10000.0f ) / 100.0f;
+        OnProgressUpdateDelegate.Broadcast( progress_percentage );
+
         if ( FMath::IsNearlyZero( RemainingTime, 0.0001f ) )
         {
             OnDelayFinishedDelegate.Broadcast( 100.0f );
@@ -42,7 +47,6 @@ void UGASExtAT_WaitDelayWithProgress::OnProgressUpdate()
             return;
         }
 
-        OnProgressUpdateDelegate.Broadcast( ( 1.0f - ( RemainingTime / Time ) ) * 100.0f );
         StartTimer( ProgressRate );
     }
 }
