@@ -69,7 +69,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_GetActor::GetTargetD
 
 UGASExtTargetDataGenerator_SphereOverlap::UGASExtTargetDataGenerator_SphereOverlap()
 {
-    Source = static_cast< uint8 >( EGASExtTargetDataGeneratorActorSource::EffectCauser );
+    Source = EGASExtTargetDataGeneratorActorSource::EffectCauser;
     SphereRadius = 1.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
