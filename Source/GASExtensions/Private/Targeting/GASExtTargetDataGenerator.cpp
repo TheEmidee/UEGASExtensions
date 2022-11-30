@@ -11,7 +11,13 @@ namespace
     {
         if ( ( source & EGASExtTargetDataGeneratorActorSource::AbilityAvatar ) == EGASExtTargetDataGeneratorActorSource::AbilityAvatar )
         {
-            functor( gameplay_effect_context->GetAbility()->GetAvatarActorFromActorInfo() );
+            if ( auto * ability = gameplay_effect_context->GetAbility() )
+            {
+                if ( auto * current_actor_info = ability->GetCurrentActorInfo() )
+                {
+                    functor( current_actor_info->AvatarActor.Get() );
+                }
+            }
         }
         if ( ( source & EGASExtTargetDataGeneratorActorSource::EffectCauser ) == EGASExtTargetDataGeneratorActorSource::EffectCauser )
         {
@@ -150,7 +156,13 @@ TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlap::GetSourceLocation
     {
         case EGASExtTargetDataGeneratorActorSource::AbilityAvatar:
         {
-            set_source_location_from_actor( gameplay_effect_context->GetAbility()->GetAvatarActorFromActorInfo() );
+            if ( auto * ability = gameplay_effect_context->GetAbility() )
+            {
+                if ( auto * current_actor_info = ability->GetCurrentActorInfo() )
+                {
+                    set_source_location_from_actor( current_actor_info->AvatarActor.Get() );
+                }
+            }
         }
         break;
         case EGASExtTargetDataGeneratorActorSource::EffectCauser:
