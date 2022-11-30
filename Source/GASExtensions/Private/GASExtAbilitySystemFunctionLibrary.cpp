@@ -16,7 +16,6 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
         container_spec.GameplayEventTags = effect_container.GameplayEventTags;
         container_spec.TargetData.Append( target_data );
 
-
         if ( ensureAlwaysMsgf( effect_container.GameplayEffect != nullptr, TEXT( "Can not provide a null class in the TargetEffectClasses of the gameplay effect container" ) ) )
         {
             container_spec.GameplayEffectSpecHandle = ability->MakeOutgoingGameplayEffectSpec( effect_container.GameplayEffect, static_cast< float >( level ) );
@@ -26,21 +25,24 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                 container_spec.GameplayEffectSpecHandle.Data.Get()->SetSetByCallerMagnitude( tag, magnitude.GetValue() );
             }
 
-            if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( container_spec.GameplayEffectSpecHandle.Data->GetContext().Get() ) )
+            if ( auto * gameplay_effect_context = container_spec.GameplayEffectSpecHandle.Data->GetContext().Get() )
             {
-                context->SetFallOffType( effect_container.FallOffType );
-
-                if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextApplication )
+                if ( auto * gas_ext_gameplay_effect_context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_context ) )
                 {
-                    context->SetTargetDataGenerator( effect_container.TargetDataGenerator );
+                    gas_ext_gameplay_effect_context->SetFallOffType( effect_container.FallOffType );
+
+                    if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextApplication )
+                    {
+                        gas_ext_gameplay_effect_context->SetTargetDataGenerator( effect_container.TargetDataGenerator );
+                    }
+                }
+
+                if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextCreation &&
+                     effect_container.TargetDataGenerator != nullptr )
+                {
+                    container_spec.TargetData.Append( effect_container.TargetDataGenerator->GetTargetData( gameplay_effect_context, event_data ) );
                 }
             }
-        }
-
-        if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextCreation &&
-             effect_container.TargetDataGenerator != nullptr )
-        {
-            container_spec.TargetData.Append( effect_container.TargetDataGenerator->GetTargetData( avatar_actor, event_data ) );
         }
 
         container_spec.EventDataPayload = event_data;
@@ -70,7 +72,7 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
             if ( effect_container_spec.TargetDataExecutionType == EGASExtTargetDataGenerationPhase::OnEffectContextApplication &&
                  context->GetTargetDataGenerator() != nullptr )
             {
-                target_data_handle.Append( context->GetTargetDataGenerator()->GetTargetData( context->GetEffectCauser(), effect_container_spec.EventDataPayload ) );
+                target_data_handle.Append( context->GetTargetDataGenerator()->GetTargetData( context, effect_container_spec.EventDataPayload ) );
             }
             else
             {

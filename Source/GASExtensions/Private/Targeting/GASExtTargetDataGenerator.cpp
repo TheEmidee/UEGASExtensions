@@ -1,29 +1,69 @@
 #include "Targeting/GASExtTargetDataGenerator.h"
 
+#include <Abilities/GameplayAbility.h>
 #include <Abilities/GameplayAbilityTypes.h>
 #include <AbilitySystemBlueprintLibrary.h>
 #include <Kismet/KismetSystemLibrary.h>
 
-FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTargetData( AActor * /*ability_owner*/, const FGameplayEventData & event_data ) const
+namespace
+{
+    void AddActorsFromSource( const EGASExtTargetDataGeneratorActorSource source, const FGameplayEffectContext * gameplay_effect_context, TFunctionRef< void( AActor * ) > functor )
+    {
+        if ( ( source & EGASExtTargetDataGeneratorActorSource::AbilityAvatar ) == EGASExtTargetDataGeneratorActorSource::AbilityAvatar )
+        {
+            functor( gameplay_effect_context->GetAbility()->GetAvatarActorFromActorInfo() );
+        }
+        if ( ( source & EGASExtTargetDataGeneratorActorSource::EffectCauser ) == EGASExtTargetDataGeneratorActorSource::EffectCauser )
+        {
+            functor( gameplay_effect_context->GetEffectCauser() );
+        }
+        if ( ( source & EGASExtTargetDataGeneratorActorSource::Instigator ) == EGASExtTargetDataGeneratorActorSource::Instigator )
+        {
+            functor( gameplay_effect_context->GetInstigator() );
+        }
+        if ( ( source & EGASExtTargetDataGeneratorActorSource::OriginalInstigator ) == EGASExtTargetDataGeneratorActorSource::OriginalInstigator )
+        {
+            functor( gameplay_effect_context->GetOriginalInstigator() );
+        }
+        if ( ( source & EGASExtTargetDataGeneratorActorSource::SourceObject ) == EGASExtTargetDataGeneratorActorSource::SourceObject )
+        {
+            if ( auto * actor = Cast< AActor >( gameplay_effect_context->GetSourceObject() ) )
+            {
+                functor( actor );
+            }
+        }
+        if ( ( source & EGASExtTargetDataGeneratorActorSource::HitResult ) == EGASExtTargetDataGeneratorActorSource::HitResult )
+        {
+            if ( const auto * hit_result = gameplay_effect_context->GetHitResult() )
+            {
+                if ( auto * actor = hit_result->GetActor() )
+                {
+                    functor( actor );
+                }
+            }
+        }
+    }
+}
+
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTargetData( const FGameplayEffectContext *, const FGameplayEventData & event_data ) const
 {
     return FGameplayAbilityTargetDataHandle( event_data.TargetData );
 }
 
-//FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_HitResult::GetTargetData( AActor * /*ability_owner*/, const FGameplayEventData & /*event_data*/  ) const
-//{
-//    auto * new_data = new FGameplayAbilityTargetData_SingleTargetHit( FHitResult() );
-//    return FGameplayAbilityTargetDataHandle( new_data );
-//}
-
-FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_GetOwner::GetTargetData( AActor * ability_owner, const FGameplayEventData & /*event_data*/  ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_GetActor::GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/  ) const
 {
     auto * new_data = new FGameplayAbilityTargetData_ActorArray();
-    new_data->TargetActorArray.Add( ability_owner );
+
+    AddActorsFromSource( Source, gameplay_effect_context, [ new_data ]( AActor * actor ) {
+        new_data->TargetActorArray.Add( actor );
+    } );
+
     return FGameplayAbilityTargetDataHandle( new_data );
 }
 
 UGASExtTargetDataGenerator_SphereOverlapBase::UGASExtTargetDataGenerator_SphereOverlapBase()
 {
+    Source = EGASExtTargetDataGeneratorActorSource::EffectCauser;
     SphereRadius = 1.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
@@ -33,62 +73,119 @@ UGASExtTargetDataGenerator_SphereOverlapBase::UGASExtTargetDataGenerator_SphereO
     SphereCenterOffset = FVector::ZeroVector;
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapBase::GetTargetDataAtLocation( AActor * ability_owner, const FVector location ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapBase::GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const
 {
-    TArray< AActor * > hit_actors;
+    FGameplayAbilityTargetDataHandle result;
 
-    const auto sphere_center = location + SphereCenterOffset;
+    const auto source_location = GetSourceLocation( gameplay_effect_context );
 
-    UKismetSystemLibrary::SphereOverlapActors( ability_owner, sphere_center, SphereRadius.GetValue(), ObjectTypes, nullptr, TArray< AActor * > { ability_owner }, hit_actors );
-
-    if ( bDrawsDebug )
+    if ( source_location.IsSet() )
     {
-        UKismetSystemLibrary::DrawDebugSphere( ability_owner, sphere_center, SphereRadius.GetValue(), 12, FLinearColor::Red, DrawDebugDuration, 1.0f );
-    }
+        TArray< AActor * > hit_actors;
 
-    if ( bMustHaveLineOfSight )
-    {
+        const auto * world_context = gameplay_effect_context->GetInstigator();
+        const auto sphere_center = source_location.GetValue() + SphereCenterOffset;
 
-        for ( auto index = hit_actors.Num() - 1; index >= 0; --index )
+        TArray< AActor * > actors_to_ignore;
+        AddActorsFromSource( ActorsToIgnoreDuringSphereOverlap, gameplay_effect_context, [ &actors_to_ignore ]( AActor * actor ) {
+            actors_to_ignore.Add( actor );
+        } );
+
+        UKismetSystemLibrary::SphereOverlapActors( world_context, sphere_center, SphereRadius.GetValue(), ObjectTypes, nullptr, actors_to_ignore, hit_actors );
+
+        if ( bDrawsDebug )
         {
-            auto * hit_actor = hit_actors[ index ];
+            UKismetSystemLibrary::DrawDebugSphere( world_context, sphere_center, SphereRadius.GetValue(), 12, FLinearColor::Red, DrawDebugDuration, 1.0f );
+        }
 
-            auto ignore_actors = hit_actors;
-            ignore_actors.RemoveSwap( hit_actor );
-
-            FHitResult line_trace_hit;
-            UKismetSystemLibrary::LineTraceSingle( ability_owner,
-                sphere_center,
-                hit_actor->GetActorLocation(),
-                UEngineTypes::ConvertToTraceType( ECC_Visibility ),
-                false,
-                ignore_actors,
-                bDrawsDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
-                line_trace_hit,
-                true,
-                FLinearColor::Red,
-                FLinearColor::Green,
-                DrawDebugDuration );
-
-            if ( line_trace_hit.bBlockingHit && line_trace_hit.GetActor() != hit_actor )
+        if ( bMustHaveLineOfSight )
+        {
+            for ( auto index = hit_actors.Num() - 1; index >= 0; --index )
             {
-                hit_actors.RemoveAtSwap( index );
+                auto * hit_actor = hit_actors[ index ];
+
+                auto ignore_actors = hit_actors;
+                ignore_actors.RemoveSwap( hit_actor );
+
+                FHitResult line_trace_hit;
+                UKismetSystemLibrary::LineTraceSingle( world_context,
+                    sphere_center,
+                    hit_actor->GetActorLocation(),
+                    UEngineTypes::ConvertToTraceType( ECC_Visibility ),
+                    false,
+                    ignore_actors,
+                    bDrawsDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
+                    line_trace_hit,
+                    true,
+                    FLinearColor::Red,
+                    FLinearColor::Green,
+                    DrawDebugDuration );
+
+                if ( line_trace_hit.bBlockingHit && line_trace_hit.GetActor() != hit_actor )
+                {
+                    hit_actors.RemoveAtSwap( index );
+                }
             }
         }
+
+        auto * new_data = new FGameplayAbilityTargetData_ActorArray();
+        new_data->TargetActorArray.Append( hit_actors );
     }
 
-    auto * new_data = new FGameplayAbilityTargetData_ActorArray();
-    new_data->TargetActorArray.Append( hit_actors );
-
-    return FGameplayAbilityTargetDataHandle( new_data );
+    return result;
 }
 
-//FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const
-//{
-//    return GetTargetDataAtLocation( ability_owner, ability_owner->GetActorLocation() );
-//}
-
-FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapAtAbilityOwner::GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const
+TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlapBase::GetSourceLocation( const FGameplayEffectContext * gameplay_effect_context ) const
 {
-    return GetTargetDataAtLocation( ability_owner, ability_owner->GetActorLocation() );
+    TOptional< FVector > source_location;
+
+    const auto set_source_location_from_actor = [ &source_location ]( const AActor * actor ) {
+        if ( actor != nullptr )
+        {
+            source_location = actor->GetActorLocation();
+        }
+    };
+
+    switch ( Source )
+    {
+        case EGASExtTargetDataGeneratorActorSource::AbilityAvatar:
+        {
+            set_source_location_from_actor( gameplay_effect_context->GetAbility()->GetAvatarActorFromActorInfo() );
+        }
+        break;
+        case EGASExtTargetDataGeneratorActorSource::EffectCauser:
+        {
+            set_source_location_from_actor( gameplay_effect_context->GetEffectCauser() );
+        }
+        break;
+        case EGASExtTargetDataGeneratorActorSource::Instigator:
+        {
+            set_source_location_from_actor( gameplay_effect_context->GetInstigator() );
+        }
+        break;
+        case EGASExtTargetDataGeneratorActorSource::OriginalInstigator:
+        {
+            set_source_location_from_actor( gameplay_effect_context->GetOriginalInstigator() );
+        }
+        break;
+        case EGASExtTargetDataGeneratorActorSource::SourceObject:
+        {
+            set_source_location_from_actor( Cast< AActor >( gameplay_effect_context->GetSourceObject() ) );
+        }
+        break;
+        case EGASExtTargetDataGeneratorActorSource::HitResult:
+        {
+            if ( const auto * hit_result = gameplay_effect_context->GetHitResult() )
+            {
+                source_location = hit_result->ImpactPoint;
+            }
+        }
+        break;
+        default:
+        {
+            check( false );
+        };
+    }
+
+    return source_location;
 }

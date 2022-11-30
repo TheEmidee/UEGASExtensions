@@ -14,13 +14,25 @@ enum class EGASExtTargetDataGenerationPhase : uint8
     OnEffectContextCreation
 };
 
+UENUM( BlueprintType, meta = ( Bitflags, UseEnumValuesAsMaskValuesInEditor = "true" ) )
+enum class EGASExtTargetDataGeneratorActorSource : uint8
+{
+    AbilityAvatar = 0,
+    EffectCauser = 1 << 0,
+    Instigator = 1 << 1,
+    OriginalInstigator = 1 << 2,
+    SourceObject = 1 << 3,
+    HitResult = 1 << 4,
+};
+ENUM_CLASS_FLAGS( EGASExtTargetDataGeneratorActorSource );
+
 UCLASS( NotBlueprintable, EditInlineNew, HideDropdown, meta = ( ShowWorldContextPin ) )
 class GASEXTENSIONS_API UGASExtTargetDataGenerator : public UObject
 {
     GENERATED_BODY()
 
 public:
-    virtual FGameplayAbilityTargetDataHandle GetTargetData( AActor * /*ability_owner*/, const FGameplayEventData & /*event_data*/  ) const
+    virtual FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/  ) const
     {
         return FGameplayAbilityTargetDataHandle();
     }
@@ -32,25 +44,19 @@ class GASEXTENSIONS_API UGASExtTargetDataGenerator_EventData final : public UGAS
     GENERATED_BODY()
 
 public:
-    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const override;
+    FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const override;
 };
 
-//UCLASS()
-//class GASEXTENSIONS_API UGASExtTargetDataGenerator_HitResult final : public UGASExtTargetDataGenerator
-//{
-//    GENERATED_BODY()
-//
-//public:
-//    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const override;
-//};
-
 UCLASS()
-class GASEXTENSIONS_API UGASExtTargetDataGenerator_GetOwner final : public UGASExtTargetDataGenerator
+class GASEXTENSIONS_API UGASExtTargetDataGenerator_GetActor final : public UGASExtTargetDataGenerator
 {
     GENERATED_BODY()
 
 public:
-    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const override;
+    FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const override;
+
+    UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = EGASExtTargetDataGeneratorActorSource ) )
+    EGASExtTargetDataGeneratorActorSource Source;
 };
 
 UCLASS( Abstract )
@@ -61,7 +67,12 @@ class GASEXTENSIONS_API UGASExtTargetDataGenerator_SphereOverlapBase : public UG
 public:
     UGASExtTargetDataGenerator_SphereOverlapBase();
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly )
+    FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const override;
+
+    UPROPERTY( EditAnywhere )
+    EGASExtTargetDataGeneratorActorSource Source;
+
+    UPROPERTY( EditAnywhere )
     FScalableFloat SphereRadius;
 
     UPROPERTY( EditAnywhere )
@@ -73,30 +84,15 @@ public:
     UPROPERTY( EditAnywhere )
     uint8 bMustHaveLineOfSight : 1;
 
+    UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = EGASExtTargetDataGeneratorActorSource ) )
+    EGASExtTargetDataGeneratorActorSource ActorsToIgnoreDuringSphereOverlap;
+
     UPROPERTY( EditAnywhere )
     uint8 bDrawsDebug : 1;
 
     UPROPERTY( EditAnywhere, meta = ( EditCondition = "bDrawsDebug" ) )
     float DrawDebugDuration;
 
-protected:
-    FGameplayAbilityTargetDataHandle GetTargetDataAtLocation( AActor * ability_owner, const FVector location ) const;
-};
-
-//UCLASS()
-//class GASEXTENSIONS_API UGASExtTargetDataGenerator_SphereOverlapAtHitResult final : public UGASExtTargetDataGenerator_SphereOverlapBase
-//{
-//    GENERATED_BODY()
-//
-//public:
-//    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const override;
-//};
-
-UCLASS()
-class GASEXTENSIONS_API UGASExtTargetDataGenerator_SphereOverlapAtAbilityOwner final : public UGASExtTargetDataGenerator_SphereOverlapBase
-{
-    GENERATED_BODY()
-
-public:
-    FGameplayAbilityTargetDataHandle GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const override;
+private:
+    TOptional< FVector > GetSourceLocation( const FGameplayEffectContext * gameplay_effect_context ) const;
 };

@@ -110,15 +110,12 @@ bool AGASExtProjectile::ShouldIgnoreHit_Implementation( AActor * other_actor, UP
 
 void AGASExtProjectile::ApplyGameplayEffects()
 {
-    for ( const auto & effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
-    {
-        auto * context = effect_spec.Data->GetContext().Get();
-        context->SetEffectCauser( this );
+    auto * context = GameplayEffectContainerSpec.GameplayEffectSpecHandle.Data->GetContext().Get();
+    context->SetEffectCauser( this );
 
-        if ( bUseHitResultAsLocationForGameplayEffects )
-        {
-            context->AddHitResult( LastHitResult, true );
-        }
+    if ( bUseHitResultAsLocationForGameplayEffects )
+    {
+        context->AddHitResult( LastHitResult, true );
     }
 
     UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
