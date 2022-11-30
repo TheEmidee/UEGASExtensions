@@ -102,20 +102,20 @@ struct GASEXTENSIONS_API FGASExtGameplayEffectContainer
     UGASExtFallOffType * FallOffType;
 
     /*
-     * Defines when the TargetDataGenerator (if defined) is used to append target data.
-     * OnEffectContextCreation will generate the target data when the effect container spec if created
-     * OnEffectContextApplication will generate the data when the container is applied. This is useful for projectiles for example when we want to
-     * apply the gameplay effects of the container where the projectile exploded
-     */
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
-    EGASExtTargetDataGenerationPhase TargetDataGenerationPhase;
-
-    /*
-     * Defines how targets are chosen for the gameplay effects to be applied to. If the effect container is created with a pre-defined target data,
-     * the target data generator will append the targets to the pre-defined one
+    Allows to give additional targets to apply the gameplay effect to
+    If the effect container is created with a pre-defined target data,the target data generator will append the targets to the pre-defined one
      */
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
-    UGASExtTargetDataGenerator * TargetDataGenerator;
+    UGASExtTargetDataGenerator * AdditionalTargetDataGenerator;
+
+    /*
+    Defines when the AdditionalTargetDataGenerator (if defined) is used to append target data.
+    OnEffectContextCreation will generate the target data when the effect container spec if created
+    OnEffectContextApplication will generate the data when the container is applied. This is useful for projectiles for example when we want to
+    apply the gameplay effects of the container where the projectile exploded
+     */
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "AdditionalTargetDataGenerator != nullptr", EditConditionHides ) )
+    EGASExtTargetDataGenerationPhase TargetDataGenerationPhase;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
     TArray< UGASExtTargetDataFilter * > TargetDataFilters;
@@ -169,8 +169,8 @@ public:
     UGASExtFallOffType * GetFallOffType() const;
     void SetFallOffType( UGASExtFallOffType * fall_off_type );
 
-    UGASExtTargetDataGenerator * GetTargetDataGenerator() const;
-    void SetTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator );
+    UGASExtTargetDataGenerator * GetAdditionalTargetDataGenerator() const;
+    void SetAdditionalTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator );
 
     UGASExtTargetDataFilter * GetTargetDataFilter() const;
     void SetTargetDataFilter( UGASExtTargetDataFilter * fall_off_type );
@@ -180,7 +180,7 @@ protected:
     UGASExtFallOffType * FallOffType;
 
     UPROPERTY()
-    UGASExtTargetDataGenerator * TargetDataGenerator;
+    UGASExtTargetDataGenerator * AdditionalTargetDataGenerator;
 
     UPROPERTY()
     UGASExtTargetDataFilter * TargetDataFilter;
@@ -196,14 +196,14 @@ FORCEINLINE void FGASExtGameplayEffectContext::SetFallOffType( UGASExtFallOffTyp
     FallOffType = fall_off_type;
 }
 
-FORCEINLINE UGASExtTargetDataGenerator * FGASExtGameplayEffectContext::GetTargetDataGenerator() const
+FORCEINLINE UGASExtTargetDataGenerator * FGASExtGameplayEffectContext::GetAdditionalTargetDataGenerator() const
 {
-    return TargetDataGenerator;
+    return AdditionalTargetDataGenerator;
 }
 
-FORCEINLINE void FGASExtGameplayEffectContext::SetTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator )
+FORCEINLINE void FGASExtGameplayEffectContext::SetAdditionalTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator )
 {
-    TargetDataGenerator = target_data_generator;
+    AdditionalTargetDataGenerator = target_data_generator;
 }
 
 FORCEINLINE UGASExtTargetDataFilter * FGASExtGameplayEffectContext::GetTargetDataFilter() const

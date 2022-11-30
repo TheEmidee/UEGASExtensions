@@ -50,20 +50,20 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTarget
     return FGameplayAbilityTargetDataHandle( event_data.TargetData );
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_GetActor::GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/  ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_GetActor::GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/ ) const
 {
     auto * new_data = new FGameplayAbilityTargetData_ActorArray();
 
-    AddActorsFromSource( Source, gameplay_effect_context, [ new_data ]( AActor * actor ) {
+    AddActorsFromSource( static_cast< EGASExtTargetDataGeneratorActorSource >( Source ), gameplay_effect_context, [ new_data ]( AActor * actor ) {
         new_data->TargetActorArray.Add( actor );
     } );
 
     return FGameplayAbilityTargetDataHandle( new_data );
 }
 
-UGASExtTargetDataGenerator_SphereOverlapBase::UGASExtTargetDataGenerator_SphereOverlapBase()
+UGASExtTargetDataGenerator_SphereOverlap::UGASExtTargetDataGenerator_SphereOverlap()
 {
-    Source = EGASExtTargetDataGeneratorActorSource::EffectCauser;
+    Source = static_cast< uint8 >( EGASExtTargetDataGeneratorActorSource::EffectCauser );
     SphereRadius = 1.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Destructible ) );
@@ -73,7 +73,7 @@ UGASExtTargetDataGenerator_SphereOverlapBase::UGASExtTargetDataGenerator_SphereO
     SphereCenterOffset = FVector::ZeroVector;
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapBase::GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlap::GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const
 {
     FGameplayAbilityTargetDataHandle result;
 
@@ -87,7 +87,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapBase::G
         const auto sphere_center = source_location.GetValue() + SphereCenterOffset;
 
         TArray< AActor * > actors_to_ignore;
-        AddActorsFromSource( ActorsToIgnoreDuringSphereOverlap, gameplay_effect_context, [ &actors_to_ignore ]( AActor * actor ) {
+        AddActorsFromSource( static_cast< EGASExtTargetDataGeneratorActorSource >( ActorsToIgnoreDuringSphereOverlap ), gameplay_effect_context, [ &actors_to_ignore ]( AActor * actor ) {
             actors_to_ignore.Add( actor );
         } );
 
@@ -135,7 +135,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapBase::G
     return result;
 }
 
-TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlapBase::GetSourceLocation( const FGameplayEffectContext * gameplay_effect_context ) const
+TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlap::GetSourceLocation( const FGameplayEffectContext * gameplay_effect_context ) const
 {
     TOptional< FVector > source_location;
 
@@ -146,7 +146,7 @@ TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlapBase::GetSourceLoca
         }
     };
 
-    switch ( Source )
+    switch ( static_cast< EGASExtTargetDataGeneratorActorSource >( Source ) )
     {
         case EGASExtTargetDataGeneratorActorSource::AbilityAvatar:
         {

@@ -17,12 +17,13 @@ enum class EGASExtTargetDataGenerationPhase : uint8
 UENUM( BlueprintType, meta = ( Bitflags, UseEnumValuesAsMaskValuesInEditor = "true" ) )
 enum class EGASExtTargetDataGeneratorActorSource : uint8
 {
-    AbilityAvatar = 0,
+    None = 0 UMETA( Hidden ),
     EffectCauser = 1 << 0,
     Instigator = 1 << 1,
     OriginalInstigator = 1 << 2,
     SourceObject = 1 << 3,
     HitResult = 1 << 4,
+    AbilityAvatar = 1 << 5,
 };
 ENUM_CLASS_FLAGS( EGASExtTargetDataGeneratorActorSource );
 
@@ -56,16 +57,16 @@ public:
     FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const override;
 
     UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = EGASExtTargetDataGeneratorActorSource ) )
-    EGASExtTargetDataGeneratorActorSource Source;
+    uint8 Source;
 };
 
-UCLASS( Abstract )
-class GASEXTENSIONS_API UGASExtTargetDataGenerator_SphereOverlapBase : public UGASExtTargetDataGenerator
+UCLASS()
+class GASEXTENSIONS_API UGASExtTargetDataGenerator_SphereOverlap : public UGASExtTargetDataGenerator
 {
     GENERATED_BODY()
 
 public:
-    UGASExtTargetDataGenerator_SphereOverlapBase();
+    UGASExtTargetDataGenerator_SphereOverlap();
 
     FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const override;
 
@@ -85,7 +86,7 @@ public:
     uint8 bMustHaveLineOfSight : 1;
 
     UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = EGASExtTargetDataGeneratorActorSource ) )
-    EGASExtTargetDataGeneratorActorSource ActorsToIgnoreDuringSphereOverlap;
+    uint8 ActorsToIgnoreDuringSphereOverlap;
 
     UPROPERTY( EditAnywhere )
     uint8 bDrawsDebug : 1;

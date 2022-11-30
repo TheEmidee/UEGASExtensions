@@ -12,7 +12,7 @@ FGASExtGameplayEffectContainer::FGASExtGameplayEffectContainer()
 FGASExtGameplayEffectContext::FGASExtGameplayEffectContext()
 {
     FallOffType = nullptr;
-    TargetDataGenerator = nullptr;
+    AdditionalTargetDataGenerator = nullptr;
     TargetDataFilter = nullptr;
 }
 
@@ -73,7 +73,7 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
         {
             RepBits |= 1 << 7;
         }
-        if ( IsValid( TargetDataGenerator ) )
+        if ( IsValid( AdditionalTargetDataGenerator ) )
         {
             RepBits |= 1 << 8;
         }
@@ -133,7 +133,7 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
 
     if ( RepBits & ( 1 << 8 ) )
     {
-        ar << TargetDataGenerator;
+        ar << AdditionalTargetDataGenerator;
     }
 
     if ( RepBits & ( 1 << 9 ) )

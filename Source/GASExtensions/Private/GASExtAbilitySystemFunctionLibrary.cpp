@@ -33,14 +33,14 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
 
                     if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextApplication )
                     {
-                        gas_ext_gameplay_effect_context->SetTargetDataGenerator( effect_container.TargetDataGenerator );
+                        gas_ext_gameplay_effect_context->SetAdditionalTargetDataGenerator( effect_container.AdditionalTargetDataGenerator );
                     }
                 }
 
                 if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextCreation &&
-                     effect_container.TargetDataGenerator != nullptr )
+                     effect_container.AdditionalTargetDataGenerator != nullptr )
                 {
-                    container_spec.TargetData.Append( effect_container.TargetDataGenerator->GetTargetData( gameplay_effect_context, event_data ) );
+                    container_spec.TargetData.Append( effect_container.AdditionalTargetDataGenerator->GetTargetData( gameplay_effect_context, event_data ) );
                 }
             }
         }
@@ -70,9 +70,9 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
         if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
         {
             if ( effect_container_spec.TargetDataExecutionType == EGASExtTargetDataGenerationPhase::OnEffectContextApplication &&
-                 context->GetTargetDataGenerator() != nullptr )
+                 context->GetAdditionalTargetDataGenerator() != nullptr )
             {
-                target_data_handle.Append( context->GetTargetDataGenerator()->GetTargetData( context, effect_container_spec.EventDataPayload ) );
+                target_data_handle.Append( context->GetAdditionalTargetDataGenerator()->GetTargetData( context, effect_container_spec.EventDataPayload ) );
             }
             else
             {
