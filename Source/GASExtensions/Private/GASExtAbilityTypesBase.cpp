@@ -6,6 +6,7 @@
 FGASExtGameplayEffectContainer::FGASExtGameplayEffectContainer()
 {
     FallOffType = nullptr;
+    AdditionalTargetDataGenerator = nullptr;
     TargetDataGenerationPhase = EGASExtTargetDataGenerationPhase::OnEffectContextCreation;
 }
 
