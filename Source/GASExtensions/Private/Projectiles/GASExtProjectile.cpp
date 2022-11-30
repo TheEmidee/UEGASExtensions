@@ -3,7 +3,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GASExtAbilitySystemFunctionLibrary.h"
 #include "Projectiles/GASExtProjectileMovementComponent.h"
-#include "Targeting/GASExtTargetType.h"
+#include "Targeting/GASExtTargetDataGenerator.h"
 
 #include <Engine.h>
 #include <Kismet/KismetMathLibrary.h>

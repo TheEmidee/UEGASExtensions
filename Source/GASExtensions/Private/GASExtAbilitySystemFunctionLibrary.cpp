@@ -1,98 +1,104 @@
 #include "GASExtAbilitySystemFunctionLibrary.h"
 
 #include "GASExtAbilityTypesBase.h"
-#include "Targeting/GASExtTargetType.h"
+#include "Targeting/GASExtTargetDataFilter.h"
+#include "Targeting/GASExtTargetDataGenerator.h"
 
 #include <AbilitySystemBlueprintLibrary.h>
 #include <AbilitySystemComponent.h>
 #include <AbilitySystemGlobals.h>
 
-FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data, int level /* = 1 */ )
-{
-    return MakeEffectContainerSpecFromEffectContainerAndHitResult( ability, effect_container, event_data, FHitResult(), level  );
-}
-
-FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainerAndHitResult( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayEventData & event_data, FHitResult hit_result, int level /* = 1 */ )
+FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayAbilityTargetDataHandle & target_data, const FGameplayEventData & event_data, int level /* = 1 */ )
 {
     FGASExtGameplayEffectContainerSpec container_spec;
     if ( auto * avatar_actor = ability->GetAvatarActorFromActorInfo() )
     {
         container_spec.GameplayEventTags = effect_container.GameplayEventTags;
-        container_spec.TargetGameplayEffectSpecHandles.Reserve( effect_container.TargetGameplayEffectClasses.Num() );
+        container_spec.TargetData.Append( target_data );
 
-        for ( const auto & gameplay_effect_class : effect_container.TargetGameplayEffectClasses )
+
+        if ( ensureAlwaysMsgf( effect_container.GameplayEffect != nullptr, TEXT( "Can not provide a null class in the TargetEffectClasses of the gameplay effect container" ) ) )
         {
-            if ( ensureAlwaysMsgf( gameplay_effect_class != nullptr, TEXT( "Can not provide a null class in the TargetEffectClasses of the gameplay effect container" ) ) )
+            container_spec.GameplayEffectSpecHandle = ability->MakeOutgoingGameplayEffectSpec( effect_container.GameplayEffect, static_cast< float >( level ) );
+
+            for ( const auto & [ tag, magnitude ] : effect_container.SetByCallerTagsToMagnitudeMap )
             {
-                const auto gameplay_effect_spec_handle = ability->MakeOutgoingGameplayEffectSpec( gameplay_effect_class, static_cast< float >( level ) );
+                container_spec.GameplayEffectSpecHandle.Data.Get()->SetSetByCallerMagnitude( tag, magnitude.GetValue() );
+            }
 
-                for ( const auto & [ tag, magnitude ] : effect_container.SetByCallerTagsToMagnitudeMap )
+            if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( container_spec.GameplayEffectSpecHandle.Data->GetContext().Get() ) )
+            {
+                context->SetFallOffType( effect_container.FallOffType );
+
+                if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextApplication )
                 {
-                    gameplay_effect_spec_handle.Data.Get()->SetSetByCallerMagnitude( tag, magnitude.GetValue() );
+                    context->SetTargetDataGenerator( effect_container.TargetDataGenerator );
                 }
-
-                if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() ) )
-                {
-                    context->SetFallOffType( effect_container.FallOffType );
-
-                    if ( effect_container.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextApplication )
-                    {
-                        context->SetTargetType( effect_container.TargetType );
-                    }
-                    context->AddHitResult( hit_result, true );
-                }
-                container_spec.TargetGameplayEffectSpecHandles.Emplace( gameplay_effect_spec_handle );
             }
         }
 
-        if ( effect_container.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextCreation &&
-             effect_container.TargetType != nullptr )
+        if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextCreation &&
+             effect_container.TargetDataGenerator != nullptr )
         {
-            container_spec.TargetData = effect_container.TargetType->GetTargetData( avatar_actor, hit_result, event_data );
+            container_spec.TargetData.Append( effect_container.TargetDataGenerator->GetTargetData( avatar_actor, event_data ) );
         }
 
         container_spec.EventDataPayload = event_data;
-        container_spec.TargetDataExecutionType = effect_container.TargetDataExecutionType;
+        container_spec.TargetDataExecutionType = effect_container.TargetDataGenerationPhase;
     }
     return container_spec;
+}
+
+TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::MakeAndApplyEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayAbilityTargetDataHandle & target_data, const FGameplayEventData & event_data, int level )
+{
+    auto container_spec = MakeEffectContainerSpecFromEffectContainer( ability, effect_container, target_data, event_data, level );
+    return ApplyGameplayEffectContainerSpec( container_spec );
 }
 
 TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( FGASExtGameplayEffectContainerSpec & effect_container_spec )
 {
     TArray< FActiveGameplayEffectHandle > applied_gameplay_effect_specs;
 
-    for ( const auto spec_handle : effect_container_spec.TargetGameplayEffectSpecHandles )
+    FGameplayAbilityTargetDataHandle target_data_handle;
+
+    const auto spec_handle = effect_container_spec.GameplayEffectSpecHandle;
+
+    if ( spec_handle.IsValid() )
     {
-        if ( spec_handle.IsValid() )
+        if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
         {
-            if ( const auto * context = static_cast< FGASExtGameplayEffectContext * >( spec_handle.Data->GetContext().Get() ) )
+            if ( effect_container_spec.TargetDataExecutionType == EGASExtTargetDataGenerationPhase::OnEffectContextApplication &&
+                 context->GetTargetDataGenerator() != nullptr )
             {
-                if ( effect_container_spec.TargetDataExecutionType == EGASExtGetTargetDataExecutionType::OnEffectContextApplication &&
-                     context->GetTargetType() != nullptr )
-                {
-                    effect_container_spec.TargetData.Clear();
-                    effect_container_spec.TargetData.Append(
-                        context->GetTargetType()->GetTargetData( context->GetEffectCauser(), *context->GetHitResult(), effect_container_spec.EventDataPayload ) );
-                }
+                target_data_handle.Append( context->GetTargetDataGenerator()->GetTargetData( context->GetEffectCauser(), effect_container_spec.EventDataPayload ) );
+            }
+            else
+            {
+                target_data_handle = effect_container_spec.TargetData;
             }
 
-            for ( auto target_data : effect_container_spec.TargetData.Data )
+            if ( const auto * target_data_filter = context->GetTargetDataFilter() )
             {
-                if ( target_data.IsValid() )
-                {
-                    applied_gameplay_effect_specs.Append( target_data->ApplyGameplayEffectSpec( *spec_handle.Data.Get() ) );
-                }
-                else
-                {
-                    UE_LOG( LogTemp, Warning, TEXT( "UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec invalid target data passed in." ) );
-                }
+                target_data_handle = target_data_filter->FilterTargetData( target_data_handle );
+            }
+        }
+
+        for ( auto target_data : target_data_handle.Data )
+        {
+            if ( target_data.IsValid() )
+            {
+                applied_gameplay_effect_specs.Append( target_data->ApplyGameplayEffectSpec( *spec_handle.Data.Get() ) );
+            }
+            else
+            {
+                UE_LOG( LogTemp, Warning, TEXT( "UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec invalid target data passed in." ) );
             }
         }
     }
 
     for ( const auto event_tag : effect_container_spec.GameplayEventTags )
     {
-        for ( const auto & data : effect_container_spec.TargetData.Data )
+        for ( const auto & data : target_data_handle.Data )
         {
             for ( auto & target_actor : data->GetActors() )
             {

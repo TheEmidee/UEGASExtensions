@@ -7,5 +7,5 @@
 #include "Projectiles/GASExtProjectile.h"
 #include "Projectiles/GASExtProjectileMovementComponent.h"
 #include "Targeting/GASExtGameplayAbilityTargetActor.h"
-#include "Targeting/GASExtTargetType.h"
+#include "Targeting/GASExtTargetDataGenerator.h"
 #include "Targeting/GASExtTargetingHelperLibrary.h"

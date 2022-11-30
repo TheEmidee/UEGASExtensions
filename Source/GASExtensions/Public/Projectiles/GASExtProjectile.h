@@ -12,7 +12,7 @@
 
 class UGASExtGameplayAbility;
 struct FGASExtGameplayEffectContainerSpec;
-class UGASExtTargetType;
+class UGASExtTargetDataGenerator;
 class UGASExtProjectileMovementComponent;
 class USphereComponent;
 class USceneComponent;

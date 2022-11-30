@@ -1,18 +1,19 @@
 #include "GASExtAbilityTypesBase.h"
 
 #include "FallOff/GASExtFallOffType.h"
+#include "Targeting/GASExtTargetDataFilter.h"
 
 FGASExtGameplayEffectContainer::FGASExtGameplayEffectContainer()
 {
     FallOffType = nullptr;
-    TargetType = nullptr;
-    TargetDataExecutionType = EGASExtGetTargetDataExecutionType::OnEffectContextCreation;
+    TargetDataGenerationPhase = EGASExtTargetDataGenerationPhase::OnEffectContextCreation;
 }
 
 FGASExtGameplayEffectContext::FGASExtGameplayEffectContext()
 {
     FallOffType = nullptr;
-    TargetType = nullptr;
+    TargetDataGenerator = nullptr;
+    TargetDataFilter = nullptr;
 }
 
 UScriptStruct * FGASExtGameplayEffectContext::GetScriptStruct() const
@@ -72,6 +73,14 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
         {
             RepBits |= 1 << 7;
         }
+        if ( IsValid( TargetDataGenerator ) )
+        {
+            RepBits |= 1 << 8;
+        }
+        if ( IsValid( TargetDataFilter ) )
+        {
+            RepBits |= 1 << 9;
+        }
     }
 
     ar.SerializeBits( &RepBits, 10 );
@@ -122,6 +131,16 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
         ar << FallOffType;
     }
 
+    if ( RepBits & ( 1 << 8 ) )
+    {
+        ar << TargetDataGenerator;
+    }
+
+    if ( RepBits & ( 1 << 9 ) )
+    {
+        ar << TargetDataFilter;
+    }
+
     if ( ar.IsLoading() )
     {
         AddInstigator( Instigator.Get(), EffectCauser.Get() ); // Just to initialize InstigatorAbilitySystemComponent
@@ -129,19 +148,4 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
 
     out_success = true;
     return true;
-}
-
-void FGASExtGameplayEffectContext::SetFallOffType( UGASExtFallOffType * fall_off_type )
-{
-    FallOffType = fall_off_type;
-}
-
-void FGASExtGameplayEffectContext::SetTargetType( UGASExtTargetType * target_type )
-{
-    TargetType = target_type;
-}
-
-bool FGASExtGameplayAbilityTargetData_LocationInfo::NetSerialize( FArchive & archive, UPackageMap * package_map, bool & success )
-{
-    return FGameplayAbilityTargetData_LocationInfo::NetSerialize( archive, package_map, success );
 }

@@ -1,28 +1,28 @@
-#include "Targeting/GASExtTargetType.h"
+#include "Targeting/GASExtTargetDataGenerator.h"
 
 #include <Abilities/GameplayAbilityTypes.h>
 #include <AbilitySystemBlueprintLibrary.h>
 #include <Kismet/KismetSystemLibrary.h>
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_EventData::GetTargetData( AActor * /*ability_owner*/, const FHitResult & /*hit_result*/, const FGameplayEventData & event_data ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTargetData( AActor * /*ability_owner*/, const FGameplayEventData & event_data ) const
 {
     return FGameplayAbilityTargetDataHandle( event_data.TargetData );
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_HitResult::GetTargetData( AActor * /*ability_owner*/, const FHitResult & hit_result, const FGameplayEventData & /*event_data*/ ) const
-{
-    auto * new_data = new FGameplayAbilityTargetData_SingleTargetHit( hit_result );
-    return FGameplayAbilityTargetDataHandle( new_data );
-}
+//FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_HitResult::GetTargetData( AActor * /*ability_owner*/, const FGameplayEventData & /*event_data*/  ) const
+//{
+//    auto * new_data = new FGameplayAbilityTargetData_SingleTargetHit( FHitResult() );
+//    return FGameplayAbilityTargetDataHandle( new_data );
+//}
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_GetOwner::GetTargetData( AActor * ability_owner, const FHitResult & /*hit_result*/, const FGameplayEventData & /*event_data*/ ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_GetOwner::GetTargetData( AActor * ability_owner, const FGameplayEventData & /*event_data*/  ) const
 {
     auto * new_data = new FGameplayAbilityTargetData_ActorArray();
     new_data->TargetActorArray.Add( ability_owner );
     return FGameplayAbilityTargetDataHandle( new_data );
 }
 
-UGASExtTargetType_SphereOverlapBase::UGASExtTargetType_SphereOverlapBase()
+UGASExtTargetDataGenerator_SphereOverlapBase::UGASExtTargetDataGenerator_SphereOverlapBase()
 {
     SphereRadius = 1.0f;
     ObjectTypes.Add( UEngineTypes::ConvertToObjectType( ECC_Pawn ) );
@@ -33,7 +33,7 @@ UGASExtTargetType_SphereOverlapBase::UGASExtTargetType_SphereOverlapBase()
     SphereCenterOffset = FVector::ZeroVector;
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapBase::GetTargetDataAtLocation( AActor * ability_owner, const FVector location ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapBase::GetTargetDataAtLocation( AActor * ability_owner, const FVector location ) const
 {
     TArray< AActor * > hit_actors;
 
@@ -83,12 +83,12 @@ FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapBase::GetTargetD
     return FGameplayAbilityTargetDataHandle( new_data );
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & /*event_data*/ ) const
-{
-    return GetTargetDataAtLocation( ability_owner, hit_result.ImpactPoint );
-}
+//FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapAtHitResult::GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const
+//{
+//    return GetTargetDataAtLocation( ability_owner, ability_owner->GetActorLocation() );
+//}
 
-FGameplayAbilityTargetDataHandle UGASExtTargetType_SphereOverlapAtAbilityOwner::GetTargetData( AActor * ability_owner, const FHitResult & hit_result, const FGameplayEventData & event_data ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlapAtAbilityOwner::GetTargetData( AActor * ability_owner, const FGameplayEventData & event_data ) const
 {
     return GetTargetDataAtLocation( ability_owner, ability_owner->GetActorLocation() );
 }
