@@ -107,6 +107,9 @@ struct GASEXTENSIONS_API FGASExtGameplayEffectContainer
     EGASExtGetTargetDataExecutionType TargetDataExecutionType;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
+    TMap< FGameplayTag, FScalableFloat > SetByCallerTagsToMagnitudeMap;
+
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TArray< TSubclassOf< UGameplayEffect > > TargetGameplayEffectClasses;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "GameplayEffectContainer" )

@@ -25,6 +25,12 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
             if ( ensureAlwaysMsgf( gameplay_effect_class != nullptr, TEXT( "Can not provide a null class in the TargetEffectClasses of the gameplay effect container" ) ) )
             {
                 const auto gameplay_effect_spec_handle = ability->MakeOutgoingGameplayEffectSpec( gameplay_effect_class, static_cast< float >( level ) );
+
+                for ( const auto & [ tag, magnitude ] : effect_container.SetByCallerTagsToMagnitudeMap )
+                {
+                    gameplay_effect_spec_handle.Data.Get()->SetSetByCallerMagnitude( tag, magnitude.GetValue() );
+                }
+
                 if ( auto * context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_spec_handle.Data->GetContext().Get() ) )
                 {
                     context->SetFallOffType( effect_container.FallOffType );
@@ -173,4 +179,44 @@ TSubclassOf< UGameplayEffect > UGASExtAbilitySystemFunctionLibrary::GetGameplayE
     }
 
     return nullptr;
+}
+
+void UGASExtAbilitySystemFunctionLibrary::CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( FGameplayEffectSpec * gameplay_effect_spec )
+{
+    if ( gameplay_effect_spec == nullptr )
+    {
+        return;
+    }
+
+    for ( auto handle : gameplay_effect_spec->TargetEffectSpecs )
+    {
+        if ( !handle.Data.IsValid() )
+        {
+            continue;
+        }
+
+        handle.Data->SetByCallerTagMagnitudes.Append( gameplay_effect_spec->SetByCallerTagMagnitudes );
+        CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( handle.Data.Get() );
+    }
+}
+
+void UGASExtAbilitySystemFunctionLibrary::AddDynamicAssetTagToSpecAndChildren( FGameplayEffectSpec * gameplay_effect_spec, const FGameplayTag gameplay_tag )
+{
+    if ( gameplay_effect_spec == nullptr )
+    {
+        return;
+    }
+
+    gameplay_effect_spec->AddDynamicAssetTag( gameplay_tag );
+
+    for ( auto handle : gameplay_effect_spec->TargetEffectSpecs )
+    {
+        if ( !handle.Data.IsValid() )
+        {
+            continue;
+        }
+
+        handle.Data->AddDynamicAssetTag( gameplay_tag );
+        AddDynamicAssetTagToSpecAndChildren( handle.Data.Get(), gameplay_tag );
+    }
 }

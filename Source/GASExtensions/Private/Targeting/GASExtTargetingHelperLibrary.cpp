@@ -14,15 +14,15 @@ namespace
         const auto camera_to_center = ability_center - camera_location;
         const auto dot_to_center = FVector::DotProduct( camera_to_center, camera_direction );
 
-        if ( dot_to_center >= 0 ) //If this fails, we're pointed away from the center, but we might be inside the sphere and able to find a good exit point.
+        if ( dot_to_center >= 0 ) // If this fails, we're pointed away from the center, but we might be inside the sphere and able to find a good exit point.
         {
             const auto distance_squared = camera_to_center.SizeSquared() - ( dot_to_center * dot_to_center );
             const auto radius_squared = ( ability_range * ability_range );
             if ( distance_squared <= radius_squared )
             {
                 const auto distance_from_camera = FMath::Sqrt( radius_squared - distance_squared );
-                const auto distance_along_ray = dot_to_center + distance_from_camera;           //Subtracting instead of adding will get the other intersection point
-                clipped_position = camera_location + ( distance_along_ray * camera_direction ); //Cam aim point clipped to range sphere
+                const auto distance_along_ray = dot_to_center + distance_from_camera;           // Subtracting instead of adding will get the other intersection point
+                clipped_position = camera_location + ( distance_along_ray * camera_direction ); // Cam aim point clipped to range sphere
                 return true;
             }
         }
