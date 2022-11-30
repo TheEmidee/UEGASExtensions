@@ -2,6 +2,7 @@
 
 #include "DVEDataValidator.h"
 
+#include <AbilitySystemComponent.h>
 #include <Engine/AssetManager.h>
 #include <GameFeaturesSubsystemSettings.h>
 

@@ -1,6 +1,7 @@
 #include "GASExtActorWithAbilities.h"
 
 #include "Abilities/GASExtAbilitySet.h"
+#include "Components/GASExtAbilitySystemComponent.h"
 
 AGASExtActorWithAbilities::AGASExtActorWithAbilities()
 {

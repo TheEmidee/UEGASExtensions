@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Abilities/GameplayAbilityTargetDataFilter.h>
+#include <Abilities/GameplayAbilityTargetTypes.h>
 #include <CoreMinimal.h>
 #include <UObject/NoExportTypes.h>
 

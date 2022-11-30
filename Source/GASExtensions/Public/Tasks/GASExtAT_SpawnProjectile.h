@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Projectiles/GASExtProjectile.h"
+
 #include <Abilities/Tasks/AbilityTask.h>
 #include <CoreMinimal.h>
 
 #include "GASExtAT_SpawnProjectile.generated.h"
-
-class AGASExtProjectile;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FSWOnSpawnActorDelegate, AActor *, SpawnedActor );
 

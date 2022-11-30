@@ -1,11 +1,13 @@
 #pragma once
 
+#include <AbilitySystemComponent.h>
 #include <AbilitySystemInterface.h>
 #include <CoreMinimal.h>
 #include <GameFramework/Actor.h>
 
 #include "GASExtActorWithAbilities.generated.h"
 
+class UGameplayEffect;
 class UGASExtAbilitySet;
 class UGASExtAbilityTagRelationshipMapping;
 class UGASExtAbilitySystemComponent;
