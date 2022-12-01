@@ -3,16 +3,17 @@
 #include <CoreMinimal.h>
 #include <EnvironmentQuery/EnvQueryTest.h>
 
-#include "GASExtEnvQueryTest_Attribute.generated.h"
+#include "GASExtEnvQueryTest_GameplayAttribute.generated.h"
 
 UCLASS()
-class GASEXTENSIONS_API UGASExtEnvQueryTest_Attribute final : public UEnvQueryTest
+class GASEXTENSIONS_API UGASExtEnvQueryTest_GameplayAttribute final : public UEnvQueryTest
 {
     GENERATED_BODY()
 
 protected:
     void RunTest( FEnvQueryInstance & query_instance ) const override;
     FText GetDescriptionDetails() const override;
+    FText GetDescriptionTitle() const override;
 
     UPROPERTY( EditAnywhere, Category = "Attribute" )
     FGameplayAttribute Attribute;

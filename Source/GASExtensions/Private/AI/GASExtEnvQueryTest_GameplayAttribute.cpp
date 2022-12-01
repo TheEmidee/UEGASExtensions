@@ -1,8 +1,8 @@
-#include "AI/GASExtEnvQueryTest_Attribute.h"
+#include "AI/GASExtEnvQueryTest_GameplayAttribute.h"
 
 #include <AbilitySystemBlueprintLibrary.h>
 
-void UGASExtEnvQueryTest_Attribute::RunTest( FEnvQueryInstance & query_instance ) const
+void UGASExtEnvQueryTest_GameplayAttribute::RunTest( FEnvQueryInstance & query_instance ) const
 {
     const UObject * query_owner = query_instance.Owner.Get();
     if ( query_owner == nullptr )
@@ -43,7 +43,14 @@ void UGASExtEnvQueryTest_Attribute::RunTest( FEnvQueryInstance & query_instance 
     }
 }
 
-FText UGASExtEnvQueryTest_Attribute::GetDescriptionDetails() const
+FText UGASExtEnvQueryTest_GameplayAttribute::GetDescriptionDetails() const
 {
     return FText::FromString( Attribute.GetName() );
+}
+
+FText UGASExtEnvQueryTest_GameplayAttribute::GetDescriptionTitle() const
+{
+    return FText::FromString( FString::Printf( TEXT( "%s: %s" ),
+        *Super::GetDescriptionTitle().ToString(),
+        *Attribute.GetName() ) );
 }
