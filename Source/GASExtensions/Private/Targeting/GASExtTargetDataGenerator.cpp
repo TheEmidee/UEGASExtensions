@@ -51,7 +51,7 @@ namespace
     }
 }
 
-FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTargetData( const FGameplayEffectContext *, const FGameplayEventData & event_data ) const
+FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTargetData( const FGameplayEffectContext * /*gameplay_effect_context*/, const FGameplayEventData & event_data ) const
 {
     return FGameplayAbilityTargetDataHandle( event_data.TargetData );
 }
@@ -146,7 +146,7 @@ TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlap::GetSourceLocation
     TOptional< FVector > source_location;
 
     const auto set_source_location_from_actor = [ &source_location ]( const AActor * actor ) {
-        if ( actor != nullptr )
+        if ( !IsValid( actor ) )
         {
             source_location = actor->GetActorLocation();
         }
