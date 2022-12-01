@@ -25,6 +25,13 @@ enum class EGASExtProjectileImpactDetectionType : uint8
     Overlap
 };
 
+UENUM( BlueprintType )
+enum class EGASExtProjectileApplyGameplayEffectsPhase : uint8
+{
+    OnHit,
+    WhenDestroyed
+};
+
 UCLASS()
 class GASEXTENSIONS_API AGASExtProjectile : public AActor
 {
@@ -82,7 +89,7 @@ protected:
     FGASExtGameplayEffectContainerSpec GameplayEffectContainerSpec;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile" )
-    uint8 bShouldApplyGameplayEffectsOnDestroyed : 1;
+    EGASExtProjectileApplyGameplayEffectsPhase ApplyGameplayEffectsPhase;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile", meta = ( AllowPrivateAccess = true ) )
     EGASExtProjectileImpactDetectionType ImpactDetectionType;

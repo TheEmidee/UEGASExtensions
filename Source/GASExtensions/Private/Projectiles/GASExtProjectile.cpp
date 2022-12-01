@@ -32,7 +32,7 @@ AGASExtProjectile::AGASExtProjectile()
     ImpactDetectionType = EGASExtProjectileImpactDetectionType::Hit;
     bIgnoreImpactWithInstigator = true;
     IsInOverlap = false;
-    bShouldApplyGameplayEffectsOnDestroyed = false;
+    ApplyGameplayEffectsPhase = EGASExtProjectileApplyGameplayEffectsPhase::OnHit;
     bUseHitResultAsLocationForGameplayEffects = true;
 }
 
@@ -86,7 +86,7 @@ void AGASExtProjectile::Destroyed()
         projectile->UpdateDestroyedGameplayCueParameters( gameplay_cue_parameters );
     } );
 
-    if ( bShouldApplyGameplayEffectsOnDestroyed )
+    if ( ApplyGameplayEffectsPhase == EGASExtProjectileApplyGameplayEffectsPhase::WhenDestroyed )
     {
         ApplyGameplayEffects();
     }
@@ -171,7 +171,7 @@ void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
 
 void AGASExtProjectile::PostProcessHit( const FHitResult & /*hit_result*/ )
 {
-    if ( !bShouldApplyGameplayEffectsOnDestroyed )
+    if ( ApplyGameplayEffectsPhase == EGASExtProjectileApplyGameplayEffectsPhase::OnHit )
     {
         ApplyGameplayEffects();
     }
