@@ -1,6 +1,19 @@
 #include "AI/GASExtEnvQueryTest_GameplayAttribute.h"
 
 #include <AbilitySystemBlueprintLibrary.h>
+#include <EnvironmentQuery/Items/EnvQueryItemType_ActorBase.h>
+
+UGASExtEnvQueryTest_GameplayAttribute::UGASExtEnvQueryTest_GameplayAttribute( const FObjectInitializer & object_initializer )
+{
+    Cost = EEnvTestCost::Low;
+    SetWorkOnFloatValues( true );
+
+    // To search for GameplayTags, currently we require the item type to be an actor.  Certainly it must at least be a
+    // class of some sort to be able to find the interface required.
+    ValidItemType = UEnvQueryItemType_ActorBase::StaticClass();
+
+    bRejectIncompatibleItems = false;
+}
 
 void UGASExtEnvQueryTest_GameplayAttribute::RunTest( FEnvQueryInstance & query_instance ) const
 {
