@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GASExtGameplayAbility.h"
+
 #include <CoreMinimal.h>
 #include <Engine/DataAsset.h>
 #include <GameplayAbilitySpec.h>
@@ -7,7 +9,6 @@
 
 #include "GASExtAbilitySet.generated.h"
 
-class UGASExtGameplayAbility;
 class UGameplayEffect;
 class UAttributeSet;
 class UAbilitySystemComponent;

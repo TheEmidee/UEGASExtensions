@@ -1,5 +1,7 @@
 #include "BlueprintAsyncActions/GASExtAsyncTaskWaitGERemoved.h"
 
+#include <AbilitySystemComponent.h>
+
 UGASExtAsyncTaskWaitGERemoved * UGASExtAsyncTaskWaitGERemoved::WaitGameplayEffectRemovedWithTags( UAbilitySystemComponent * ability_system_component, FGameplayTagContainer gameplay_effect_owned_tags, bool trigger_if_no_initial_matching_effect /*= true*/ )
 {
     return WaitGameplayEffectRemovedWithQuery( ability_system_component, FGameplayEffectQuery::MakeQuery_MatchAllEffectTags( gameplay_effect_owned_tags ), trigger_if_no_initial_matching_effect );

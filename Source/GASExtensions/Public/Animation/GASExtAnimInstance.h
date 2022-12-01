@@ -2,8 +2,11 @@
 
 #include <Animation/AnimInstance.h>
 #include <CoreMinimal.h>
+#include <GameplayEffectTypes.h>
 
 #include "GASExtAnimInstance.generated.h"
+
+class UAbilitySystemComponent;
 
 UCLASS()
 class GASEXTENSIONS_API UGASExtAnimInstance : public UAnimInstance

@@ -2,6 +2,8 @@
 
 #include "GASExtLog.h"
 
+#include <AbilitySystemComponent.h>
+
 void FGASExtAbilitySet_GrantedHandles::AddAbilitySpecHandle( const FGameplayAbilitySpecHandle & handle )
 {
     if ( handle.IsValid() )

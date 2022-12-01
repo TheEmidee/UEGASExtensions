@@ -1,5 +1,6 @@
 #include "Projectiles/GASExtProjectileMovementComponent.h"
 
+#include <Components/PrimitiveComponent.h>
 #include <Net/UnrealNetwork.h>
 
 UGASExtProjectileMovementComponent::UGASExtProjectileMovementComponent() :

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ScalableFloat.h>
+
 #include "GASExtFallOffType.generated.h"
 
 class UCurveFloat;

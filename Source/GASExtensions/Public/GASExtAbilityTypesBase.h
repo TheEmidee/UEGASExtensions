@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Targeting/GASExtTargetType.h"
+#include "Targeting/GASExtTargetDataGenerator.h"
 
 #include <Abilities/GameplayAbilityTargetTypes.h>
 #include <Abilities/GameplayAbilityTypes.h>
@@ -9,10 +9,11 @@
 
 #include "GASExtAbilityTypesBase.generated.h"
 
+class UGASExtTargetDataFilter;
 class UGASExtFallOffType;
 class ASWSpline;
 class UGameplayEffect;
-class UGASExtTargetType;
+class UGASExtTargetDataGenerator;
 
 UENUM( BlueprintType )
 enum class EGASExtAbilityActivationPolicy : uint8
@@ -100,17 +101,30 @@ struct GASEXTENSIONS_API FGASExtGameplayEffectContainer
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
     UGASExtFallOffType * FallOffType;
 
+    /*
+    Allows to give additional targets to apply the gameplay effect to
+    If the effect container is created with a pre-defined target data,the target data generator will append the targets to the pre-defined one
+     */
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
-    UGASExtTargetType * TargetType;
+    UGASExtTargetDataGenerator * AdditionalTargetDataGenerator;
 
-    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "TargetType != nullptr", EditConditionHides ) )
-    EGASExtGetTargetDataExecutionType TargetDataExecutionType;
+    /*
+    Defines when the AdditionalTargetDataGenerator (if defined) is used to append target data.
+    OnEffectContextCreation will generate the target data when the effect container spec if created
+    OnEffectContextApplication will generate the data when the container is applied. This is useful for projectiles for example when we want to
+    apply the gameplay effects of the container where the projectile exploded
+     */
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer", meta = ( EditCondition = "AdditionalTargetDataGenerator != nullptr", EditConditionHides ) )
+    EGASExtTargetDataGenerationPhase TargetDataGenerationPhase;
+
+    UPROPERTY( EditAnywhere, BlueprintReadOnly, Instanced, Category = "GameplayEffectContainer" )
+    TArray< UGASExtTargetDataFilter * > TargetDataFilters;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TMap< FGameplayTag, FScalableFloat > SetByCallerTagsToMagnitudeMap;
 
     UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "GameplayEffectContainer" )
-    TArray< TSubclassOf< UGameplayEffect > > TargetGameplayEffectClasses;
+    TSubclassOf< UGameplayEffect > GameplayEffect;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "GameplayEffectContainer" )
     TArray< FGameplayTag > GameplayEventTags;
@@ -125,7 +139,7 @@ struct GASEXTENSIONS_API FGASExtGameplayEffectContainerSpec
     FGameplayAbilityTargetDataHandle TargetData;
 
     UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
-    TArray< FGameplayEffectSpecHandle > TargetGameplayEffectSpecHandles;
+    FGameplayEffectSpecHandle GameplayEffectSpecHandle;
 
     UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
     TArray< FGameplayTag > GameplayEventTags;
@@ -137,7 +151,7 @@ struct GASEXTENSIONS_API FGASExtGameplayEffectContainerSpec
     FGameplayEventData EventDataPayload;
 
     UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
-    EGASExtGetTargetDataExecutionType TargetDataExecutionType;
+    EGASExtTargetDataGenerationPhase TargetDataExecutionType;
 };
 
 USTRUCT( BlueprintType )
@@ -150,20 +164,26 @@ public:
 
     UScriptStruct * GetScriptStruct() const override;
     FGameplayEffectContext * Duplicate() const override;
-    bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success ) override;
+    bool NetSerialize( FArchive & ar, UPackageMap * map, bool & out_success );
 
     UGASExtFallOffType * GetFallOffType() const;
     void SetFallOffType( UGASExtFallOffType * fall_off_type );
 
-    UGASExtTargetType * GetTargetType() const;
-    void SetTargetType( UGASExtTargetType * target_type );
+    UGASExtTargetDataGenerator * GetAdditionalTargetDataGenerator() const;
+    void SetAdditionalTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator );
+
+    UGASExtTargetDataFilter * GetTargetDataFilter() const;
+    void SetTargetDataFilter( UGASExtTargetDataFilter * fall_off_type );
 
 protected:
     UPROPERTY()
     UGASExtFallOffType * FallOffType;
 
     UPROPERTY()
-    UGASExtTargetType * TargetType;
+    UGASExtTargetDataGenerator * AdditionalTargetDataGenerator;
+
+    UPROPERTY()
+    UGASExtTargetDataFilter * TargetDataFilter;
 };
 
 FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const
@@ -171,9 +191,29 @@ FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() 
     return FallOffType;
 }
 
-FORCEINLINE UGASExtTargetType * FGASExtGameplayEffectContext::GetTargetType() const
+FORCEINLINE void FGASExtGameplayEffectContext::SetFallOffType( UGASExtFallOffType * fall_off_type )
 {
-    return TargetType;
+    FallOffType = fall_off_type;
+}
+
+FORCEINLINE UGASExtTargetDataGenerator * FGASExtGameplayEffectContext::GetAdditionalTargetDataGenerator() const
+{
+    return AdditionalTargetDataGenerator;
+}
+
+FORCEINLINE void FGASExtGameplayEffectContext::SetAdditionalTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator )
+{
+    AdditionalTargetDataGenerator = target_data_generator;
+}
+
+FORCEINLINE UGASExtTargetDataFilter * FGASExtGameplayEffectContext::GetTargetDataFilter() const
+{
+    return TargetDataFilter;
+}
+
+FORCEINLINE void FGASExtGameplayEffectContext::SetTargetDataFilter( UGASExtTargetDataFilter * target_data_filter )
+{
+    TargetDataFilter = target_data_filter;
 }
 
 template <>
@@ -205,8 +245,6 @@ struct GASEXTENSIONS_API FGASExtGameplayAbilityTargetData_LocationInfo : public 
     {
         return TEXT( "FGASExtGameplayAbilityTargetData_LocationInfo" );
     }
-
-    bool NetSerialize( FArchive & archive, class UPackageMap * package_map, bool & success );
 };
 
 template <>

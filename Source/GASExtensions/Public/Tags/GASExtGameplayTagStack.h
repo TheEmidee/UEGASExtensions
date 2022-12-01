@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GameplayTagContainer.h"
-
 #include <CoreMinimal.h>
+#include <GameplayTagContainer.h>
+#include <Net/Serialization/FastArraySerializer.h>
 
 #include "GASExtGameplayTagStack.generated.h"
 

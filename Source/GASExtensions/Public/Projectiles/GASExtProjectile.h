@@ -12,7 +12,7 @@
 
 class UGASExtGameplayAbility;
 struct FGASExtGameplayEffectContainerSpec;
-class UGASExtTargetType;
+class UGASExtTargetDataGenerator;
 class UGASExtProjectileMovementComponent;
 class USphereComponent;
 class USceneComponent;
@@ -23,6 +23,13 @@ enum class EGASExtProjectileImpactDetectionType : uint8
 {
     Hit,
     Overlap
+};
+
+UENUM( BlueprintType )
+enum class EGASExtProjectileApplyGameplayEffectsPhase : uint8
+{
+    OnHit,
+    WhenDestroyed
 };
 
 UCLASS()
@@ -82,7 +89,7 @@ protected:
     FGASExtGameplayEffectContainerSpec GameplayEffectContainerSpec;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile" )
-    uint8 bShouldApplyGameplayEffectsOnDestroyed : 1;
+    EGASExtProjectileApplyGameplayEffectsPhase ApplyGameplayEffectsPhase;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile", meta = ( AllowPrivateAccess = true ) )
     EGASExtProjectileImpactDetectionType ImpactDetectionType;

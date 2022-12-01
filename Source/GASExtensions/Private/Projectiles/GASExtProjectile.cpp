@@ -3,7 +3,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GASExtAbilitySystemFunctionLibrary.h"
 #include "Projectiles/GASExtProjectileMovementComponent.h"
-#include "Targeting/GASExtTargetType.h"
+#include "Targeting/GASExtTargetDataGenerator.h"
 
 #include <Engine.h>
 #include <Kismet/KismetMathLibrary.h>
@@ -32,7 +32,7 @@ AGASExtProjectile::AGASExtProjectile()
     ImpactDetectionType = EGASExtProjectileImpactDetectionType::Hit;
     bIgnoreImpactWithInstigator = true;
     IsInOverlap = false;
-    bShouldApplyGameplayEffectsOnDestroyed = false;
+    ApplyGameplayEffectsPhase = EGASExtProjectileApplyGameplayEffectsPhase::OnHit;
     bUseHitResultAsLocationForGameplayEffects = true;
 }
 
@@ -86,7 +86,7 @@ void AGASExtProjectile::Destroyed()
         projectile->UpdateDestroyedGameplayCueParameters( gameplay_cue_parameters );
     } );
 
-    if ( bShouldApplyGameplayEffectsOnDestroyed )
+    if ( ApplyGameplayEffectsPhase == EGASExtProjectileApplyGameplayEffectsPhase::WhenDestroyed )
     {
         ApplyGameplayEffects();
     }
@@ -110,18 +110,23 @@ bool AGASExtProjectile::ShouldIgnoreHit_Implementation( AActor * other_actor, UP
 
 void AGASExtProjectile::ApplyGameplayEffects()
 {
-    for ( const auto & effect_spec : GameplayEffectContainerSpec.TargetGameplayEffectSpecHandles )
+    if ( !GameplayEffectContainerSpec.GameplayEffectSpecHandle.IsValid() )
     {
-        auto * context = effect_spec.Data->GetContext().Get();
+        return;
+    }
+
+    if ( auto * context = GameplayEffectContainerSpec.GameplayEffectSpecHandle.Data->GetContext().Get() )
+    {
         context->SetEffectCauser( this );
 
         if ( bUseHitResultAsLocationForGameplayEffects )
         {
             context->AddHitResult( LastHitResult, true );
         }
-    }
 
-    UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
+        UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
+        UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
+    }
 }
 
 void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
@@ -166,7 +171,7 @@ void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
 
 void AGASExtProjectile::PostProcessHit( const FHitResult & /*hit_result*/ )
 {
-    if ( !bShouldApplyGameplayEffectsOnDestroyed )
+    if ( ApplyGameplayEffectsPhase == EGASExtProjectileApplyGameplayEffectsPhase::OnHit )
     {
         ApplyGameplayEffects();
     }

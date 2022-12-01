@@ -2,6 +2,7 @@
 
 #include <AIController.h>
 #include <AbilitySystemBlueprintLibrary.h>
+#include <AbilitySystemComponent.h>
 #include <BehaviorTree/Blackboard/BlackboardKeyType_Object.h>
 #include <BehaviorTree/BlackboardComponent.h>
 

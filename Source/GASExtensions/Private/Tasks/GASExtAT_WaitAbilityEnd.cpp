@@ -1,5 +1,7 @@
 #include "Tasks/GASExtAT_WaitAbilityEnd.h"
 
+#include <AbilitySystemComponent.h>
+
 UGASExtAT_WaitAbilityEnd * UGASExtAT_WaitAbilityEnd::WaitAbilityEnd( UGameplayAbility * owning_ability,
     const FGameplayAbilitySpecHandle & ability_spec_handle,
     UAbilitySystemComponent * optional_asc /*= nullptr*/,
