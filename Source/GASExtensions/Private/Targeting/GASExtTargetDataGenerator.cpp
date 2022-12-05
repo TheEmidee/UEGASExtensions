@@ -156,7 +156,7 @@ TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlap::GetSourceLocation
     {
         case EGASExtTargetDataGeneratorActorSource::AbilityAvatar:
         {
-            if ( auto * ability = gameplay_effect_context->GetAbility() )
+            if ( auto * ability = gameplay_effect_context->GetAbilityInstance_NotReplicated() )
             {
                 if ( auto * current_actor_info = ability->GetCurrentActorInfo() )
                 {
