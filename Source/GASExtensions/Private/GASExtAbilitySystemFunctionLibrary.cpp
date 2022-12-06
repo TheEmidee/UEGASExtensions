@@ -141,6 +141,11 @@ float UGASExtAbilitySystemFunctionLibrary::GetScalableFloatValue( const FScalabl
     return scalable_float.GetValue();
 }
 
+float UGASExtAbilitySystemFunctionLibrary::GetScalableFloatValueAtLevel( const FScalableFloat & scalable_float, const int level )
+{
+    return scalable_float.GetValueAtLevel( level );
+}
+
 bool UGASExtAbilitySystemFunctionLibrary::IsGameplayEffectHandleValid( const FActiveGameplayEffectHandle gameplay_effect_handle )
 {
     return gameplay_effect_handle.IsValid();

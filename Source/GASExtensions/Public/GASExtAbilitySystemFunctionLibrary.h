@@ -40,6 +40,9 @@ public:
     UFUNCTION( BlueprintPure, Category = "Ability|AttributeSet" )
     static float GetScalableFloatValue( const FScalableFloat & scalable_float );
 
+    UFUNCTION( BlueprintPure, Category = "Ability|AttributeSet" )
+    static float GetScalableFloatValueAtLevel( const FScalableFloat & scalable_float, int level );
+
     UFUNCTION( BlueprintPure, Category = "Ability|GameplayEffects" )
     static bool IsGameplayEffectHandleValid( FActiveGameplayEffectHandle gameplay_effect_handle );
 
