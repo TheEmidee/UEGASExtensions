@@ -11,7 +11,7 @@ namespace
     {
         if ( ( source & EGASExtTargetDataGeneratorActorSource::AbilityAvatar ) == EGASExtTargetDataGeneratorActorSource::AbilityAvatar )
         {
-            if ( auto * ability = gameplay_effect_context->GetAbility() )
+            if ( auto * ability = gameplay_effect_context->GetAbilityInstance_NotReplicated() )
             {
                 if ( auto * current_actor_info = ability->GetCurrentActorInfo() )
                 {
