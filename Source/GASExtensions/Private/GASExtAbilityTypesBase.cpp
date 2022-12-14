@@ -1,7 +1,6 @@
 #include "GASExtAbilityTypesBase.h"
 
 #include "FallOff/GASExtFallOffType.h"
-#include "Targeting/GASExtTargetDataFilter.h"
 
 FGASExtGameplayEffectContainer::FGASExtGameplayEffectContainer()
 {
@@ -14,7 +13,6 @@ FGASExtGameplayEffectContext::FGASExtGameplayEffectContext()
 {
     FallOffType = nullptr;
     AdditionalTargetDataGenerator = nullptr;
-    TargetDataFilter = nullptr;
 }
 
 UScriptStruct * FGASExtGameplayEffectContext::GetScriptStruct() const
@@ -78,7 +76,7 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
         {
             RepBits |= 1 << 8;
         }
-        if ( IsValid( TargetDataFilter ) )
+        if ( TargetDataFilters.Num() > 0 )
         {
             RepBits |= 1 << 9;
         }
@@ -139,7 +137,7 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
 
     if ( RepBits & ( 1 << 9 ) )
     {
-        ar << TargetDataFilter;
+        ar << TargetDataFilters;
     }
 
     if ( ar.IsLoading() )
