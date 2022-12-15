@@ -172,8 +172,8 @@ public:
     UGASExtTargetDataGenerator * GetAdditionalTargetDataGenerator() const;
     void SetAdditionalTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator );
 
-    UGASExtTargetDataFilter * GetTargetDataFilter() const;
-    void SetTargetDataFilter( UGASExtTargetDataFilter * fall_off_type );
+    TArray< UGASExtTargetDataFilter * > GetTargetDataFilters() const;
+    void SetTargetDataFilters( TArray< UGASExtTargetDataFilter * > target_data_filters );
 
 protected:
     UPROPERTY()
@@ -183,7 +183,7 @@ protected:
     UGASExtTargetDataGenerator * AdditionalTargetDataGenerator;
 
     UPROPERTY()
-    UGASExtTargetDataFilter * TargetDataFilter;
+    TArray< UGASExtTargetDataFilter * > TargetDataFilters;
 };
 
 FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const
@@ -206,14 +206,14 @@ FORCEINLINE void FGASExtGameplayEffectContext::SetAdditionalTargetDataGenerator(
     AdditionalTargetDataGenerator = target_data_generator;
 }
 
-FORCEINLINE UGASExtTargetDataFilter * FGASExtGameplayEffectContext::GetTargetDataFilter() const
+FORCEINLINE TArray< UGASExtTargetDataFilter * > FGASExtGameplayEffectContext::GetTargetDataFilters() const
 {
-    return TargetDataFilter;
+    return TargetDataFilters;
 }
 
-FORCEINLINE void FGASExtGameplayEffectContext::SetTargetDataFilter( UGASExtTargetDataFilter * target_data_filter )
+FORCEINLINE void FGASExtGameplayEffectContext::SetTargetDataFilters( TArray< UGASExtTargetDataFilter * > target_data_filters )
 {
-    TargetDataFilter = target_data_filter;
+    TargetDataFilters = target_data_filters;
 }
 
 template <>

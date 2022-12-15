@@ -30,6 +30,7 @@ FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffe
                 if ( auto * gas_ext_gameplay_effect_context = static_cast< FGASExtGameplayEffectContext * >( gameplay_effect_context ) )
                 {
                     gas_ext_gameplay_effect_context->SetFallOffType( effect_container.FallOffType );
+                    gas_ext_gameplay_effect_context->SetTargetDataFilters( effect_container.TargetDataFilters );
 
                     if ( effect_container.TargetDataGenerationPhase == EGASExtTargetDataGenerationPhase::OnEffectContextApplication )
                     {
@@ -79,9 +80,12 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
                 target_data_handle = effect_container_spec.TargetData;
             }
 
-            if ( const auto * target_data_filter = context->GetTargetDataFilter() )
+            for ( const auto * target_data_filter : context->GetTargetDataFilters() )
             {
-                target_data_handle = target_data_filter->FilterTargetData( target_data_handle );
+                if ( IsValid( target_data_filter ) )
+                {
+                    target_data_handle = target_data_filter->FilterTargetData( target_data_handle );
+                }
             }
         }
 
