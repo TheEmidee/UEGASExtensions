@@ -125,7 +125,6 @@ void AGASExtProjectile::ApplyGameplayEffects()
         }
 
         UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
-        UGASExtAbilitySystemFunctionLibrary::ApplyGameplayEffectContainerSpec( GameplayEffectContainerSpec );
     }
 }
 
