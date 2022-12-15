@@ -14,7 +14,6 @@ FGameplayTargetDataFilterHandle UGASExtTargetDataFilter::MakeFilterHandle() cons
 
 UGASExtTargetDataFilter_IsActorOfClass::UGASExtTargetDataFilter_IsActorOfClass()
 {
-    Filter.RequiredActorClass = RequiredActorClass;
     Filter.SelfFilter = ETargetDataFilterSelf::TDFS_Any;
 }
 
@@ -23,6 +22,7 @@ FGameplayTargetDataFilterHandle UGASExtTargetDataFilter_IsActorOfClass::MakeFilt
     FGameplayTargetDataFilterHandle handle;
 
     const auto new_filter = MakeShared< FGameplayTargetDataFilter >( Filter );
+    new_filter->RequiredActorClass = RequiredActorClass;
     new_filter->InitializeFilterContext( nullptr );
     handle.Filter = new_filter;
 
