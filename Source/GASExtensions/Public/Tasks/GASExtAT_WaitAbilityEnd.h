@@ -32,7 +32,7 @@ private:
     FGASExtOnAbilityEndedDelegate OnAbilityEndedDelegate;
 
     UPROPERTY()
-    UAbilitySystemComponent * OptionalASC;
+    TWeakObjectPtr< UAbilitySystemComponent > OptionalASC;
 
     bool bTriggerOnce;
 

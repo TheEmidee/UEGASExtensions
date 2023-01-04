@@ -2,6 +2,7 @@
 
 #include <Abilities/GameplayAbilityTargetTypes.h>
 #include <CoreMinimal.h>
+#include <ScalableFloat.h>
 
 #include "GASExtTargetDataGenerator.generated.h"
 
@@ -33,7 +34,7 @@ class GASEXTENSIONS_API UGASExtTargetDataGenerator : public UObject
     GENERATED_BODY()
 
 public:
-    virtual FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/  ) const
+    virtual FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/ ) const
     {
         return FGameplayAbilityTargetDataHandle();
     }

@@ -27,7 +27,7 @@ void UGASExtAT_WaitTargetData::Activate()
             const auto spec_handle = GetAbilitySpecHandle();
             const auto activation_prediction_key = GetActivationPredictionKey();
 
-            //Since multi-fire is supported, we still need to hook up the callbacks
+            // Since multi-fire is supported, we still need to hook up the callbacks
             AbilitySystemComponent->AbilityTargetDataSetDelegate( spec_handle, activation_prediction_key ).AddUObject( this, &UGASExtAT_WaitTargetData::OnTargetDataReplicatedCallback );
             AbilitySystemComponent->CallReplicatedTargetDataDelegatesIfSet( spec_handle, activation_prediction_key );
             SetWaitingOnRemotePlayerData();
@@ -45,7 +45,7 @@ void UGASExtAT_WaitTargetData::OnDestroy( const bool ability_ended )
 {
     Super::OnDestroy( ability_ended );
 
-    if ( IsValid( AbilitySystemComponent ) )
+    if ( AbilitySystemComponent != nullptr )
     {
         const auto spec_handle = GetAbilitySpecHandle();
         const auto activation_prediction_key = GetActivationPredictionKey();
@@ -61,7 +61,7 @@ bool UGASExtAT_WaitTargetData::OnReplicatedTargetDataReceived( const FGameplayAb
 
 void UGASExtAT_WaitTargetData::OnTargetDataReplicatedCallback( const FGameplayAbilityTargetDataHandle & data, FGameplayTag activation_tag )
 {
-    check( AbilitySystemComponent );
+    check( AbilitySystemComponent != nullptr );
 
     AbilitySystemComponent->ConsumeClientReplicatedTargetData( GetAbilitySpecHandle(), GetActivationPredictionKey() );
 
@@ -82,14 +82,14 @@ void UGASExtAT_WaitTargetData::OnTargetDataReplicatedCallback( const FGameplayAb
 
 void UGASExtAT_WaitTargetData::SendTargetData( const FGameplayAbilityTargetDataHandle & data )
 {
-    check( IsValid( AbilitySystemComponent ) );
+    check( AbilitySystemComponent != nullptr );
     if ( Ability == nullptr )
     {
         return;
     }
 
     FScopedPredictionWindow scoped_prediction(
-        AbilitySystemComponent,
+        AbilitySystemComponent.Get(),
         ShouldReplicateDataToServer() && ( ReplicationOptions.bCreateKeyIfNotValidForMorePredicting && !AbilitySystemComponent->ScopedPredictionKey.IsValidForMorePrediction() ) );
 
     if ( IsPredictingClient() )

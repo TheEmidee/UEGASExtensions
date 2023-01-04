@@ -39,7 +39,7 @@ void UGASExtAT_ServerWaitClientTargetData::OnTargetDataReplicatedCallback( const
 
 void UGASExtAT_ServerWaitClientTargetData::OnDestroy( const bool ability_ended )
 {
-    if ( IsValid( AbilitySystemComponent ) )
+    if ( AbilitySystemComponent.IsValid() )
     {
         const auto spec_handle = GetAbilitySpecHandle();
         const auto activation_prediction_key = GetActivationPredictionKey();

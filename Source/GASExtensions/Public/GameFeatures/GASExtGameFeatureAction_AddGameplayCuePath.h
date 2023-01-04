@@ -8,6 +8,8 @@
 
 #include "GASExtGameFeatureAction_AddGameplayCuePath.generated.h"
 
+class UGameFeatureData;
+
 UCLASS( MinimalAPI, meta = ( DisplayName = "Add Gameplay Cue Path" ) )
 class UGASExtGameFeatureAction_AddGameplayCuePath final : public UGameFeatureAction
 {
@@ -31,8 +33,8 @@ class GASEXTENSIONS_API UGASExtGameFeatureObserver_AddGameplayCuePath : public U
     GENERATED_BODY()
 
 public:
-    void OnGameFeatureRegistering( const UGameFeatureData * game_feature_data, const FString & plugin_name ) override;
-    void OnGameFeatureUnregistering( const UGameFeatureData * game_feature_data, const FString & plugin_name ) override;
+    void OnGameFeatureRegistering( const UGameFeatureData * game_feature_data, const FString & plugin_name, const FString & plugin_url ) override;
+    void OnGameFeatureUnregistering( const UGameFeatureData * game_feature_data, const FString & plugin_name, const FString & plugin_url ) override;
 };
 
 FORCEINLINE const TArray< FDirectoryPath > & UGASExtGameFeatureAction_AddGameplayCuePath::GetDirectoryPathsToAdd() const

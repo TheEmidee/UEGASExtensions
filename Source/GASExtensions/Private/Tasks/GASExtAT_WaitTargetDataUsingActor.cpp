@@ -7,7 +7,7 @@
 
 UGASExtAT_WaitTargetDataUsingActor * UGASExtAT_WaitTargetDataUsingActor::WaitTargetDataWithReusableActor( UGameplayAbility * owning_ability, const FName task_instance_name, const TEnumAsByte< EGameplayTargetingConfirmation::Type > confirmation_type, AGameplayAbilityTargetActor * target_actor, const bool create_key_if_not_valid_for_more_predicting )
 {
-    auto * my_obj = NewAbilityTask< UGASExtAT_WaitTargetDataUsingActor >( owning_ability, task_instance_name ); //Register for task list here, providing a given FName as a key
+    auto * my_obj = NewAbilityTask< UGASExtAT_WaitTargetDataUsingActor >( owning_ability, task_instance_name ); // Register for task list here, providing a given FName as a key
     my_obj->TargetActor = target_actor;
     my_obj->ConfirmationType = confirmation_type;
     my_obj->CreateKeyIfNotValidForMorePredicting = create_key_if_not_valid_for_more_predicting;
@@ -35,20 +35,20 @@ void UGASExtAT_WaitTargetDataUsingActor::Activate()
 
 void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReplicatedCallback( const FGameplayAbilityTargetDataHandle & data, FGameplayTag activation_tag )
 {
-    check( IsValid( AbilitySystemComponent ) );
+    check( AbilitySystemComponent != nullptr );
 
     auto mutable_data = data;
     AbilitySystemComponent->ConsumeClientReplicatedTargetData( GetAbilitySpecHandle(), GetActivationPredictionKey() );
 
     /**
-	 *  Call into the TargetActor to sanitize/verify the data. If this returns false, we are rejecting
-	 *	the replicated target data and will treat this as a cancel.
-	 *
-	 *	This can also be used for bandwidth optimizations. OnReplicatedTargetDataReceived could do an actual
-	 *	trace/check/whatever server side and use that data. So rather than having the client send that data
-	 *	explicitly, the client is basically just sending a 'confirm' and the server is now going to do the work
-	 *	in OnReplicatedTargetDataReceived.
-	 */
+     *  Call into the TargetActor to sanitize/verify the data. If this returns false, we are rejecting
+     *	the replicated target data and will treat this as a cancel.
+     *
+     *	This can also be used for bandwidth optimizations. OnReplicatedTargetDataReceived could do an actual
+     *	trace/check/whatever server side and use that data. So rather than having the client send that data
+     *	explicitly, the client is basically just sending a 'confirm' and the server is now going to do the work
+     *	in OnReplicatedTargetDataReceived.
+     */
     if ( TargetActor != nullptr && !TargetActor->OnReplicatedTargetDataReceived( mutable_data ) )
     {
         if ( ShouldBroadcastAbilityTaskDelegates() )
@@ -72,7 +72,7 @@ void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReplicatedCallback( const F
 
 void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReplicatedCancelledCallback()
 {
-    check( IsValid( AbilitySystemComponent ) );
+    check( AbilitySystemComponent != nullptr );
     if ( ShouldBroadcastAbilityTaskDelegates() )
     {
         Cancelled.Broadcast( FGameplayAbilityTargetDataHandle() );
@@ -82,14 +82,14 @@ void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReplicatedCancelledCallback
 
 void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReadyCallback( const FGameplayAbilityTargetDataHandle & data )
 {
-    check( IsValid( AbilitySystemComponent ) );
+    check( AbilitySystemComponent != nullptr );
     if ( Ability == nullptr )
     {
         return;
     }
 
     FScopedPredictionWindow scoped_prediction(
-        AbilitySystemComponent,
+        AbilitySystemComponent.Get(),
         ShouldReplicateDataToServer() && ( CreateKeyIfNotValidForMorePredicting && !AbilitySystemComponent->ScopedPredictionKey.IsValidForMorePrediction() ) );
 
     if ( IsPredictingClient() )
@@ -119,9 +119,9 @@ void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReadyCallback( const FGamep
 
 void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataCancelledCallback( const FGameplayAbilityTargetDataHandle & Data )
 {
-    check( IsValid( AbilitySystemComponent ) );
+    check( AbilitySystemComponent != nullptr );
 
-    FScopedPredictionWindow scoped_prediction( AbilitySystemComponent, IsPredictingClient() );
+    FScopedPredictionWindow scoped_prediction( AbilitySystemComponent.Get(), IsPredictingClient() );
 
     if ( IsPredictingClient() )
     {
@@ -141,7 +141,7 @@ void UGASExtAT_WaitTargetDataUsingActor::OnTargetDataCancelledCallback( const FG
 
 void UGASExtAT_WaitTargetDataUsingActor::ExternalConfirm( const bool end_task )
 {
-    check( IsValid( AbilitySystemComponent ) );
+    check( AbilitySystemComponent != nullptr );
     if ( TargetActor != nullptr )
     {
         if ( TargetActor->ShouldProduceTargetData() )
@@ -154,7 +154,7 @@ void UGASExtAT_WaitTargetDataUsingActor::ExternalConfirm( const bool end_task )
 
 void UGASExtAT_WaitTargetDataUsingActor::ExternalCancel()
 {
-    check( IsValid( AbilitySystemComponent ) );
+    check( AbilitySystemComponent != nullptr );
     if ( ShouldBroadcastAbilityTaskDelegates() )
     {
         Cancelled.Broadcast( FGameplayAbilityTargetDataHandle() );
@@ -167,7 +167,7 @@ void UGASExtAT_WaitTargetDataUsingActor::InitializeTargetActor() const
     check( TargetActor != nullptr );
     check( Ability != nullptr );
 
-    TargetActor->MasterPC = Ability->GetCurrentActorInfo()->PlayerController.Get();
+    TargetActor->PrimaryPC = Ability->GetCurrentActorInfo()->PlayerController.Get();
 
     // If we spawned the target actor, always register the callbacks for when the data is ready.
     TargetActor->TargetDataReadyDelegate.AddUObject( const_cast< UGASExtAT_WaitTargetDataUsingActor * >( this ), &UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReadyCallback );
@@ -220,7 +220,7 @@ void UGASExtAT_WaitTargetDataUsingActor::RegisterTargetDataCallbacks()
             const auto spec_handle = GetAbilitySpecHandle();
             const auto activation_prediction_key = GetActivationPredictionKey();
 
-            //Since multi-fire is supported, we still need to hook up the callbacks
+            // Since multi-fire is supported, we still need to hook up the callbacks
             AbilitySystemComponent->AbilityTargetDataSetDelegate( spec_handle, activation_prediction_key ).AddUObject( this, &UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReplicatedCallback );
             AbilitySystemComponent->AbilityTargetDataCancelledDelegate( spec_handle, activation_prediction_key ).AddUObject( this, &UGASExtAT_WaitTargetDataUsingActor::OnTargetDataReplicatedCancelledCallback );
 

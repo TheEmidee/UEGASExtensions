@@ -29,7 +29,7 @@ EDataValidationResult UGASExtGameFeatureAction_AddGameplayCuePath::IsDataValid( 
 }
 #endif
 
-void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureRegistering( const UGameFeatureData * game_feature_data, const FString & plugin_name )
+void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureRegistering( const UGameFeatureData * game_feature_data, const FString & plugin_name, const FString & /*plugin_url*/ )
 {
     TRACE_CPUPROFILER_EVENT_SCOPE( ULyraGameFeature_AddGameplayCuePaths::OnGameFeatureRegistering );
 
@@ -70,7 +70,7 @@ void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureRegistering( co
     }
 }
 
-void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureUnregistering( const UGameFeatureData * game_feature_data, const FString & plugin_name )
+void UGASExtGameFeatureObserver_AddGameplayCuePath::OnGameFeatureUnregistering( const UGameFeatureData * game_feature_data, const FString & plugin_name, const FString & /*plugin_url*/ )
 {
     const auto plugin_root_path = TEXT( "/" ) + plugin_name;
     for ( const UGameFeatureAction * action : game_feature_data->GetActions() )

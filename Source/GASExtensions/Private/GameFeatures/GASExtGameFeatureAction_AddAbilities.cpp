@@ -36,8 +36,8 @@ void UGASExtGameFeatureAction_AddAbilities::AddAdditionalAssetBundleData( FAsset
     if ( UAssetManager::IsValid() )
     {
         auto add_bundle_asset = [ &asset_bundle_data ]( const FSoftObjectPath & SoftObjectPath ) {
-            asset_bundle_data.AddBundleAsset( UGameFeaturesSubsystemSettings::LoadStateClient, SoftObjectPath );
-            asset_bundle_data.AddBundleAsset( UGameFeaturesSubsystemSettings::LoadStateServer, SoftObjectPath );
+            asset_bundle_data.AddBundleAsset( UGameFeaturesSubsystemSettings::LoadStateClient, SoftObjectPath.GetAssetPath() );
+            asset_bundle_data.AddBundleAsset( UGameFeaturesSubsystemSettings::LoadStateServer, SoftObjectPath.GetAssetPath() );
         };
 
         for ( const auto & entry : AbilitiesList )
@@ -310,7 +310,7 @@ void UGASExtGameFeatureAction_AddAbilities::RemoveActorAbilities( AActor * actor
         {
             for ( auto * attribute_set : actor_extensions->Attributes )
             {
-                ability_system_component->GetSpawnedAttributes_Mutable().Remove( attribute_set );
+                ability_system_component->RemoveSpawnedAttribute( attribute_set );
             }
 
             /* :TODO: ASC Inputs

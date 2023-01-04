@@ -379,11 +379,10 @@ void UGASExtAbilitySystemComponent::CurrentMontageStopForMesh( USkeletalMeshComp
 {
     auto * anim_instance = GetMeshAnimInstance( mesh );
 
-    auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
-    auto * montage_to_stop = anim_montage_info.LocalMontageInfo.AnimMontage;
-    const auto should_stop_montage = anim_instance && montage_to_stop && !anim_instance->Montage_GetIsStopped( montage_to_stop );
+    const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
+    const auto montage_to_stop = anim_montage_info.LocalMontageInfo.AnimMontage;
 
-    if ( should_stop_montage )
+    if ( anim_instance && montage_to_stop && !anim_instance->Montage_GetIsStopped( montage_to_stop ) )
     {
         const auto blend_out_time = ( override_blend_out_time >= 0.0f
                                           ? override_blend_out_time
@@ -946,9 +945,9 @@ void UGASExtAbilitySystemComponent::AnimMontage_UpdateReplicatedDataForMesh( FGa
 
 void UGASExtAbilitySystemComponent::AnimMontage_UpdateForcedPlayFlagsForMesh( FGameplayAbilityRepAnimMontageForMesh & /*rep_anim_montage_info*/ )
 {
-    //const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( rep_anim_montage_info.Mesh );
+    // const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( rep_anim_montage_info.Mesh );
 
-    //rep_anim_montage_info.RepMontageInfo.ForcePlayBit = anim_montage_info.LocalMontageInfo.PlayBit;
+    // rep_anim_montage_info.RepMontageInfo.ForcePlayBit = anim_montage_info.LocalMontageInfo.PlayBit;
 }
 
 void UGASExtAbilitySystemComponent::OnRep_ReplicatedAnimMontageForMesh()
@@ -1093,11 +1092,11 @@ void UGASExtAbilitySystemComponent::ServerCurrentMontageSetNextSectionNameForMes
 {
     auto * anim_instance = GetMeshAnimInstance( mesh );
 
-    auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
+    const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
 
     if ( anim_instance )
     {
-        auto * current_anim_montage = anim_montage_info.LocalMontageInfo.AnimMontage;
+        const auto current_anim_montage = anim_montage_info.LocalMontageInfo.AnimMontage;
         if ( client_anim_montage == current_anim_montage )
         {
             // Set NextSectionName
@@ -1133,11 +1132,11 @@ bool UGASExtAbilitySystemComponent::ServerCurrentMontageSetNextSectionNameForMes
 void UGASExtAbilitySystemComponent::ServerCurrentMontageJumpToSectionNameForMesh_Implementation( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const FName section_name )
 {
     auto * anim_instance = GetMeshAnimInstance( mesh );
-    auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
+    const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
 
     if ( anim_instance )
     {
-        auto * current_anim_montage = anim_montage_info.LocalMontageInfo.AnimMontage;
+        const auto current_anim_montage = anim_montage_info.LocalMontageInfo.AnimMontage;
         if ( client_anim_montage == current_anim_montage )
         {
             // Set NextSectionName
@@ -1160,11 +1159,11 @@ bool UGASExtAbilitySystemComponent::ServerCurrentMontageJumpToSectionNameForMesh
 void UGASExtAbilitySystemComponent::ServerCurrentMontageSetPlayRateForMesh_Implementation( USkeletalMeshComponent * mesh, UAnimMontage * client_anim_montage, const float play_rate )
 {
     auto * anim_instance = GetMeshAnimInstance( mesh );
-    auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
+    const auto & anim_montage_info = GetLocalAnimMontageInfoForMesh( mesh );
 
     if ( anim_instance )
     {
-        auto * current_anim_montage = anim_montage_info.LocalMontageInfo.AnimMontage;
+        const auto current_anim_montage = anim_montage_info.LocalMontageInfo.AnimMontage;
         if ( client_anim_montage == current_anim_montage )
         {
             // Set PlayRate

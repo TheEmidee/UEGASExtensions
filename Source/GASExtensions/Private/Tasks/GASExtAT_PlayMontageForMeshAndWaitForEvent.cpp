@@ -84,7 +84,7 @@ void UGASExtAT_PlayMontageForMeshAndWaitForEvent::Activate()
 
 void UGASExtAT_PlayMontageForMeshAndWaitForEvent::ExternalCancel()
 {
-    check( AbilitySystemComponent );
+    check( AbilitySystemComponent != nullptr );
 
     OnAbilityCancelled();
 

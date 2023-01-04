@@ -20,7 +20,7 @@ void UGASExtAT_WaitAbilityEnd::Activate()
 
     SetWaitingOnAvatar();
 
-    if ( !IsValid( OptionalASC ) )
+    if ( OptionalASC != nullptr )
     {
         OptionalASC = AbilitySystemComponent;
     }

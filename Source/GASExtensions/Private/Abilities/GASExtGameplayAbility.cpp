@@ -4,9 +4,19 @@
 
 #include <Abilities/Tasks/AbilityTask.h>
 #include <AbilitySystemGlobals.h>
+#include <AbilitySystemLog.h>
 #include <Components/GASExtAbilitySystemComponent.h>
 #include <GameFramework/PlayerController.h>
 #include <GameplayTask.h>
+
+#define ENSURE_ABILITY_IS_INSTANTIATED_OR_RETURN( FunctionName, ReturnValue )                                                                                \
+    {                                                                                                                                                        \
+        if ( !ensure( IsInstantiated() ) )                                                                                                                   \
+        {                                                                                                                                                    \
+            ABILITY_LOG( Error, TEXT( "%s: " #FunctionName " cannot be called on a non-instanced ability. Check the instancing policy." ), *GetPathName() ); \
+            return ReturnValue;                                                                                                                              \
+        }                                                                                                                                                    \
+    }
 
 UGASExtGameplayAbility::UGASExtGameplayAbility()
 {
@@ -134,7 +144,7 @@ bool UGASExtGameplayAbility::CanChangeActivationGroup( EGASExtAbilityActivationG
     return true;
 }
 
-bool UGASExtGameplayAbility::ChangeActivationGroup( EGASExtAbilityActivationGroup new_group )
+bool UGASExtGameplayAbility::ChangeActivationGroup( const EGASExtAbilityActivationGroup new_group )
 {
     ENSURE_ABILITY_IS_INSTANTIATED_OR_RETURN( ChangeActivationGroup, false );
 
@@ -338,7 +348,7 @@ bool UGASExtGameplayAbility::CanActivateAbility( const FGameplayAbilitySpecHandl
     }
 
     auto * ability_system_component = CastChecked< UGASExtAbilitySystemComponent >( actor_info->AbilitySystemComponent.Get() );
-    
+
     if ( !Super::CanActivateAbility( handle, actor_info, source_tags, target_tags, optional_relevant_tags ) )
     {
         return false;

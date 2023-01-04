@@ -137,14 +137,13 @@ void UGASExtGameplayCueManager::LoadAlwaysLoadedCues()
 void UGASExtGameplayCueManager::RefreshGameplayCuePrimaryAsset()
 {
     TArray< FSoftObjectPath > cue_paths;
-    auto * runtime_gameplay_cue_set = GetRuntimeCueSet();
-    if ( runtime_gameplay_cue_set )
+    if ( const auto * runtime_gameplay_cue_set = GetRuntimeCueSet() )
     {
         runtime_gameplay_cue_set->GetSoftObjectPaths( cue_paths );
     }
 
     FAssetBundleData bundle_data;
-    bundle_data.AddBundleAssets( GASExtGameplayCueManagerCvars::UGASExtAssetManager_LoadStateClient, cue_paths );
+    bundle_data.AddBundleAssetsTruncated( GASExtGameplayCueManagerCvars::UGASExtAssetManager_LoadStateClient, cue_paths );
     const FPrimaryAssetId primary_asset_id = FPrimaryAssetId( GASExtGameplayCueManagerCvars::UGASExtAssetManager_GameplayCueRefsType, GASExtGameplayCueManagerCvars::UGASExtAssetManager_GameplayCueRefsName );
     UAssetManager::Get().AddDynamicAsset( primary_asset_id, FSoftObjectPath(), bundle_data );
 }
