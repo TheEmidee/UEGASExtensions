@@ -39,4 +39,10 @@ private:
 
     UPROPERTY( EditDefaultsOnly )
     TArray< TSubclassOf< UGameplayEffect > > AdditionalDefaultEffects;
+
+    UPROPERTY( EditDefaultsOnly )
+    TArray< TSubclassOf< UAttributeSet > > AttributeSetClasses;
+
+    UPROPERTY( Transient )
+    TArray< UAttributeSet * > AttributeSets;
 };
