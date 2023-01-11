@@ -3,7 +3,7 @@
 #include "Abilities/GASExtAbilitySet.h"
 #include "Components/GASExtAbilitySystemComponent.h"
 
-AGASExtActorWithAbilities::AGASExtActorWithAbilities()
+AGASExtActorWithAbilities::AGASExtActorWithAbilities( const FObjectInitializer & object_initializer )
 {
     PrimaryActorTick.bCanEverTick = false;
 
