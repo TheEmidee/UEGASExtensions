@@ -136,6 +136,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlap::GetTa
 
         auto * new_data = new FGameplayAbilityTargetData_ActorArray();
         new_data->TargetActorArray.Append( hit_actors );
+        result.Add( new_data );
     }
 
     return result;
@@ -146,7 +147,7 @@ TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlap::GetSourceLocation
     TOptional< FVector > source_location;
 
     const auto set_source_location_from_actor = [ &source_location ]( const AActor * actor ) {
-        if ( !IsValid( actor ) )
+        if ( IsValid( actor ) )
         {
             source_location = actor->GetActorLocation();
         }
