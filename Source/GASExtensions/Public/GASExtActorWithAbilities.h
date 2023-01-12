@@ -18,7 +18,7 @@ class GASEXTENSIONS_API AGASExtActorWithAbilities : public AActor, public IAbili
     GENERATED_BODY()
 
 public:
-    AGASExtActorWithAbilities();
+    explicit AGASExtActorWithAbilities( const FObjectInitializer & object_initializer );
 
     UAbilitySystemComponent * GetAbilitySystemComponent() const override;
     void PostInitializeComponents() override;
