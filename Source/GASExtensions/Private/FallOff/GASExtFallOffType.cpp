@@ -9,6 +9,10 @@ UGASExtFallOffType::UGASExtFallOffType()
 {
     Radius = 1.0f;
 }
+bool UGASExtFallOffType::IsSupportedForNetworking() const
+{
+    return true;
+}
 
 float UGASExtFallOffType::GetFallOffMultiplier( const float /*distance*/ ) const
 {

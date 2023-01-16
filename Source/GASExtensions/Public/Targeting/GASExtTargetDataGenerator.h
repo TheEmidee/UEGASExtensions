@@ -33,7 +33,9 @@ class GASEXTENSIONS_API UGASExtTargetDataGenerator : public UObject
     GENERATED_BODY()
 
 public:
-    virtual FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/  ) const
+    bool IsSupportedForNetworking() const override;
+
+    virtual FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & /*event_data*/ ) const
     {
         return FGameplayAbilityTargetDataHandle();
     }

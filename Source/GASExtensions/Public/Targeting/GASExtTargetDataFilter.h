@@ -15,6 +15,8 @@ class GASEXTENSIONS_API UGASExtTargetDataFilter : public UObject
 public:
     FGameplayAbilityTargetDataHandle FilterTargetData( FGameplayAbilityTargetDataHandle target_data ) const;
 
+    bool IsSupportedForNetworking() const override;
+
 protected:
     virtual FGameplayTargetDataFilterHandle MakeFilterHandle() const;
 };
