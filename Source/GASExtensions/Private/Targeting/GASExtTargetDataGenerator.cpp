@@ -51,6 +51,10 @@ namespace
     }
 }
 
+bool UGASExtTargetDataGenerator::IsSupportedForNetworking() const
+{
+    return true;
+}
 FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTargetData( const FGameplayEffectContext * /*gameplay_effect_context*/, const FGameplayEventData & event_data ) const
 {
     return FGameplayAbilityTargetDataHandle( event_data.TargetData );
