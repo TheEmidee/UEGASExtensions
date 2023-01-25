@@ -14,6 +14,8 @@ class GASEXTENSIONS_API UGASExtFallOffType : public UObject
 public:
     UGASExtFallOffType();
 
+    bool IsSupportedForNetworking() const override;
+
     UFUNCTION( BlueprintPure )
     virtual float GetFallOffMultiplier( const float distance ) const;
 

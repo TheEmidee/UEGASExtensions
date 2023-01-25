@@ -6,6 +6,10 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataFilter::FilterTargetData( FGam
 {
     return UAbilitySystemBlueprintLibrary::FilterTargetData( target_data_handle, MakeFilterHandle() );
 }
+bool UGASExtTargetDataFilter::IsSupportedForNetworking() const
+{
+    return true;
+}
 
 FGameplayTargetDataFilterHandle UGASExtTargetDataFilter::MakeFilterHandle() const
 {

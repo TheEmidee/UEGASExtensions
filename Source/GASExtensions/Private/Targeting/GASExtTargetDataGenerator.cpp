@@ -51,6 +51,10 @@ namespace
     }
 }
 
+bool UGASExtTargetDataGenerator::IsSupportedForNetworking() const
+{
+    return true;
+}
 FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_EventData::GetTargetData( const FGameplayEffectContext * /*gameplay_effect_context*/, const FGameplayEventData & event_data ) const
 {
     return FGameplayAbilityTargetDataHandle( event_data.TargetData );
@@ -136,6 +140,7 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlap::GetTa
 
         auto * new_data = new FGameplayAbilityTargetData_ActorArray();
         new_data->TargetActorArray.Append( hit_actors );
+        result.Add( new_data );
     }
 
     return result;
@@ -146,7 +151,7 @@ TOptional< FVector > UGASExtTargetDataGenerator_SphereOverlap::GetSourceLocation
     TOptional< FVector > source_location;
 
     const auto set_source_location_from_actor = [ &source_location ]( const AActor * actor ) {
-        if ( !IsValid( actor ) )
+        if ( IsValid( actor ) )
         {
             source_location = actor->GetActorLocation();
         }
