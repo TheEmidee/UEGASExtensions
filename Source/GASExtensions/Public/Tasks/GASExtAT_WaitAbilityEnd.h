@@ -25,6 +25,8 @@ public:
     void OnDestroy( bool in_owner_finished ) override;
 
 private:
+    UAbilitySystemComponent * GetAbilitySystemComponent() const;
+
     UFUNCTION()
     void OnAbilityEnded( const FAbilityEndedData & ability_ended_data );
 
