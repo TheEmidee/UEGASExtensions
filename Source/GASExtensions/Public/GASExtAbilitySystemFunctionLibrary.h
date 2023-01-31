@@ -19,22 +19,22 @@ class GASEXTENSIONS_API UGASExtAbilitySystemFunctionLibrary final : public UBlue
     GENERATED_BODY()
 
 public:
-    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects", meta = ( DefaultToSelf = "ability", AutoCreateRefTerm = "event_data, target_data" ) )
+    UFUNCTION( BlueprintCallable, BlueprintAuthorityOnly, Category = "Ability|GameplayEffects", meta = ( DefaultToSelf = "ability", AutoCreateRefTerm = "event_data, target_data" ) )
     static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayAbilityTargetDataHandle & target_data, const FGameplayEventData & event_data, int level = 1 );
 
-    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects", meta = ( DefaultToSelf = "ability", AutoCreateRefTerm = "event_data, target_data" ) )
+    UFUNCTION( BlueprintCallable, BlueprintAuthorityOnly, Category = "Ability|GameplayEffects", meta = ( DefaultToSelf = "ability", AutoCreateRefTerm = "event_data, target_data" ) )
     static TArray < FActiveGameplayEffectHandle > MakeAndApplyEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayAbilityTargetDataHandle & target_data, const FGameplayEventData & event_data, int level = 1 );
 
-    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects" )
+    UFUNCTION( BlueprintCallable, BlueprintAuthorityOnly, Category = "Ability|GameplayEffects" )
     static TArray< FActiveGameplayEffectHandle > ApplyGameplayEffectContainerSpec( UPARAM( ref ) FGASExtGameplayEffectContainerSpec & effect_container_spec );
 
-    UFUNCTION( BlueprintCallable, Category = "Ability|GameplayEffects" )
+    UFUNCTION( BlueprintCallable, BlueprintAuthorityOnly, Category = "Ability|GameplayEffects" )
     static FGameplayEffectSpecHandle MakeGameplayEffectSpecHandle( TSubclassOf< UGameplayEffect > effect_class, AActor * instigator, AActor * effect_causer, const UGameplayAbility * ability = nullptr );
 
-    UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
+    UFUNCTION( BlueprintCallable, BlueprintAuthorityOnly, Category = "Ability|Abilities" )
     static FGameplayAbilitySpecHandle GiveAbility( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level = 1, UObject * source_object = nullptr );
 
-    UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
+    UFUNCTION( BlueprintCallable, BlueprintAuthorityOnly, Category = "Ability|Abilities" )
     static FGameplayAbilitySpecHandle GiveAbilityAndActivateOnce( UAbilitySystemComponent * asc, TSubclassOf< UGameplayAbility > ability, int32 level = 1, UObject * source_object = nullptr );
 
     UFUNCTION( BlueprintPure, Category = "Ability|AttributeSet" )
