@@ -7,6 +7,7 @@
 #include "DVEDataValidator.h"
 
 #include <AbilitySystemGlobals.h>
+#include <AbilitySystemLog.h>
 #include <Animation/AnimInstance.h>
 #include <GameplayCueManager.h>
 #include <Net/UnrealNetwork.h>
