@@ -18,21 +18,32 @@ void UGASExtAT_WaitAbilityEnd::Activate()
 {
     Super::Activate();
 
-    SetWaitingOnAvatar();
-
-    if ( !IsValid( OptionalASC ) )
+    if ( auto * asc = GetAbilitySystemComponent() )
     {
-        OptionalASC = AbilitySystemComponent;
+        DelegateHandle = asc->OnAbilityEnded.AddUObject( this, &UGASExtAT_WaitAbilityEnd::OnAbilityEnded );
     }
-
-    DelegateHandle = OptionalASC->OnAbilityEnded.AddUObject( this, &UGASExtAT_WaitAbilityEnd::OnAbilityEnded );
 }
 
 void UGASExtAT_WaitAbilityEnd::OnDestroy( bool in_owner_finished )
 {
-    OptionalASC->OnAbilityEnded.Remove( DelegateHandle );
+    if ( auto * asc = GetAbilitySystemComponent() )
+    {
+        asc->OnAbilityEnded.Remove( DelegateHandle );
+    }
 
     Super::OnDestroy( in_owner_finished );
+}
+
+UAbilitySystemComponent * UGASExtAT_WaitAbilityEnd::GetAbilitySystemComponent() const
+{
+    const auto asc_to_use = OptionalASC != nullptr ? OptionalASC : AbilitySystemComponent;
+
+    if ( asc_to_use.IsValid() )
+    {
+        return asc_to_use.Get();
+    }
+
+    return nullptr;
 }
 
 void UGASExtAT_WaitAbilityEnd::OnAbilityEnded( const FAbilityEndedData & ability_ended_data )

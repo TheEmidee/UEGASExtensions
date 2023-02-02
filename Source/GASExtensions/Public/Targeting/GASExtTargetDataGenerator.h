@@ -2,6 +2,7 @@
 
 #include <Abilities/GameplayAbilityTargetTypes.h>
 #include <CoreMinimal.h>
+#include <ScalableFloat.h>
 
 #include "GASExtTargetDataGenerator.generated.h"
 

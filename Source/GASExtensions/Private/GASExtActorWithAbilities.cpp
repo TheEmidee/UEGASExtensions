@@ -50,7 +50,7 @@ void AGASExtActorWithAbilities::BeginPlay()
     for ( const auto attribute_set_class : AttributeSetClasses )
     {
         auto * attribute_set = NewObject< UAttributeSet >( this, attribute_set_class, NAME_None, RF_Transient );
-        AbilitySystemComponent->GetSpawnedAttributes_Mutable().Add( attribute_set );
+        AbilitySystemComponent->AddSpawnedAttribute( attribute_set );
         AttributeSets.Add( attribute_set );
     }
 }

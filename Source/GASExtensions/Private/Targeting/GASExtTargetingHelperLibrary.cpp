@@ -4,6 +4,7 @@
 
 #include <Abilities/GameplayAbility.h>
 #include <Abilities/GameplayAbilityTargetDataFilter.h>
+#include <Components/MeshComponent.h>
 #include <Engine/World.h>
 #include <GameFramework/PlayerController.h>
 
@@ -181,14 +182,14 @@ void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_start, FVe
 {
     trace_start = aim_infos.StartLocationInfos.GetTargetingTransform().GetLocation();
 
-    if ( const auto * source_component = aim_infos.StartLocationInfos.SourceComponent )
+    if ( aim_infos.StartLocationInfos.SourceComponent != nullptr )
     {
         const FRotator rotation_offset( 0.0f );
 
         auto forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
         forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Roll, forward_vector );
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Pitch, source_component->GetRightVector() );
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Yaw, source_component->GetUpVector() );
+        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Pitch, aim_infos.StartLocationInfos.SourceComponent->GetRightVector() );
+        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Yaw, aim_infos.StartLocationInfos.SourceComponent->GetUpVector() );
 
         trace_end = trace_start + forward_vector * aim_infos.MaxRange;
     }

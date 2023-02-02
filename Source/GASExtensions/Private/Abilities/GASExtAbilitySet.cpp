@@ -53,7 +53,7 @@ void FGASExtAbilitySet_GrantedHandles::TakeFromAbilitySystem( UAbilitySystemComp
 
     for ( auto * set : GrantedAttributeSets )
     {
-        asc->GetSpawnedAttributes_Mutable().Remove( set );
+        asc->RemoveSpawnedAttribute( set );
     }
 
     AbilitySpecHandles.Reset();

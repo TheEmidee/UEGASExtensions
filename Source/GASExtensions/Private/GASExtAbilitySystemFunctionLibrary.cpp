@@ -7,6 +7,7 @@
 #include <AbilitySystemBlueprintLibrary.h>
 #include <AbilitySystemComponent.h>
 #include <AbilitySystemGlobals.h>
+#include <AbilitySystemLog.h>
 
 FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayAbilityTargetDataHandle & target_data, const FGameplayEventData & event_data, int level /* = 1 */ )
 {

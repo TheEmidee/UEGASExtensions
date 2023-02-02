@@ -1,9 +1,9 @@
 #include "Targeting/GASExtGameplayAbilityTargetActor.h"
 
-#include "Chaos/AABB.h"
 #include "Targeting/GASExtTargetingHelperLibrary.h"
 
 #include <AbilitySystemComponent.h>
+#include <AbilitySystemLog.h>
 #include <DrawDebugHelpers.h>
 #include <GameFramework/PlayerController.h>
 
@@ -179,12 +179,12 @@ void AGASExtGameplayAbilityTargetActor::PerformTrace( const float delta_seconds 
         {
             case EGASExtTargetTraceType::Line:
             {
-                //UGBFTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, EDrawDebugTrace::ForOneFrame, has_hit_results, hit_results, FLinearColor::Red, FLinearColor::Green, 0.1f );
+                // UGBFTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, EDrawDebugTrace::ForOneFrame, has_hit_results, hit_results, FLinearColor::Red, FLinearColor::Green, 0.1f );
             }
             break;
             case EGASExtTargetTraceType::Sphere:
             {
-                //UGBFTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, TraceSphereRadius, EDrawDebugTrace::ForOneFrame, has_hit_results, hit_results, FLinearColor::Red, FLinearColor::Green, 0.1f );
+                // UGBFTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, TraceSphereRadius, EDrawDebugTrace::ForOneFrame, has_hit_results, hit_results, FLinearColor::Red, FLinearColor::Green, 0.1f );
             }
             break;
             default:

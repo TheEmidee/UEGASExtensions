@@ -5,6 +5,7 @@
 #include <AbilitySystemComponent.h>
 #include <AbilitySystemGlobals.h>
 #include <GameplayEffectExtension.h>
+#include <UObject/ObjectPtr.h>
 
 UGASExtAT_WaitAttributeChangeWithValues::UGASExtAT_WaitAttributeChangeWithValues( const FObjectInitializer & object_initializer ) :
     Super( object_initializer )
@@ -114,7 +115,7 @@ void UGASExtAT_WaitAttributeChangeWithValues::OnAttributeChange( const FOnAttrib
 
 UAbilitySystemComponent * UGASExtAT_WaitAttributeChangeWithValues::GetFocusedASC()
 {
-    return ExternalOwner ? ExternalOwner : AbilitySystemComponent;
+    return ExternalOwner != nullptr ? ExternalOwner.Get() : AbilitySystemComponent.Get();
 }
 
 void UGASExtAT_WaitAttributeChangeWithValues::OnDestroy( bool ability_ended )

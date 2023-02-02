@@ -287,8 +287,7 @@ private:
 template < typename _ATTRIBUTE_SET_CLASS_ >
 _ATTRIBUTE_SET_CLASS_ * UGASExtAbilitySystemComponent::GetAttributeSet()
 {
-    auto & attributes = GetSpawnedAttributes_Mutable();
-    for ( auto * attribute_set : attributes )
+    for ( auto * attribute_set : GetSpawnedAttributes() )
     {
         if ( auto * swarms_attribute_set = Cast< _ATTRIBUTE_SET_CLASS_ >( attribute_set ) )
         {

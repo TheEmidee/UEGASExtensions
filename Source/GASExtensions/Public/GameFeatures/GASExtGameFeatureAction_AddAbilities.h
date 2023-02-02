@@ -8,6 +8,7 @@
 
 #include "GASExtGameFeatureAction_AddAbilities.generated.h"
 
+struct FGameFeatureActivatingContext;
 class UGASExtAbilitySet;
 struct FGameFeatureDeactivatingContext;
 

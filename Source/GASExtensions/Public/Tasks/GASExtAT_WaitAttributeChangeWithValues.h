@@ -60,7 +60,7 @@ protected:
     void OnDestroy( bool ability_ended ) override;
 
     UPROPERTY()
-    UAbilitySystemComponent * ExternalOwner;
+    TWeakObjectPtr< UAbilitySystemComponent > ExternalOwner;
 
     UAbilitySystemComponent * GetFocusedASC();
 };
