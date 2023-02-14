@@ -110,11 +110,12 @@ FGameplayAbilityTargetDataHandle UGASExtTargetDataGenerator_SphereOverlap::GetTa
 
         if ( bMustHaveLineOfSight )
         {
+            const auto hit_actors_copy = hit_actors;
             for ( auto index = hit_actors.Num() - 1; index >= 0; --index )
             {
                 auto * hit_actor = hit_actors[ index ];
 
-                auto ignore_actors = hit_actors;
+                auto ignore_actors = hit_actors_copy;
                 ignore_actors.RemoveSwap( hit_actor );
 
                 FHitResult line_trace_hit;
