@@ -7,6 +7,8 @@ AGASExtActorWithAbilities::AGASExtActorWithAbilities( const FObjectInitializer &
 {
     PrimaryActorTick.bCanEverTick = false;
 
+    GameplayEffectReplicationMode = EGameplayEffectReplicationMode::Mixed;
+
     AbilitySystemComponent = CreateDefaultSubobject< UGASExtAbilitySystemComponent >( TEXT( "AbilitySystemComponent" ) );
     AbilitySystemComponent->SetIsReplicated( true );
     AbilitySystemComponent->SetReplicationMode( GameplayEffectReplicationMode );
@@ -34,7 +36,7 @@ void AGASExtActorWithAbilities::BeginPlay()
         return;
     }
 
-    for ( const auto * ability_set : AbilitySets )
+    for ( const auto ability_set : AbilitySets )
     {
         ability_set->GiveToAbilitySystem( AbilitySystemComponent, nullptr );
     }
