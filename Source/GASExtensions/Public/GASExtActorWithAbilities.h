@@ -24,15 +24,16 @@ public:
     void PostInitializeComponents() override;
     void BeginPlay() override;
 
-private:
+protected:
     UPROPERTY( VisibleAnywhere, BlueprintReadOnly, meta = ( AllowPrivateAccess = "true" ) )
-    UGASExtAbilitySystemComponent * AbilitySystemComponent;
+    TObjectPtr< UGASExtAbilitySystemComponent > AbilitySystemComponent;
+
+private:
+    UPROPERTY( EditDefaultsOnly )
+    TObjectPtr< UGASExtAbilityTagRelationshipMapping > TagRelationshipMapping;
 
     UPROPERTY( EditDefaultsOnly )
-    UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
-
-    UPROPERTY( EditDefaultsOnly )
-    TArray< const UGASExtAbilitySet * > AbilitySets;
+    TArray< TObjectPtr< const UGASExtAbilitySet > > AbilitySets;
 
     UPROPERTY( EditDefaultsOnly )
     EGameplayEffectReplicationMode GameplayEffectReplicationMode;
@@ -44,5 +45,5 @@ private:
     TArray< TSubclassOf< UAttributeSet > > AttributeSetClasses;
 
     UPROPERTY( Transient )
-    TArray< UAttributeSet * > AttributeSets;
+    TArray< TObjectPtr< UAttributeSet > > AttributeSets;
 };
