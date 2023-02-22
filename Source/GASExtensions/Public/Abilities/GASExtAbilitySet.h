@@ -28,7 +28,7 @@ struct FGASExtAbilitySet_GameplayAbility
     FGameplayTag InputTag;
 
     UPROPERTY( EditDefaultsOnly, Meta = ( Categories = "InputTag" ) )
-    int32 InputId;
+    int32 InputId = INDEX_NONE;
 };
 
 USTRUCT( BlueprintType )
