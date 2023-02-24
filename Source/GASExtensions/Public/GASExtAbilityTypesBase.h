@@ -151,7 +151,7 @@ struct GASEXTENSIONS_API FGASExtGameplayEffectContainerSpec
     FGameplayEventData EventDataPayload;
 
     UPROPERTY( BlueprintReadOnly, Category = "GameplayEffectContainerSpec" )
-    EGASExtTargetDataGenerationPhase TargetDataExecutionType;
+    EGASExtTargetDataGenerationPhase TargetDataExecutionType = EGASExtTargetDataGenerationPhase::OnEffectContextCreation;
 };
 
 USTRUCT( BlueprintType )
