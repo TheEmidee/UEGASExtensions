@@ -260,17 +260,17 @@ void UGASExtAbilitySystemComponent::CancelAbilitiesByTag( const FGameplayTag tag
 // ReSharper disable CppMemberFunctionMayBeConst
 void UGASExtAbilitySystemComponent::ExecuteGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
 {
-    UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue( GetOwner(), gameplay_cue_tag, EGameplayCueEvent::Type::Executed, parameters );
+    UGameplayCueManager::ExecuteGameplayCue_NonReplicated( GetOwner(), gameplay_cue_tag, parameters );
 }
 
 void UGASExtAbilitySystemComponent::AddGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
 {
-    UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue( GetOwner(), gameplay_cue_tag, EGameplayCueEvent::Type::OnActive, parameters );
+    UGameplayCueManager::AddGameplayCue_NonReplicated( GetOwner(), gameplay_cue_tag, parameters );
 }
 
 void UGASExtAbilitySystemComponent::RemoveGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters )
 {
-    UAbilitySystemGlobals::Get().GetGameplayCueManager()->HandleGameplayCue( GetOwner(), gameplay_cue_tag, EGameplayCueEvent::Type::Removed, parameters );
+    UGameplayCueManager::RemoveGameplayCue_NonReplicated( GetOwner(), gameplay_cue_tag, parameters );
 }
 // ReSharper restore CppMemberFunctionMayBeConst
 
