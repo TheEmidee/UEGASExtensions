@@ -38,10 +38,6 @@
     {
       "Name": "DataValidationExtensions",
       "Enabled": true
-    },
-    {
-      "Name": "GameFeaturesExtensions",
-      "Enabled": true
     }
   ]
 }
