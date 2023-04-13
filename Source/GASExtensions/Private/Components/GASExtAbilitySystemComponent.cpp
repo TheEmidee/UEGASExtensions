@@ -210,9 +210,143 @@ void UGASExtAbilitySystemComponent::GetAdditionalActivationTagRequirements( cons
     }
 }
 
+void UGASExtAbilitySystemComponent::AbilityInputTagPressed( FGameplayTag input_tag )
+{
+    if ( !input_tag.IsValid() )
+    {
+        return;
+    }
+
+    for ( const auto & ability_spec : ActivatableAbilities.Items )
+    {
+        if ( ability_spec.Ability && ability_spec.DynamicAbilityTags.HasTagExact( input_tag ) )
+        {
+            InputPressedSpecHandles.AddUnique( ability_spec.Handle );
+            InputHeldSpecHandles.AddUnique( ability_spec.Handle );
+        }
+    }
+}
+
+void UGASExtAbilitySystemComponent::AbilityInputTagReleased( FGameplayTag input_tag )
+{
+    if ( !input_tag.IsValid() )
+    {
+        return;
+    }
+
+    for ( const auto & ability_spec : ActivatableAbilities.Items )
+    {
+        if ( ability_spec.Ability && ability_spec.DynamicAbilityTags.HasTagExact( input_tag ) )
+        {
+            InputReleasedSpecHandles.AddUnique( ability_spec.Handle );
+            InputHeldSpecHandles.Remove( ability_spec.Handle );
+        }
+    }
+}
+
+void UGASExtAbilitySystemComponent::ProcessAbilityInput( float delta_time, bool game_is_paused )
+{
+    /*if ( HasMatchingGameplayTag( TAG_Gameplay_AbilityInputBlocked ) )
+    {
+        ClearAbilityInput();
+        return;
+    }*/
+
+    static TArray< FGameplayAbilitySpecHandle > AbilitiesToActivate;
+    AbilitiesToActivate.Reset();
+
+    //@TODO: See if we can use FScopedServerAbilityRPCBatcher ScopedRPCBatcher in some of these loops
+
+    //
+    // Process all abilities that activate when the input is held.
+    //
+    for ( const auto & spec_handle : InputHeldSpecHandles )
+    {
+        if ( const auto * ability_spec = FindAbilitySpecFromHandle( spec_handle ) )
+        {
+            if ( ability_spec->Ability && !ability_spec->IsActive() )
+            {
+                const auto * ability_cdo = CastChecked< UGASExtGameplayAbility >( ability_spec->Ability );
+
+                if ( ability_cdo->GetActivationPolicy() == EGASExtAbilityActivationPolicy::WhileInputActive )
+                {
+                    AbilitiesToActivate.AddUnique( ability_spec->Handle );
+                }
+            }
+        }
+    }
+
+    //
+    // Process all abilities that had their input pressed this frame.
+    //
+    for ( const auto & spec_handle : InputPressedSpecHandles )
+    {
+        if ( auto * ability_spec = FindAbilitySpecFromHandle( spec_handle ) )
+        {
+            if ( ability_spec->Ability )
+            {
+                ability_spec->InputPressed = true;
+
+                if ( ability_spec->IsActive() )
+                {
+                    // Ability is active so pass along the input event.
+                    AbilitySpecInputPressed( *ability_spec );
+                }
+                else
+                {
+                    const auto * ability_cdo = CastChecked< UGASExtGameplayAbility >( ability_spec->Ability );
+
+                    if ( ability_cdo->GetActivationPolicy() == EGASExtAbilityActivationPolicy::OnInputTriggered )
+                    {
+                        AbilitiesToActivate.AddUnique( ability_spec->Handle );
+                    }
+                }
+            }
+        }
+    }
+
+    //
+    // Try to activate all the abilities that are from presses and holds.
+    // We do it all at once so that held inputs don't activate the ability
+    // and then also send a input event to the ability because of the press.
+    //
+    for ( const auto & ability_spec_handle : AbilitiesToActivate )
+    {
+        TryActivateAbility( ability_spec_handle );
+    }
+
+    //
+    // Process all abilities that had their input released this frame.
+    //
+    for ( const auto & spec_handle : InputReleasedSpecHandles )
+    {
+        if ( auto * ability_spec = FindAbilitySpecFromHandle( spec_handle ) )
+        {
+            if ( ability_spec->Ability )
+            {
+                ability_spec->InputPressed = false;
+
+                if ( ability_spec->IsActive() )
+                {
+                    // Ability is active so pass along the input event.
+                    AbilitySpecInputReleased( *ability_spec );
+                }
+            }
+        }
+    }
+
+    //
+    // Clear the cached ability handles.
+    //
+    InputPressedSpecHandles.Reset();
+    InputReleasedSpecHandles.Reset();
+}
+
 void UGASExtAbilitySystemComponent::ClearAbilityInput()
 {
-    // :TODO: ASC Inputs
+    InputPressedSpecHandles.Reset();
+    InputReleasedSpecHandles.Reset();
+    InputHeldSpecHandles.Reset();
 }
 
 #if WITH_EDITOR
@@ -763,6 +897,32 @@ void UGASExtAbilitySystemComponent::CancelInputActivatedAbilities( bool replicat
     };
 
     CancelAbilitiesByFunc( predicate, replicate_cancel_ability );
+}
+
+void UGASExtAbilitySystemComponent::AbilitySpecInputPressed( FGameplayAbilitySpec & spec )
+{
+    Super::AbilitySpecInputPressed( spec );
+
+    // We don't support UGameplayAbility::bReplicateInputDirectly.
+    // Use replicated events instead so that the WaitInputPress ability task works.
+    if ( spec.IsActive() )
+    {
+        // Invoke the InputPressed event. This is not replicated here. If someone is listening, they may replicate the InputPressed event to the server.
+        InvokeReplicatedEvent( EAbilityGenericReplicatedEvent::InputPressed, spec.Handle, spec.ActivationInfo.GetActivationPredictionKey() );
+    }
+}
+
+void UGASExtAbilitySystemComponent::AbilitySpecInputReleased( FGameplayAbilitySpec & spec )
+{
+    Super::AbilitySpecInputReleased( spec );
+
+    // We don't support UGameplayAbility::bReplicateInputDirectly.
+    // Use replicated events instead so that the WaitInputRelease ability task works.
+    if ( spec.IsActive() )
+    {
+        // Invoke the InputReleased event. This is not replicated here. If someone is listening, they may replicate the InputReleased event to the server.
+        InvokeReplicatedEvent( EAbilityGenericReplicatedEvent::InputReleased, spec.Handle, spec.ActivationInfo.GetActivationPredictionKey() );
+    }
 }
 
 void UGASExtAbilitySystemComponent::TryActivateAbilitiesOnSpawn()
