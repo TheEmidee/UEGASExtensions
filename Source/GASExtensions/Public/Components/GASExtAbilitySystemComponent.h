@@ -101,7 +101,9 @@ public:
     void SetTagRelationshipMapping( UGASExtAbilityTagRelationshipMapping * new_mapping );
     /** Looks at ability tags and gathers additional required and blocking tags */
     void GetAdditionalActivationTagRequirements( const FGameplayTagContainer & ability_tags, FGameplayTagContainer & activation_required_tags, FGameplayTagContainer & activation_blocked_tags ) const;
-
+    void AbilityInputTagPressed( FGameplayTag input_tag );
+    void AbilityInputTagReleased( FGameplayTag input_tag );
+    void ProcessAbilityInput( float delta_time, bool game_is_paused );
     void ClearAbilityInput();
 
 #if WITH_EDITOR
@@ -196,6 +198,9 @@ public:
 
     void CancelInputActivatedAbilities( bool replicate_cancel_ability );
 
+    void AbilitySpecInputPressed( FGameplayAbilitySpec & spec ) override;
+    void AbilitySpecInputReleased( FGameplayAbilitySpec & spec ) override;
+
 protected:
     void TryActivateAbilitiesOnSpawn();
     void NotifyAbilityActivated( const FGameplayAbilitySpecHandle Handle, UGameplayAbility * Ability ) override;
@@ -279,6 +284,10 @@ private:
     // If set, this table is used to look up tag relationships for activate and cancel
     UPROPERTY()
     UGASExtAbilityTagRelationshipMapping * TagRelationshipMapping;
+
+    TArray< FGameplayAbilitySpecHandle > InputPressedSpecHandles;
+    TArray< FGameplayAbilitySpecHandle > InputReleasedSpecHandles;
+    TArray< FGameplayAbilitySpecHandle > InputHeldSpecHandles;
 
     // Number of abilities running in each activation group.
     int32 ActivationGroupCounts[ static_cast< uint8 >( EGASExtAbilityActivationGroup::MAX ) ];
