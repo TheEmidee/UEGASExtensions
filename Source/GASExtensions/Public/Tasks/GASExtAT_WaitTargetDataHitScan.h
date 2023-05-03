@@ -69,12 +69,13 @@ public:
         const FGASExtWaitTargetDataReplicationOptions & replication_options,
         const FGASExtWaitTargetDataHitScanOptions & hit_scan_options );
 
+protected:
+    FGASExtWaitTargetDataHitScanOptions Options;
+    FGameplayAbilityTargetingLocationInfo StartLocationInfo;
+
 private:
     void DoTrace( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params ) const;
     void ShowDebugTraces( const TArray< FHitResult > & hit_results, const FVector & trace_start, const FVector & trace_end, EDrawDebugTrace::Type draw_debug_type, float duration = 2.0f ) const;
     FGameplayAbilityTargetDataHandle ProduceTargetData() override;
     TArray< FHitResult > PerformTrace() const;
-
-    FGASExtWaitTargetDataHitScanOptions Options;
-    FGameplayAbilityTargetingLocationInfo StartLocationInfo;
 };
