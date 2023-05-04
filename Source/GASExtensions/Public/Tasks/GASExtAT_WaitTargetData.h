@@ -28,6 +28,8 @@ class GASEXTENSIONS_API UGASExtAT_WaitTargetData : public UAbilityTask
     GENERATED_BODY()
 
 public:
+    UGASExtAT_WaitTargetData();
+
     void Activate() override;
     void OnDestroy( bool ability_ended ) override;
 
@@ -48,7 +50,15 @@ protected:
 
     FGASExtWaitTargetDataReplicationOptions ReplicationOptions;
 
+    uint8 bEndTaskWhenTargetDataSent : 1;
+    float TargetDataProductionRate;
+
 private:
     UFUNCTION()
     void OnTargetDataReplicatedCallback( const FGameplayAbilityTargetDataHandle & data, FGameplayTag activation_tag );
+
+    UFUNCTION()
+    void TryProduceTargetData();
+
+    FTimerHandle TimerHandle;
 };

@@ -1,11 +1,18 @@
 #include "Tasks/GASExtAT_WaitTargetData.h"
 
 #include <AbilitySystemComponent.h>
+#include <TimerManager.h>
 
 FGASExtWaitTargetDataReplicationOptions::FGASExtWaitTargetDataReplicationOptions()
 {
     bShouldProduceTargetDataOnServer = false;
     bCreateKeyIfNotValidForMorePredicting = true;
+}
+
+UGASExtAT_WaitTargetData::UGASExtAT_WaitTargetData()
+{
+    bEndTaskWhenTargetDataSent = true;
+    TargetDataProductionRate = 0.0f;
 }
 
 void UGASExtAT_WaitTargetData::Activate()
@@ -34,16 +41,15 @@ void UGASExtAT_WaitTargetData::Activate()
         }
     }
 
-    if ( ShouldProduceTargetData() )
-    {
-        const auto target_data_handle = ProduceTargetData();
-        SendTargetData( target_data_handle );
-    }
+    TryProduceTargetData();
 }
 
 void UGASExtAT_WaitTargetData::OnDestroy( const bool ability_ended )
 {
-    Super::OnDestroy( ability_ended );
+    if ( const auto * world = GetWorld() )
+    {
+        world->GetTimerManager().ClearTimer( TimerHandle );
+    }
 
     if ( AbilitySystemComponent != nullptr )
     {
@@ -51,6 +57,8 @@ void UGASExtAT_WaitTargetData::OnDestroy( const bool ability_ended )
         const auto activation_prediction_key = GetActivationPredictionKey();
         AbilitySystemComponent->AbilityTargetDataSetDelegate( spec_handle, activation_prediction_key ).RemoveAll( this );
     }
+
+    Super::OnDestroy( ability_ended );
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
@@ -77,7 +85,19 @@ void UGASExtAT_WaitTargetData::OnTargetDataReplicatedCallback( const FGameplayAb
         ValidData.Broadcast( data );
     }
 
-    EndTask();
+    if ( bEndTaskWhenTargetDataSent )
+    {
+        EndTask();
+    }
+}
+
+void UGASExtAT_WaitTargetData::TryProduceTargetData()
+{
+    if ( ShouldProduceTargetData() )
+    {
+        const auto target_data_handle = ProduceTargetData();
+        SendTargetData( target_data_handle );
+    }
 }
 
 void UGASExtAT_WaitTargetData::SendTargetData( const FGameplayAbilityTargetDataHandle & data )
@@ -112,7 +132,17 @@ void UGASExtAT_WaitTargetData::SendTargetData( const FGameplayAbilityTargetDataH
         ValidData.Broadcast( data );
     }
 
-    EndTask();
+    if ( bEndTaskWhenTargetDataSent )
+    {
+        EndTask();
+    }
+    else
+    {
+        if ( TargetDataProductionRate > 0.0f )
+        {
+            GetWorld()->GetTimerManager().SetTimer( TimerHandle, this, &ThisClass::TryProduceTargetData, TargetDataProductionRate, false );
+        }
+    }
 }
 
 bool UGASExtAT_WaitTargetData::ShouldReplicateDataToServer() const
