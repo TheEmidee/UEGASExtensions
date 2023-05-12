@@ -3,6 +3,7 @@
 #include "GASExtLog.h"
 
 #include <AbilitySystemComponent.h>
+#include <UObject/Package.h>
 
 void FGASExtAbilitySet_GrantedHandles::AddAbilitySpecHandle( const FGameplayAbilitySpecHandle & handle )
 {

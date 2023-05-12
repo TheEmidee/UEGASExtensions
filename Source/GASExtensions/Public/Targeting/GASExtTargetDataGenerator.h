@@ -59,7 +59,7 @@ class GASEXTENSIONS_API UGASExtTargetDataGenerator_GetActor final : public UGASE
 public:
     FGameplayAbilityTargetDataHandle GetTargetData( const FGameplayEffectContext * gameplay_effect_context, const FGameplayEventData & event_data ) const override;
 
-    UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = EGASExtTargetDataGeneratorActorSource ) )
+    UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = "/Script/GASExtensions.EGASExtTargetDataGeneratorActorSource" ) )
     uint8 Source;
 };
 
@@ -88,7 +88,7 @@ public:
     UPROPERTY( EditAnywhere )
     uint8 bMustHaveLineOfSight : 1;
 
-    UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = EGASExtTargetDataGeneratorActorSource ) )
+    UPROPERTY( EditAnywhere, meta = ( Bitmask, BitmaskEnum = "/Script/GASExtensions.EGASExtTargetDataGeneratorActorSource" ) )
     uint8 ActorsToIgnoreDuringSphereOverlap;
 
     UPROPERTY( EditAnywhere )

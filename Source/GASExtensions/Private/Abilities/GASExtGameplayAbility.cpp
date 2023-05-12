@@ -6,6 +6,7 @@
 #include <AbilitySystemGlobals.h>
 #include <AbilitySystemLog.h>
 #include <Components/GASExtAbilitySystemComponent.h>
+#include <GameFramework/Pawn.h>
 #include <GameFramework/PlayerController.h>
 #include <GameplayTask.h>
 

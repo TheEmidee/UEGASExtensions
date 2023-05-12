@@ -1,14 +1,15 @@
 #include "Components/GASExtAbilitySystemComponent.h"
 
-#include "Abilities/GASExtAbilitySet.h"
 #include "Abilities/GASExtAbilityTagRelationshipMapping.h"
 #include "Abilities/GASExtGameplayAbility.h"
 #include "Animation/GASExtAnimInstance.h"
 #include "DVEDataValidator.h"
 
-#include <AbilitySystemGlobals.h>
 #include <AbilitySystemLog.h>
 #include <Animation/AnimInstance.h>
+#include <Animation/AnimMontage.h>
+#include <Components/SkeletalMeshComponent.h>
+#include <GameFramework/Pawn.h>
 #include <GameplayCueManager.h>
 #include <Net/UnrealNetwork.h>
 
@@ -646,7 +647,7 @@ UGameplayAbility * UGASExtAbilitySystemComponent::GetAnimatingAbilityFromAnyMesh
     {
         if ( gameplay_ability_local_anim_montage_for_mesh.LocalMontageInfo.AnimatingAbility != nullptr )
         {
-            return gameplay_ability_local_anim_montage_for_mesh.LocalMontageInfo.AnimatingAbility;
+            return gameplay_ability_local_anim_montage_for_mesh.LocalMontageInfo.AnimatingAbility.Get();
         }
     }
 

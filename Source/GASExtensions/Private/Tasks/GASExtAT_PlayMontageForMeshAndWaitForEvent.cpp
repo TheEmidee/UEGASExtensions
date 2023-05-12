@@ -2,6 +2,7 @@
 
 #include <AbilitySystemGlobals.h>
 #include <Animation/AnimInstance.h>
+#include <Components/SkeletalMeshComponent.h>
 #include <GameFramework/Character.h>
 
 UGASExtAT_PlayMontageForMeshAndWaitForEvent::UGASExtAT_PlayMontageForMeshAndWaitForEvent()
@@ -74,7 +75,7 @@ void UGASExtAT_PlayMontageForMeshAndWaitForEvent::Activate()
         UE_LOG( LogTemp, Warning, TEXT( "UGASExtAT_PlayMontageForMeshAndWaitForEvent called in Ability %s failed to play montage %s; Task Instance Name %s." ), *Ability->GetName(), *GetNameSafe( MontageToPlay ), *InstanceName.ToString() );
         if ( ShouldBroadcastAbilityTaskDelegates() )
         {
-            //ABILITY_LOG(Display, TEXT("%s: OnCancelled"), *GetName());
+            // ABILITY_LOG(Display, TEXT("%s: OnCancelled"), *GetName());
             OnCancelled.Broadcast( FGameplayTag(), FGameplayEventData() );
         }
     }

@@ -1,6 +1,7 @@
 #include "Tasks/GASExtAT_WaitInputRelease.h"
 
 #include <AbilitySystemComponent.h>
+#include <Engine/World.h>
 
 void UGASExtAT_WaitInputRelease::Activate()
 {
