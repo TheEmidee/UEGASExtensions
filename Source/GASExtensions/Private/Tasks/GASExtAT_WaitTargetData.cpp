@@ -1,6 +1,7 @@
 #include "Tasks/GASExtAT_WaitTargetData.h"
 
 #include <AbilitySystemComponent.h>
+#include <Engine/World.h>
 #include <TimerManager.h>
 
 FGASExtWaitTargetDataReplicationOptions::FGASExtWaitTargetDataReplicationOptions()

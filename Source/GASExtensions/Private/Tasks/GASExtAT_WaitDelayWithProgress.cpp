@@ -1,5 +1,6 @@
 #include "Tasks/GASExtAT_WaitDelayWithProgress.h"
 
+#include <Engine/World.h>
 #include <TimerManager.h>
 
 UGASExtAT_WaitDelayWithProgress * UGASExtAT_WaitDelayWithProgress::WaitDelayWithProgress( UGameplayAbility * owning_ability, float time, int progress_percentage, float optional_time_skip /*= 0.0f*/ )
