@@ -4,11 +4,12 @@
 
 #include <CoreMinimal.h>
 #include <Engine/DataAsset.h>
-#include <GameplayAbilitySpec.h>
+#include <GameplayAbilitySpecHandle.h>
 #include <GameplayTags.h>
 
 #include "GASExtAbilitySet.generated.h"
 
+struct FActiveGameplayEffectHandle;
 class UGameplayEffect;
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -26,9 +27,6 @@ struct FGASExtAbilitySet_GameplayAbility
 
     UPROPERTY( EditDefaultsOnly, Meta = ( Categories = "InputTag" ) )
     FGameplayTag InputTag;
-
-    UPROPERTY( EditDefaultsOnly, Meta = ( Categories = "InputTag" ) )
-    int32 InputId = INDEX_NONE;
 };
 
 USTRUCT( BlueprintType )
