@@ -129,6 +129,10 @@ public:
     UFUNCTION( BlueprintCallable, Category = "GameplayCue", Meta = ( AutoCreateRefTerm = "parameters", GameplayTagFilter = "GameplayCue" ) )
     void RemoveGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters );
 
+    /** Cancels the ability indicated by passed in spec handle. If handle is not found among reactivated abilities nothing happens. */
+    UFUNCTION( BlueprintCallable, Category = "GameplayAbility", DisplayName = "CancelAbilityByHandle"  )
+    void K2_CancelAbilityHandle( const FGameplayAbilitySpecHandle & ability_handle );
+
     // ----------------------------------------------------------------------------------------------------------------
     //	AnimMontage Support for multiple USkeletalMeshComponents on the AvatarActor.
     //  Only one ability can be animating at a time though?

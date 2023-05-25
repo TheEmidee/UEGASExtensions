@@ -407,6 +407,12 @@ void UGASExtAbilitySystemComponent::RemoveGameplayCueLocal( const FGameplayTag g
 {
     UGameplayCueManager::RemoveGameplayCue_NonReplicated( GetOwner(), gameplay_cue_tag, parameters );
 }
+
+void UGASExtAbilitySystemComponent::K2_CancelAbilityHandle( const FGameplayAbilitySpecHandle & ability_handle )
+{
+    CancelAbilityHandle( ability_handle );
+}
+
 // ReSharper restore CppMemberFunctionMayBeConst
 
 float UGASExtAbilitySystemComponent::PlayMontageForMesh( UGameplayAbility * animating_ability, USkeletalMeshComponent * mesh, UAnimMontage * new_anim_montage, const float play_rate, const FName start_section_name, const bool must_replicate_montage )
