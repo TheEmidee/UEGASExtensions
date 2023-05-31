@@ -93,7 +93,6 @@ void UGASExtAbilitySet::GiveToAbilitySystem( UAbilitySystemComponent * asc, FGAS
         FGameplayAbilitySpec ability_spec( ability_cdo, ability_to_grant.AbilityLevel );
         ability_spec.SourceObject = source_object;
         ability_spec.DynamicAbilityTags.AddTag( ability_to_grant.InputTag );
-        ability_spec.InputID = ability_to_grant.InputId;
 
         const auto ability_spec_handle = asc->GiveAbility( ability_spec );
 
