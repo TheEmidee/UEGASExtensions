@@ -137,6 +137,9 @@ void UGASExtTargetingHelperLibrary::AimWithPlayerController( FVector & trace_sta
 
     pc->GetPlayerViewPoint( view_start, view_rotation );
 
+    view_start += aim_infos.LocationOffset;
+    view_rotation += aim_infos.RotationOffset;
+
     const auto view_direction = view_rotation.Vector();
     const auto view_end = view_start + ( view_direction * aim_infos.MaxRange );
 

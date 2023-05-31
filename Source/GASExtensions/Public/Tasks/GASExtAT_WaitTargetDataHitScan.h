@@ -32,6 +32,12 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
     FScalableFloat MaxRange;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
+    FVector TraceLocationOffset;
+
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
+    FRotator TraceRotationOffset;
+
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     FScalableFloat NumberOfTraces;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )

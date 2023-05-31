@@ -108,7 +108,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
 
     auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint && actor_info->PlayerController.IsValid();
 
-    auto aim_infos = FSWAimInfos( Ability, StartLocationInfo, Options.MaxRange.GetValue() );
+    auto aim_infos = FSWAimInfos( Ability, StartLocationInfo, Options.MaxRange.GetValue(), Options.TraceLocationOffset, Options.TraceRotationOffset );
 
     FVector trace_start;
     FVector trace_end;
