@@ -165,21 +165,48 @@ void UGASExtTargetingHelperLibrary::AimWithPlayerController( FVector & trace_sta
     //::DrawDebugLine( GetWorld(), view_start, trace_end, FColor::Red, false, 5.0f, 0, 5 );
 }
 
-void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos )
+void UGASExtTargetingHelperLibrary::AimFromStartLocation( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos )
 {
-    trace_start = aim_infos.StartLocationInfos.GetTargetingTransform().GetLocation();
+    trace_start = aim_infos.StartLocationInfos.GetTargetingTransform().GetLocation() + aim_infos.LocationOffset;
 
-    if ( aim_infos.StartLocationInfos.SourceComponent != nullptr )
+    FVector forward_vector;
+    FVector right_vector;
+    FVector up_vector;
+
+    switch ( aim_infos.StartLocationInfos.LocationType )
     {
-        const FRotator rotation_offset( 0.0f );
-
-        auto forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Roll, forward_vector );
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Pitch, aim_infos.StartLocationInfos.SourceComponent->GetRightVector() );
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Yaw, aim_infos.StartLocationInfos.SourceComponent->GetUpVector() );
-
-        trace_end = trace_start + forward_vector * aim_infos.MaxRange;
+        case EGameplayAbilityTargetingLocationType::ActorTransform:
+        {
+            if ( aim_infos.StartLocationInfos.SourceActor != nullptr )
+            {
+                forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
+                right_vector = aim_infos.StartLocationInfos.SourceActor->GetActorRightVector();
+                up_vector = aim_infos.StartLocationInfos.SourceActor->GetActorUpVector();
+            }
+        }
+        break;
+        case EGameplayAbilityTargetingLocationType::SocketTransform:
+        {
+            if ( aim_infos.StartLocationInfos.SourceComponent != nullptr )
+            {
+                forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
+                right_vector = aim_infos.StartLocationInfos.SourceComponent->GetRightVector();
+                up_vector = aim_infos.StartLocationInfos.SourceComponent->GetUpVector();
+            }
+        }
+        break;
+        default:
+        {
+            checkNoEntry();
+        }
+        break;
     }
+
+    forward_vector = forward_vector.RotateAngleAxis( aim_infos.RotationOffset.Roll, forward_vector );
+    forward_vector = forward_vector.RotateAngleAxis( aim_infos.RotationOffset.Pitch, right_vector );
+    forward_vector = forward_vector.RotateAngleAxis( aim_infos.RotationOffset.Yaw, up_vector );
+
+    trace_end = trace_start + forward_vector * aim_infos.MaxRange;
 }
 
 void UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread( FVector & trace_end, const FSWSpreadInfos & spread_infos )
