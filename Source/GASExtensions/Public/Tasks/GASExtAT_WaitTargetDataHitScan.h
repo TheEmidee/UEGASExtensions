@@ -59,6 +59,9 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     uint8 bShowDebugTraces : 1;
+
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, meta = ( EditCondition = "bShowDebugTraces" ) )
+    float DebugDrawDuration;
 };
 
 UCLASS()
