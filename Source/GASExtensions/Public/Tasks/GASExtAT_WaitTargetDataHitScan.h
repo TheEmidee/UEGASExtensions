@@ -22,7 +22,7 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     EGASExtTargetTraceType TargetTraceType;
 
-    UPROPERTY( EditDefaultsOnly, BlueprintReadOnly )
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     FGASExtCollisionDetectionInfo CollisionInfo;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
