@@ -27,16 +27,20 @@ public:
 
 struct FSWAimInfos
 {
-    FSWAimInfos( const UGameplayAbility * ability, const FGameplayAbilityTargetingLocationInfo & start_location_infos, const float max_range ) :
+    FSWAimInfos( const UGameplayAbility * ability, const FGameplayAbilityTargetingLocationInfo & start_location_infos, const float max_range, const FVector & location_offset = FVector::ZeroVector, const FRotator & rotation_offset = FRotator::ZeroRotator ) :
         Ability( ability ),
         StartLocationInfos( start_location_infos ),
-        MaxRange( max_range )
+        MaxRange( max_range ),
+        LocationOffset( location_offset ),
+        RotationOffset( rotation_offset )
     {
     }
 
     const UGameplayAbility * Ability;
     const FGameplayAbilityTargetingLocationInfo & StartLocationInfos;
     const float MaxRange;
+    const FVector LocationOffset;
+    const FRotator RotationOffset;
 };
 
 struct FSWSpreadInfos
