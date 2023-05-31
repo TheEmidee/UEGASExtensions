@@ -31,26 +31,54 @@ UGASExtAT_WaitTargetDataHitScan * UGASExtAT_WaitTargetDataHitScan::WaitTargetDat
 
 void UGASExtAT_WaitTargetDataHitScan::DoTrace( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params ) const
 {
-    if ( Options.TargetTraceType == EGASExtTargetTraceType::Sphere )
+    switch ( Options.TargetTraceType )
     {
-        UGASExtTargetingHelperLibrary::SphereTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceSphereRadius, collision_info, collision_query_params );
-    }
-    else
-    {
-        UGASExtTargetingHelperLibrary::LineTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params );
+        case EGASExtTargetTraceType::Line:
+        {
+            UGASExtTargetingHelperLibrary::LineTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params );
+        }
+        break;
+        case EGASExtTargetTraceType::Sphere:
+        {
+            UGASExtTargetingHelperLibrary::SphereTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceSphereRadius, collision_info, collision_query_params );
+        }
+        break;
+        case EGASExtTargetTraceType::Box:
+        {
+            UGASExtTargetingHelperLibrary::BoxTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceSphereRadius, collision_info, collision_query_params );
+        }
+        break;
+        default:
+        {
+            checkNoEntry();
+        };
     }
 }
 
 void UGASExtAT_WaitTargetDataHitScan::ShowDebugTraces( const TArray< FHitResult > & hit_results, const FVector & trace_start, const FVector & trace_end, EDrawDebugTrace::Type draw_debug_type, float duration ) const
 {
 #if ENABLE_DRAW_DEBUG
-    if ( Options.TargetTraceType == EGASExtTargetTraceType::Sphere )
+    switch ( Options.TargetTraceType )
     {
-        UCoreExtTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceSphereRadius, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
-    }
-    else
-    {
-        UCoreExtTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        case EGASExtTargetTraceType::Line:
+        {
+            UCoreExtTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        }
+        break;
+        case EGASExtTargetTraceType::Sphere:
+        {
+            UCoreExtTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceSphereRadius, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        }
+        break;
+        case EGASExtTargetTraceType::Box:
+        {
+            UCoreExtTraceBlueprintLibrary::DrawDebugBoxTraceMulti( GetWorld(), trace_start, trace_end, FVector( Options.TraceSphereRadius ), FRotator::ZeroRotator, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        }
+        break;
+        default:
+        {
+            checkNoEntry();
+        };
     }
 #endif
 }

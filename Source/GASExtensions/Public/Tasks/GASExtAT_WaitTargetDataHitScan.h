@@ -47,8 +47,8 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     uint8 bTraceAffectsAimPitch : 1;
 
-    /* If greater than zero, will generate a sphere cast. Otherwise, a line cast */
-    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, meta = ( EditCondition = "TargetTraceType == EGASExtTargetTraceType::Sphere" ) )
+    /* This is also used as the box half-extent */
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, meta = ( EditCondition = "TargetTraceType != EGASExtTargetTraceType::Line" ) )
     float TraceSphereRadius;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )

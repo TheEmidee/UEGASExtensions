@@ -59,28 +59,12 @@ void UGASExtTargetingHelperLibrary::LineTraceWithFilter( TArray< FHitResult > & 
 
 void UGASExtTargetingHelperLibrary::SphereTraceWithFilter( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const float sphere_radius, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params )
 {
-    check( world != nullptr );
+    ShapeTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params, FCollisionShape::MakeSphere( sphere_radius ) );
+}
 
-    switch ( collision_info.DetectionType )
-    {
-        case EGASExtCollisionDetectionType::UsingCollisionProfile:
-        {
-            world->SweepMultiByProfile( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceProfile.Name, FCollisionShape::MakeSphere( sphere_radius ), collision_query_params );
-            break;
-        }
-        case EGASExtCollisionDetectionType::UsingCollisionChannel:
-        {
-            world->SweepMultiByChannel( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceChannel, FCollisionShape::MakeSphere( sphere_radius ), collision_query_params );
-            break;
-        }
-        default:
-        {
-            checkNoEntry();
-            break;
-        }
-    }
-
-    FilterHitResults( hit_results, trace_start, trace_end, target_data_filter_handle );
+void UGASExtTargetingHelperLibrary::BoxTraceWithFilter( TArray<FHitResult> & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, float sphere_radius, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params )
+{
+    ShapeTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params, FCollisionShape::MakeBox( FVector( sphere_radius ) ) );
 }
 
 void UGASExtTargetingHelperLibrary::FilterHitResults( TArray< FHitResult > & hit_results, const FVector & trace_start, const FVector & trace_end, const FGameplayTargetDataFilterHandle & target_data_filter_handle )
@@ -204,4 +188,30 @@ void UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread( FVector & trace_e
     const auto shoot_direction = WeaponRandomStream.VRandCone( aim_direction, cone_half_angle, cone_half_angle );
 
     trace_end = spread_infos.TraceStart + ( shoot_direction * spread_infos.MaxRange );
+}
+
+void UGASExtTargetingHelperLibrary::ShapeTraceWithFilter( TArray<FHitResult> & hit_results, const UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params, const FCollisionShape & collision_shape )
+{
+    check( world != nullptr );
+
+    switch ( collision_info.DetectionType )
+    {
+        case EGASExtCollisionDetectionType::UsingCollisionProfile:
+        {
+            world->SweepMultiByProfile( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceProfile.Name, collision_shape, collision_query_params );
+            break;
+        }
+        case EGASExtCollisionDetectionType::UsingCollisionChannel:
+        {
+            world->SweepMultiByChannel( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceChannel, collision_shape, collision_query_params );
+            break;
+        }
+        default:
+        {
+            checkNoEntry();
+            break;
+        }
+    }
+
+    FilterHitResults( hit_results, trace_start, trace_end, target_data_filter_handle );
 }
