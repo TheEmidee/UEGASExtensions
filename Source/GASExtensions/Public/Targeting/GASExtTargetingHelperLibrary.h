@@ -82,7 +82,7 @@ public:
     static FGameplayAbilityTargetDataHandle MakeTargetDataFromMultipleLocationInfos( const TArray< FSWTargetingLocationInfo > & location_infos );
 
     static void AimWithPlayerController( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
-    static void AimFromComponent( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
+    static void AimFromStartLocation( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
     static void ComputeTraceEndWithSpread( FVector & trace_end, const FSWSpreadInfos & spread_infos );
 
 private:

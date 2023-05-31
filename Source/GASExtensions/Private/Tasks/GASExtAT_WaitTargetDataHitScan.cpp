@@ -121,7 +121,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     }
     else
     {
-        UGASExtTargetingHelperLibrary::AimFromComponent( trace_start, initial_trace_end, aim_infos );
+        UGASExtTargetingHelperLibrary::AimFromStartLocation( trace_start, initial_trace_end, aim_infos );
     }
 
     trace_end = initial_trace_end;
