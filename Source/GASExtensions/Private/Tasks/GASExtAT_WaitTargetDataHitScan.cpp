@@ -13,7 +13,8 @@ FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
     bSpreadTraces( true ),
     bTraceAffectsAimPitch( true ),
     TraceSphereRadius( 10.0f ),
-    bShowDebugTraces( false )
+    bShowDebugTraces( false ),
+    DebugDrawDuration( 2.0f )
 {
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
@@ -169,7 +170,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
 #if ENABLE_DRAW_DEBUG
         if ( Options.bShowDebugTraces )
         {
-            ShowDebugTraces( trace_hit_results, trace_start, trace_end, EDrawDebugTrace::Type::ForDuration, 2.0f );
+            ShowDebugTraces( trace_hit_results, trace_start, trace_end, EDrawDebugTrace::Type::ForDuration, Options.DebugDrawDuration );
         }
 #endif
 
