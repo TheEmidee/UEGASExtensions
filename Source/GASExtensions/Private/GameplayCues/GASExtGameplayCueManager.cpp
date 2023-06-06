@@ -111,9 +111,9 @@ bool UGASExtGameplayCueManager::ShouldAsyncLoadMissingGameplayCues() const
 
 void UGASExtGameplayCueManager::RouteGameplayCue( AActor * target_actor, FGameplayTag gameplay_cue_tag, EGameplayCueEvent::Type event_type, const FGameplayCueParameters & parameters, EGameplayCueExecutionOptions options )
 {
-    if ( OnRouteGameplayCueDelegate.IsBound() )
+    if ( OnGameplayCueRoutedDelegate.IsBound() )
     {
-        OnRouteGameplayCueDelegate.Broadcast( target_actor, gameplay_cue_tag, event_type, parameters );
+        OnGameplayCueRoutedDelegate.Broadcast( target_actor, gameplay_cue_tag, event_type, parameters );
     }
 
     Super::RouteGameplayCue( target_actor, gameplay_cue_tag, event_type, parameters, options );

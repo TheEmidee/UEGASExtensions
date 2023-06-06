@@ -5,7 +5,7 @@
 
 #include "GASExtGameplayCueManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams( FGASExtOnRouteGameplayCueDelegate, AActor *, target_actor, FGameplayTag, gameplay_tag, EGameplayCueEvent::Type, event_type, const FGameplayCueParameters &, params );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams( FGASExtOnGameplayCueRoutedDelegate, AActor *, target_actor, FGameplayTag, gameplay_tag, EGameplayCueEvent::Type, event_type, const FGameplayCueParameters &, params );
 
 UCLASS()
 class GASEXTENSIONS_API UGASExtGameplayCueManager : public UGameplayCueManager
@@ -13,7 +13,7 @@ class GASEXTENSIONS_API UGASExtGameplayCueManager : public UGameplayCueManager
     GENERATED_BODY()
 
 public:
-    FGASExtOnRouteGameplayCueDelegate & OnRouteGameplayCue();
+    FGASExtOnGameplayCueRoutedDelegate & OnGameplayCueRouted();
 
     void OnCreated() override;
     bool ShouldAsyncLoadRuntimeObjectLibraries() const override;
@@ -64,10 +64,10 @@ private:
     TArray< FLoadedGameplayTagToProcessData > LoadedGameplayTagsToProcess;
     bool bProcessLoadedTagsAfterGC = false;
 
-    FGASExtOnRouteGameplayCueDelegate OnRouteGameplayCueDelegate;
+    FGASExtOnGameplayCueRoutedDelegate OnGameplayCueRoutedDelegate;
 };
 
-FORCEINLINE FGASExtOnRouteGameplayCueDelegate & UGASExtGameplayCueManager::OnRouteGameplayCue()
+FORCEINLINE FGASExtOnGameplayCueRoutedDelegate & UGASExtGameplayCueManager::OnGameplayCueRouted()
 {
-    return OnRouteGameplayCueDelegate;
+    return OnGameplayCueRoutedDelegate;
 }
