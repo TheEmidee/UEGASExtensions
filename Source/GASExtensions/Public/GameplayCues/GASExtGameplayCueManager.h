@@ -5,17 +5,22 @@
 
 #include "GASExtGameplayCueManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams( FGASExtOnGameplayCueRoutedDelegate, AActor *, target_actor, FGameplayTag, gameplay_tag, EGameplayCueEvent::Type, event_type, const FGameplayCueParameters &, params );
+
 UCLASS()
 class GASEXTENSIONS_API UGASExtGameplayCueManager : public UGameplayCueManager
 {
     GENERATED_BODY()
 
 public:
+    FGASExtOnGameplayCueRoutedDelegate & OnGameplayCueRouted();
 
     void OnCreated() override;
     bool ShouldAsyncLoadRuntimeObjectLibraries() const override;
     bool ShouldSyncLoadMissingGameplayCues() const override;
     bool ShouldAsyncLoadMissingGameplayCues() const override;
+    void RouteGameplayCue( AActor * target_actor, FGameplayTag gameplay_cue_tag, EGameplayCueEvent::Type event_type, const FGameplayCueParameters & parameters, EGameplayCueExecutionOptions options ) override;
+
     void LoadAlwaysLoadedCues();
     void RefreshGameplayCuePrimaryAsset();
 
@@ -23,7 +28,6 @@ public:
     static UGASExtGameplayCueManager * Get();
 
 private:
-
     struct FLoadedGameplayTagToProcessData
     {
         FLoadedGameplayTagToProcessData()
@@ -59,4 +63,11 @@ private:
     FCriticalSection LoadedGameplayTagsToProcessCS;
     TArray< FLoadedGameplayTagToProcessData > LoadedGameplayTagsToProcess;
     bool bProcessLoadedTagsAfterGC = false;
+
+    FGASExtOnGameplayCueRoutedDelegate OnGameplayCueRoutedDelegate;
 };
+
+FORCEINLINE FGASExtOnGameplayCueRoutedDelegate & UGASExtGameplayCueManager::OnGameplayCueRouted()
+{
+    return OnGameplayCueRoutedDelegate;
+}
