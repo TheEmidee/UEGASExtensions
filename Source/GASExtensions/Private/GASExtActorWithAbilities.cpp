@@ -56,3 +56,8 @@ void AGASExtActorWithAbilities::BeginPlay()
         AttributeSets.Add( attribute_set );
     }
 }
+
+void AGASExtActorWithAbilities::GetOwnedGameplayTags( FGameplayTagContainer & tag_container ) const
+{
+    tag_container.AppendTags( StaticTags );
+}
