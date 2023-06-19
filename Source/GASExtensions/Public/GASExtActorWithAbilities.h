@@ -4,6 +4,7 @@
 #include <AbilitySystemInterface.h>
 #include <CoreMinimal.h>
 #include <GameFramework/Actor.h>
+#include <GameplayTagContainer.h>
 
 #include "GASExtActorWithAbilities.generated.h"
 
@@ -13,7 +14,7 @@ class UGASExtAbilityTagRelationshipMapping;
 class UGASExtAbilitySystemComponent;
 
 UCLASS()
-class GASEXTENSIONS_API AGASExtActorWithAbilities : public AActor, public IAbilitySystemInterface
+class GASEXTENSIONS_API AGASExtActorWithAbilities : public AActor, public IAbilitySystemInterface, public IGameplayTagAssetInterface
 {
     GENERATED_BODY()
 
@@ -23,6 +24,7 @@ public:
     UAbilitySystemComponent * GetAbilitySystemComponent() const override;
     void PostInitializeComponents() override;
     void BeginPlay() override;
+    void GetOwnedGameplayTags( FGameplayTagContainer & tag_container ) const override;
 
 protected:
     UPROPERTY( VisibleAnywhere, BlueprintReadOnly, meta = ( AllowPrivateAccess = "true" ) )
@@ -43,6 +45,9 @@ private:
 
     UPROPERTY( EditDefaultsOnly )
     TArray< TSubclassOf< UAttributeSet > > AttributeSetClasses;
+
+    UPROPERTY( EditDefaultsOnly )
+    FGameplayTagContainer StaticTags;
 
     UPROPERTY( Transient )
     TArray< TObjectPtr< UAttributeSet > > AttributeSets;
