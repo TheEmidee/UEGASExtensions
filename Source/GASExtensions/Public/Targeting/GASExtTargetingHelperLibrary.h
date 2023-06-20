@@ -27,16 +27,20 @@ public:
 
 struct FSWAimInfos
 {
-    FSWAimInfos( const UGameplayAbility * ability, const FGameplayAbilityTargetingLocationInfo & start_location_infos, const float max_range ) :
+    FSWAimInfos( const UGameplayAbility * ability, const FGameplayAbilityTargetingLocationInfo & start_location_infos, const float max_range, const FVector & location_offset = FVector::ZeroVector, const FRotator & rotation_offset = FRotator::ZeroRotator ) :
         Ability( ability ),
         StartLocationInfos( start_location_infos ),
-        MaxRange( max_range )
+        MaxRange( max_range ),
+        LocationOffset( location_offset ),
+        RotationOffset( rotation_offset )
     {
     }
 
     const UGameplayAbility * Ability;
     const FGameplayAbilityTargetingLocationInfo & StartLocationInfos;
     const float MaxRange;
+    const FVector LocationOffset;
+    const FRotator RotationOffset;
 };
 
 struct FSWSpreadInfos
@@ -63,6 +67,7 @@ class GASEXTENSIONS_API UGASExtTargetingHelperLibrary final : public UBlueprintF
 public:
     static void LineTraceWithFilter( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params );
     static void SphereTraceWithFilter( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, float sphere_radius, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params );
+    static void BoxTraceWithFilter( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FVector & box_half_extent, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params );
 
     UFUNCTION( BlueprintCallable )
     static void FilterHitResults( TArray< FHitResult > & hit_results, const FVector & trace_start, const FVector & trace_end, const FGameplayTargetDataFilterHandle & target_data_filter_handle );
@@ -77,6 +82,11 @@ public:
     static FGameplayAbilityTargetDataHandle MakeTargetDataFromMultipleLocationInfos( const TArray< FSWTargetingLocationInfo > & location_infos );
 
     static void AimWithPlayerController( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
-    static void AimFromComponent( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
+    static void AimFromStartLocation( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos );
     static void ComputeTraceEndWithSpread( FVector & trace_end, const FSWSpreadInfos & spread_infos );
+
+private:
+    static void ShapeTraceWithFilter( TArray< FHitResult > & hit_results, const UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params, const FCollisionShape & collision_shape );
+
+
 };

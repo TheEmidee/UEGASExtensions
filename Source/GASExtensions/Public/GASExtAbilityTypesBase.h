@@ -47,7 +47,8 @@ UENUM( BlueprintType )
 enum class EGASExtTargetTraceType : uint8
 {
     Line,
-    Sphere
+    Sphere,
+    Box
 };
 
 UENUM( BlueprintType )

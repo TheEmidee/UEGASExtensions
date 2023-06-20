@@ -59,28 +59,12 @@ void UGASExtTargetingHelperLibrary::LineTraceWithFilter( TArray< FHitResult > & 
 
 void UGASExtTargetingHelperLibrary::SphereTraceWithFilter( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const float sphere_radius, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params )
 {
-    check( world != nullptr );
+    ShapeTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params, FCollisionShape::MakeSphere( sphere_radius ) );
+}
 
-    switch ( collision_info.DetectionType )
-    {
-        case EGASExtCollisionDetectionType::UsingCollisionProfile:
-        {
-            world->SweepMultiByProfile( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceProfile.Name, FCollisionShape::MakeSphere( sphere_radius ), collision_query_params );
-            break;
-        }
-        case EGASExtCollisionDetectionType::UsingCollisionChannel:
-        {
-            world->SweepMultiByChannel( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceChannel, FCollisionShape::MakeSphere( sphere_radius ), collision_query_params );
-            break;
-        }
-        default:
-        {
-            checkNoEntry();
-            break;
-        }
-    }
-
-    FilterHitResults( hit_results, trace_start, trace_end, target_data_filter_handle );
+void UGASExtTargetingHelperLibrary::BoxTraceWithFilter( TArray<FHitResult> & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FVector & box_half_extent, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params )
+{
+    ShapeTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params, FCollisionShape::MakeBox( FVector( box_half_extent ) ) );
 }
 
 void UGASExtTargetingHelperLibrary::FilterHitResults( TArray< FHitResult > & hit_results, const FVector & trace_start, const FVector & trace_end, const FGameplayTargetDataFilterHandle & target_data_filter_handle )
@@ -153,6 +137,9 @@ void UGASExtTargetingHelperLibrary::AimWithPlayerController( FVector & trace_sta
 
     pc->GetPlayerViewPoint( view_start, view_rotation );
 
+    view_start += aim_infos.LocationOffset;
+    view_rotation += aim_infos.RotationOffset;
+
     const auto view_direction = view_rotation.Vector();
     const auto view_end = view_start + ( view_direction * aim_infos.MaxRange );
 
@@ -178,21 +165,48 @@ void UGASExtTargetingHelperLibrary::AimWithPlayerController( FVector & trace_sta
     //::DrawDebugLine( GetWorld(), view_start, trace_end, FColor::Red, false, 5.0f, 0, 5 );
 }
 
-void UGASExtTargetingHelperLibrary::AimFromComponent( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos )
+void UGASExtTargetingHelperLibrary::AimFromStartLocation( FVector & trace_start, FVector & trace_end, const FSWAimInfos & aim_infos )
 {
-    trace_start = aim_infos.StartLocationInfos.GetTargetingTransform().GetLocation();
+    trace_start = aim_infos.StartLocationInfos.GetTargetingTransform().GetLocation() + aim_infos.LocationOffset;
 
-    if ( aim_infos.StartLocationInfos.SourceComponent != nullptr )
+    FVector forward_vector;
+    FVector right_vector;
+    FVector up_vector;
+
+    switch ( aim_infos.StartLocationInfos.LocationType )
     {
-        const FRotator rotation_offset( 0.0f );
-
-        auto forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Roll, forward_vector );
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Pitch, aim_infos.StartLocationInfos.SourceComponent->GetRightVector() );
-        forward_vector = forward_vector.RotateAngleAxis( rotation_offset.Yaw, aim_infos.StartLocationInfos.SourceComponent->GetUpVector() );
-
-        trace_end = trace_start + forward_vector * aim_infos.MaxRange;
+        case EGameplayAbilityTargetingLocationType::ActorTransform:
+        {
+            if ( aim_infos.StartLocationInfos.SourceActor != nullptr )
+            {
+                forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
+                right_vector = aim_infos.StartLocationInfos.SourceActor->GetActorRightVector();
+                up_vector = aim_infos.StartLocationInfos.SourceActor->GetActorUpVector();
+            }
+        }
+        break;
+        case EGameplayAbilityTargetingLocationType::SocketTransform:
+        {
+            if ( aim_infos.StartLocationInfos.SourceComponent != nullptr )
+            {
+                forward_vector = aim_infos.StartLocationInfos.GetTargetingTransform().Rotator().Vector();
+                right_vector = aim_infos.StartLocationInfos.SourceComponent->GetRightVector();
+                up_vector = aim_infos.StartLocationInfos.SourceComponent->GetUpVector();
+            }
+        }
+        break;
+        default:
+        {
+            checkNoEntry();
+        }
+        break;
     }
+
+    forward_vector = forward_vector.RotateAngleAxis( aim_infos.RotationOffset.Roll, forward_vector );
+    forward_vector = forward_vector.RotateAngleAxis( aim_infos.RotationOffset.Pitch, right_vector );
+    forward_vector = forward_vector.RotateAngleAxis( aim_infos.RotationOffset.Yaw, up_vector );
+
+    trace_end = trace_start + forward_vector * aim_infos.MaxRange;
 }
 
 void UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread( FVector & trace_end, const FSWSpreadInfos & spread_infos )
@@ -204,4 +218,30 @@ void UGASExtTargetingHelperLibrary::ComputeTraceEndWithSpread( FVector & trace_e
     const auto shoot_direction = WeaponRandomStream.VRandCone( aim_direction, cone_half_angle, cone_half_angle );
 
     trace_end = spread_infos.TraceStart + ( shoot_direction * spread_infos.MaxRange );
+}
+
+void UGASExtTargetingHelperLibrary::ShapeTraceWithFilter( TArray<FHitResult> & hit_results, const UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params, const FCollisionShape & collision_shape )
+{
+    check( world != nullptr );
+
+    switch ( collision_info.DetectionType )
+    {
+        case EGASExtCollisionDetectionType::UsingCollisionProfile:
+        {
+            world->SweepMultiByProfile( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceProfile.Name, collision_shape, collision_query_params );
+            break;
+        }
+        case EGASExtCollisionDetectionType::UsingCollisionChannel:
+        {
+            world->SweepMultiByChannel( hit_results, trace_start, trace_end, FQuat::Identity, collision_info.TraceChannel, collision_shape, collision_query_params );
+            break;
+        }
+        default:
+        {
+            checkNoEntry();
+            break;
+        }
+    }
+
+    FilterHitResults( hit_results, trace_start, trace_end, target_data_filter_handle );
 }

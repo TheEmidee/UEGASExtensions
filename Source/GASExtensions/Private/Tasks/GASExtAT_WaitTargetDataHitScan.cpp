@@ -13,7 +13,9 @@ FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
     bSpreadTraces( true ),
     bTraceAffectsAimPitch( true ),
     TraceSphereRadius( 10.0f ),
-    bShowDebugTraces( false )
+    TraceBoxHalfExtent( 10.0f ),
+    bShowDebugTraces( false ),
+    DebugDrawDuration( 2.0f )
 {
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
@@ -31,26 +33,54 @@ UGASExtAT_WaitTargetDataHitScan * UGASExtAT_WaitTargetDataHitScan::WaitTargetDat
 
 void UGASExtAT_WaitTargetDataHitScan::DoTrace( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params ) const
 {
-    if ( Options.TargetTraceType == EGASExtTargetTraceType::Sphere )
+    switch ( Options.TargetTraceType )
     {
-        UGASExtTargetingHelperLibrary::SphereTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceSphereRadius, collision_info, collision_query_params );
-    }
-    else
-    {
-        UGASExtTargetingHelperLibrary::LineTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params );
+        case EGASExtTargetTraceType::Line:
+        {
+            UGASExtTargetingHelperLibrary::LineTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params );
+        }
+        break;
+        case EGASExtTargetTraceType::Sphere:
+        {
+            UGASExtTargetingHelperLibrary::SphereTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceSphereRadius, collision_info, collision_query_params );
+        }
+        break;
+        case EGASExtTargetTraceType::Box:
+        {
+            UGASExtTargetingHelperLibrary::BoxTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceBoxHalfExtent, collision_info, collision_query_params );
+        }
+        break;
+        default:
+        {
+            checkNoEntry();
+        };
     }
 }
 
 void UGASExtAT_WaitTargetDataHitScan::ShowDebugTraces( const TArray< FHitResult > & hit_results, const FVector & trace_start, const FVector & trace_end, EDrawDebugTrace::Type draw_debug_type, float duration ) const
 {
 #if ENABLE_DRAW_DEBUG
-    if ( Options.TargetTraceType == EGASExtTargetTraceType::Sphere )
+    switch ( Options.TargetTraceType )
     {
-        UCoreExtTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceSphereRadius, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
-    }
-    else
-    {
-        UCoreExtTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        case EGASExtTargetTraceType::Line:
+        {
+            UCoreExtTraceBlueprintLibrary::DrawDebugLineTraceMulti( GetWorld(), trace_start, trace_end, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        }
+        break;
+        case EGASExtTargetTraceType::Sphere:
+        {
+            UCoreExtTraceBlueprintLibrary::DrawDebugSphereTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceSphereRadius, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        }
+        break;
+        case EGASExtTargetTraceType::Box:
+        {
+            UCoreExtTraceBlueprintLibrary::DrawDebugBoxTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceBoxHalfExtent, FRotator::ZeroRotator, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+        }
+        break;
+        default:
+        {
+            checkNoEntry();
+        };
     }
 #endif
 }
@@ -80,7 +110,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
 
     auto trace_from_player_view_point = Options.bAimFromPlayerViewPoint && actor_info->PlayerController.IsValid();
 
-    auto aim_infos = FSWAimInfos( Ability, StartLocationInfo, Options.MaxRange.GetValue() );
+    auto aim_infos = FSWAimInfos( Ability, StartLocationInfo, Options.MaxRange.GetValue(), Options.TraceLocationOffset, Options.TraceRotationOffset );
 
     FVector trace_start;
     FVector trace_end;
@@ -93,7 +123,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
     }
     else
     {
-        UGASExtTargetingHelperLibrary::AimFromComponent( trace_start, initial_trace_end, aim_infos );
+        UGASExtTargetingHelperLibrary::AimFromStartLocation( trace_start, initial_trace_end, aim_infos );
     }
 
     trace_end = initial_trace_end;
@@ -141,7 +171,7 @@ TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
 #if ENABLE_DRAW_DEBUG
         if ( Options.bShowDebugTraces )
         {
-            ShowDebugTraces( trace_hit_results, trace_start, trace_end, EDrawDebugTrace::Type::ForDuration, 2.0f );
+            ShowDebugTraces( trace_hit_results, trace_start, trace_end, EDrawDebugTrace::Type::ForDuration, Options.DebugDrawDuration );
         }
 #endif
 
