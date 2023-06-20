@@ -62,9 +62,9 @@ void UGASExtTargetingHelperLibrary::SphereTraceWithFilter( TArray< FHitResult > 
     ShapeTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params, FCollisionShape::MakeSphere( sphere_radius ) );
 }
 
-void UGASExtTargetingHelperLibrary::BoxTraceWithFilter( TArray<FHitResult> & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, float sphere_radius, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params )
+void UGASExtTargetingHelperLibrary::BoxTraceWithFilter( TArray<FHitResult> & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FVector & box_half_extent, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params )
 {
-    ShapeTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params, FCollisionShape::MakeBox( FVector( sphere_radius ) ) );
+    ShapeTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, collision_info, collision_query_params, FCollisionShape::MakeBox( FVector( box_half_extent ) ) );
 }
 
 void UGASExtTargetingHelperLibrary::FilterHitResults( TArray< FHitResult > & hit_results, const FVector & trace_start, const FVector & trace_end, const FGameplayTargetDataFilterHandle & target_data_filter_handle )

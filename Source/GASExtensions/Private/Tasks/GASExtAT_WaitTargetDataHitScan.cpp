@@ -13,6 +13,7 @@ FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
     bSpreadTraces( true ),
     bTraceAffectsAimPitch( true ),
     TraceSphereRadius( 10.0f ),
+    TraceBoxHalfExtent( 10.0f ),
     bShowDebugTraces( false ),
     DebugDrawDuration( 2.0f )
 {
@@ -46,7 +47,7 @@ void UGASExtAT_WaitTargetDataHitScan::DoTrace( TArray< FHitResult > & hit_result
         break;
         case EGASExtTargetTraceType::Box:
         {
-            UGASExtTargetingHelperLibrary::BoxTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceSphereRadius, collision_info, collision_query_params );
+            UGASExtTargetingHelperLibrary::BoxTraceWithFilter( hit_results, world, target_data_filter_handle, trace_start, trace_end, Options.TraceBoxHalfExtent, collision_info, collision_query_params );
         }
         break;
         default:
@@ -73,7 +74,7 @@ void UGASExtAT_WaitTargetDataHitScan::ShowDebugTraces( const TArray< FHitResult 
         break;
         case EGASExtTargetTraceType::Box:
         {
-            UCoreExtTraceBlueprintLibrary::DrawDebugBoxTraceMulti( GetWorld(), trace_start, trace_end, FVector( Options.TraceSphereRadius ), FRotator::ZeroRotator, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
+            UCoreExtTraceBlueprintLibrary::DrawDebugBoxTraceMulti( GetWorld(), trace_start, trace_end, Options.TraceBoxHalfExtent, FRotator::ZeroRotator, draw_debug_type, true, hit_results, FLinearColor::Green, FLinearColor::Red, duration );
         }
         break;
         default:

@@ -53,9 +53,11 @@ struct GASEXTENSIONS_API FGASExtWaitTargetDataHitScanOptions
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     uint8 bTraceAffectsAimPitch : 1;
 
-    /* This is also used as the box half-extent */
-    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, meta = ( EditCondition = "TargetTraceType != EGASExtTargetTraceType::Line" ) )
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, meta = ( EditCondition = "TargetTraceType == EGASExtTargetTraceType::Sphere" ) )
     float TraceSphereRadius;
+
+    UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, meta = ( EditCondition = "TargetTraceType == EGASExtTargetTraceType::Box" ) )
+    FVector TraceBoxHalfExtent;
 
     UPROPERTY( EditDefaultsOnly, BlueprintReadWrite )
     uint8 bShowDebugTraces : 1;
