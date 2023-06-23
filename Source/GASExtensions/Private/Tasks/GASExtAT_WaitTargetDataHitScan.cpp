@@ -31,6 +31,16 @@ UGASExtAT_WaitTargetDataHitScan * UGASExtAT_WaitTargetDataHitScan::WaitTargetDat
     return my_obj;
 }
 
+FGameplayAbilityTargetDataHandle UGASExtAT_WaitTargetDataHitScan::ProduceTargetData()
+{
+    check( IsValid( Ability ) );
+
+    const auto hit_results = PerformTrace();
+    const auto target_data_handle = UGASExtTargetingHelperLibrary::MakeTargetDataFromHitResults( hit_results );
+
+    return target_data_handle;
+}
+
 void UGASExtAT_WaitTargetDataHitScan::DoTrace( TArray< FHitResult > & hit_results, UWorld * world, const FGameplayTargetDataFilterHandle & target_data_filter_handle, const FVector & trace_start, const FVector & trace_end, const FGASExtCollisionDetectionInfo & collision_info, const FCollisionQueryParams & collision_query_params ) const
 {
     switch ( Options.TargetTraceType )
@@ -83,16 +93,6 @@ void UGASExtAT_WaitTargetDataHitScan::ShowDebugTraces( const TArray< FHitResult 
         };
     }
 #endif
-}
-
-FGameplayAbilityTargetDataHandle UGASExtAT_WaitTargetDataHitScan::ProduceTargetData()
-{
-    check( IsValid( Ability ) );
-
-    const auto hit_results = PerformTrace();
-    const auto target_data_handle = UGASExtTargetingHelperLibrary::MakeTargetDataFromHitResults( hit_results );
-
-    return target_data_handle;
 }
 
 TArray< FHitResult > UGASExtAT_WaitTargetDataHitScan::PerformTrace() const
