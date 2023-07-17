@@ -213,7 +213,7 @@ void UGASExtAbilitySystemFunctionLibrary::CopySetByCallerTagMagnitudesFromSpecTo
             continue;
         }
 
-        handle.Data->SetByCallerTagMagnitudes.Append( gameplay_effect_spec->SetByCallerTagMagnitudes );
+        handle.Data->CopySetByCallerMagnitudes( *gameplay_effect_spec );
         CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( handle.Data.Get() );
     }
 }
