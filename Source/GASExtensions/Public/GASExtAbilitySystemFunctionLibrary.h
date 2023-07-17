@@ -62,5 +62,6 @@ public:
     static TSubclassOf< UGameplayEffect > GetGameplayEffectClassFromSpecHandle( FGameplayEffectSpecHandle spec_handle );
 
     static void CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( FGameplayEffectSpec * gameplay_effect_spec );
+    static void InitializeConditionalGameplayEffectSpecsFromParent( FGameplayEffectSpec * gameplay_effect_spec );
     static void AddDynamicAssetTagToSpecAndChildren( FGameplayEffectSpec * gameplay_effect_spec, FGameplayTag gameplay_tag );
 };
