@@ -213,8 +213,23 @@ void UGASExtAbilitySystemFunctionLibrary::CopySetByCallerTagMagnitudesFromSpecTo
             continue;
         }
 
-        handle.Data->SetByCallerTagMagnitudes.Append( gameplay_effect_spec->SetByCallerTagMagnitudes );
+        handle.Data->CopySetByCallerMagnitudes( *gameplay_effect_spec );
         CopySetByCallerTagMagnitudesFromSpecToConditionalEffects( handle.Data.Get() );
+    }
+}
+
+void UGASExtAbilitySystemFunctionLibrary::InitializeConditionalGameplayEffectSpecsFromParent( FGameplayEffectSpec * gameplay_effect_spec )
+{
+    for ( auto handle : gameplay_effect_spec->TargetEffectSpecs )
+    {
+        if ( !handle.Data.IsValid() )
+        {
+            continue;
+        }
+
+        handle.Data->InitializeFromLinkedSpec( handle.Data->Def.Get(), *gameplay_effect_spec );
+
+        InitializeConditionalGameplayEffectSpecsFromParent( handle.Data.Get() );
     }
 }
 
