@@ -19,6 +19,12 @@ class GASEXTENSIONS_API UGASExtAbilitySystemFunctionLibrary final : public UBlue
     GENERATED_BODY()
 
 public:
+    UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
+    static void CancelAllAbilities( UAbilitySystemComponent * ability_system_component, UGameplayAbility * ignore_ability = nullptr );
+
+    UFUNCTION( BlueprintCallable, Category = "Ability|Abilities" )
+    static void CancelAllAbilitiesForActor( AActor * actor, UGameplayAbility * ignore_ability = nullptr );
+
     UFUNCTION( BlueprintCallable, BlueprintAuthorityOnly, Category = "Ability|GameplayEffects", meta = ( DefaultToSelf = "ability", AutoCreateRefTerm = "event_data, target_data" ) )
     static FGASExtGameplayEffectContainerSpec MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayAbilityTargetDataHandle & target_data, const FGameplayEventData & event_data, int level = 1 );
 
