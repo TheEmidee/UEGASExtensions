@@ -9,6 +9,22 @@
 #include <AbilitySystemGlobals.h>
 #include <AbilitySystemLog.h>
 
+void UGASExtAbilitySystemFunctionLibrary::CancelAllAbilities( UAbilitySystemComponent * ability_system_component, UGameplayAbility * ignore_ability )
+{
+    if ( ability_system_component != nullptr )
+    {
+        ability_system_component->CancelAllAbilities( ignore_ability );
+    }
+}
+
+void UGASExtAbilitySystemFunctionLibrary::CancelAllAbilitiesForActor( AActor * actor, UGameplayAbility * ignore_ability )
+{
+    if ( auto * asc = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent( actor ) )
+    {
+        CancelAllAbilities( asc, ignore_ability );
+    }
+}
+
 FGASExtGameplayEffectContainerSpec UGASExtAbilitySystemFunctionLibrary::MakeEffectContainerSpecFromEffectContainer( const UGameplayAbility * ability, const FGASExtGameplayEffectContainer & effect_container, const FGameplayAbilityTargetDataHandle & target_data, const FGameplayEventData & event_data, int level /* = 1 */ )
 {
     FGASExtGameplayEffectContainerSpec container_spec;
