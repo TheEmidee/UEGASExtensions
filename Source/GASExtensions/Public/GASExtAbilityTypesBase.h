@@ -214,7 +214,7 @@ FORCEINLINE TArray< TWeakObjectPtr< UGASExtTargetDataFilter > > FGASExtGameplayE
 
 FORCEINLINE void FGASExtGameplayEffectContext::SetTargetDataFilters( TArray< UGASExtTargetDataFilter * > target_data_filters )
 {
-    TargetDataFilters.SetNum( target_data_filters.Num() );
+    TargetDataFilters.Reset( target_data_filters.Num() );
 
     for ( auto * filter : target_data_filters )
     {
