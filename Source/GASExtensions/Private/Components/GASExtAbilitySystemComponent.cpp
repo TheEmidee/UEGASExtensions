@@ -351,11 +351,11 @@ void UGASExtAbilitySystemComponent::ClearAbilityInput()
 }
 
 #if WITH_EDITOR
-EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText > & validation_errors )
+EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( FDataValidationContext & context ) const
 {
-    Super::IsDataValid( validation_errors );
+    Super::IsDataValid( context );
 
-    return FDVEDataValidator( validation_errors )
+    return FDVEDataValidator( context )
         .Result();
 }
 #endif
