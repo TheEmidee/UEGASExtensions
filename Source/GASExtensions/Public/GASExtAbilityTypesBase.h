@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FallOff/GASExtFallOffType.h"
+#include "Targeting/GASExtTargetDataFilter.h"
 #include "Targeting/GASExtTargetDataGenerator.h"
 
 #include <Abilities/GameplayAbilityTargetTypes.h>
@@ -9,8 +11,6 @@
 
 #include "GASExtAbilityTypesBase.generated.h"
 
-class UGASExtTargetDataFilter;
-class UGASExtFallOffType;
 class ASWSpline;
 class UGameplayEffect;
 class UGASExtTargetDataGenerator;
@@ -173,23 +173,23 @@ public:
     UGASExtTargetDataGenerator * GetAdditionalTargetDataGenerator() const;
     void SetAdditionalTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator );
 
-    TArray< UGASExtTargetDataFilter * > GetTargetDataFilters() const;
+    TArray< TWeakObjectPtr< UGASExtTargetDataFilter > > GetTargetDataFilters() const;
     void SetTargetDataFilters( TArray< UGASExtTargetDataFilter * > target_data_filters );
 
 protected:
     UPROPERTY()
-    UGASExtFallOffType * FallOffType;
+    TWeakObjectPtr< UGASExtFallOffType > FallOffType;
 
     UPROPERTY()
-    UGASExtTargetDataGenerator * AdditionalTargetDataGenerator;
+    TWeakObjectPtr< UGASExtTargetDataGenerator > AdditionalTargetDataGenerator;
 
     UPROPERTY()
-    TArray< UGASExtTargetDataFilter * > TargetDataFilters;
+    TArray< TWeakObjectPtr< UGASExtTargetDataFilter > > TargetDataFilters;
 };
 
 FORCEINLINE UGASExtFallOffType * FGASExtGameplayEffectContext::GetFallOffType() const
 {
-    return FallOffType;
+    return FallOffType.Get();
 }
 
 FORCEINLINE void FGASExtGameplayEffectContext::SetFallOffType( UGASExtFallOffType * fall_off_type )
@@ -199,7 +199,7 @@ FORCEINLINE void FGASExtGameplayEffectContext::SetFallOffType( UGASExtFallOffTyp
 
 FORCEINLINE UGASExtTargetDataGenerator * FGASExtGameplayEffectContext::GetAdditionalTargetDataGenerator() const
 {
-    return AdditionalTargetDataGenerator;
+    return AdditionalTargetDataGenerator.Get();
 }
 
 FORCEINLINE void FGASExtGameplayEffectContext::SetAdditionalTargetDataGenerator( UGASExtTargetDataGenerator * target_data_generator )
@@ -207,14 +207,19 @@ FORCEINLINE void FGASExtGameplayEffectContext::SetAdditionalTargetDataGenerator(
     AdditionalTargetDataGenerator = target_data_generator;
 }
 
-FORCEINLINE TArray< UGASExtTargetDataFilter * > FGASExtGameplayEffectContext::GetTargetDataFilters() const
+FORCEINLINE TArray< TWeakObjectPtr< UGASExtTargetDataFilter > > FGASExtGameplayEffectContext::GetTargetDataFilters() const
 {
     return TargetDataFilters;
 }
 
 FORCEINLINE void FGASExtGameplayEffectContext::SetTargetDataFilters( TArray< UGASExtTargetDataFilter * > target_data_filters )
 {
-    TargetDataFilters = target_data_filters;
+    TargetDataFilters.Reset( target_data_filters.Num() );
+
+    for ( auto * filter : target_data_filters )
+    {
+        TargetDataFilters.Add( filter );
+    }
 }
 
 template <>

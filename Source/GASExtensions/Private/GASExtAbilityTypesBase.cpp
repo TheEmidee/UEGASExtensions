@@ -69,11 +69,11 @@ bool FGASExtGameplayEffectContext::NetSerialize( FArchive & ar, UPackageMap * ma
         {
             RepBits |= 1 << 6;
         }
-        if ( IsValid( FallOffType ) )
+        if ( FallOffType.IsValid() )
         {
             RepBits |= 1 << 7;
         }
-        if ( IsValid( AdditionalTargetDataGenerator ) )
+        if ( AdditionalTargetDataGenerator.IsValid() )
         {
             RepBits |= 1 << 8;
         }

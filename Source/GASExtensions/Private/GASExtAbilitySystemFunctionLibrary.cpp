@@ -97,9 +97,9 @@ TArray< FActiveGameplayEffectHandle > UGASExtAbilitySystemFunctionLibrary::Apply
                 target_data_handle = effect_container_spec.TargetData;
             }
 
-            for ( const auto * target_data_filter : context->GetTargetDataFilters() )
+            for ( const auto target_data_filter : context->GetTargetDataFilters() )
             {
-                if ( IsValid( target_data_filter ) )
+                if ( target_data_filter.IsValid() )
                 {
                     target_data_handle = target_data_filter->FilterTargetData( target_data_handle );
                 }
