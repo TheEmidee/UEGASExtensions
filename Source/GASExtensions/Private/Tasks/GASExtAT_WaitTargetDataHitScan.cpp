@@ -9,6 +9,8 @@
 FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
     bAimFromPlayerViewPoint( true ),
     TargetTraceType( EGASExtTargetTraceType::Line ),
+    TraceLocationOffset( FVector::ZeroVector ),
+    TraceRotationOffset( FRotator::ZeroRotator ),
     MaxHitResultsPerTrace( 1 ),
     bSpreadTraces( true ),
     bTraceAffectsAimPitch( true ),
