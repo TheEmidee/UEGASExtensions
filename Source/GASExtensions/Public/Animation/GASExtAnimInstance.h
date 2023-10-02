@@ -18,7 +18,7 @@ public:
 
 protected:
 #if WITH_EDITOR
-    EDataValidationResult IsDataValid( TArray< FText > & ValidationErrors ) override;
+    EDataValidationResult IsDataValid( FDataValidationContext & context ) const override;
 #endif // WITH_EDITOR
 
     void NativeInitializeAnimation() override;

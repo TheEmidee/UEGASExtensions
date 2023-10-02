@@ -126,8 +126,12 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
                 const auto & instances = ability_spec.GetAbilityInstances();
                 for ( UGameplayAbility * AbilityInstance : instances )
                 {
-                    auto * gas_ext_ability_instance = CastChecked< UGASExtGameplayAbility >( AbilityInstance );
-                    gas_ext_ability_instance->OnPawnAvatarSet();
+                    auto * gas_ext_ability_instance = Cast< UGASExtGameplayAbility >( AbilityInstance );
+                    if ( gas_ext_ability_instance != nullptr )
+                    {
+                        // Ability instances may be missing for replays
+                        gas_ext_ability_instance->OnPawnAvatarSet();
+                    }
                 }
             }
             else
