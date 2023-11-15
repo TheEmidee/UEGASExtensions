@@ -126,8 +126,12 @@ void UGASExtAbilitySystemComponent::InitAbilityActorInfo( AActor * owner_actor, 
                 const auto & instances = ability_spec.GetAbilityInstances();
                 for ( UGameplayAbility * AbilityInstance : instances )
                 {
-                    auto * gas_ext_ability_instance = CastChecked< UGASExtGameplayAbility >( AbilityInstance );
-                    gas_ext_ability_instance->OnPawnAvatarSet();
+                    auto * gas_ext_ability_instance = Cast< UGASExtGameplayAbility >( AbilityInstance );
+                    if ( gas_ext_ability_instance != nullptr )
+                    {
+                        // Ability instances may be missing for replays
+                        gas_ext_ability_instance->OnPawnAvatarSet();
+                    }
                 }
             }
             else
@@ -351,11 +355,11 @@ void UGASExtAbilitySystemComponent::ClearAbilityInput()
 }
 
 #if WITH_EDITOR
-EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( TArray< FText > & validation_errors )
+EDataValidationResult UGASExtAbilitySystemComponent::IsDataValid( FDataValidationContext & context ) const
 {
-    Super::IsDataValid( validation_errors );
+    Super::IsDataValid( context );
 
-    return FDVEDataValidator( validation_errors )
+    return FDVEDataValidator( context )
         .Result();
 }
 #endif

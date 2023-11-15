@@ -107,7 +107,7 @@ public:
     void ClearAbilityInput();
 
 #if WITH_EDITOR
-    EDataValidationResult IsDataValid( TArray< FText > & validation_errors ) override;
+    EDataValidationResult IsDataValid( FDataValidationContext & context ) const override;
 #endif
 
     UFUNCTION( BlueprintPure )
@@ -130,7 +130,7 @@ public:
     void RemoveGameplayCueLocal( const FGameplayTag gameplay_cue_tag, const FGameplayCueParameters & parameters );
 
     /** Cancels the ability indicated by passed in spec handle. If handle is not found among reactivated abilities nothing happens. */
-    UFUNCTION( BlueprintCallable, Category = "GameplayAbility", DisplayName = "CancelAbilityByHandle"  )
+    UFUNCTION( BlueprintCallable, Category = "GameplayAbility", DisplayName = "CancelAbilityByHandle" )
     void K2_CancelAbilityHandle( const FGameplayAbilitySpecHandle & ability_handle );
 
     // ----------------------------------------------------------------------------------------------------------------

@@ -2,6 +2,10 @@
 
 #include <AbilitySystemGlobals.h>
 
+#if WITH_EDITOR
+#include <Misc/DataValidation.h>
+#endif
+
 void UGASExtAnimInstance::InitializeWithAbilitySystem( UAbilitySystemComponent * asc )
 {
     check( asc );
@@ -10,13 +14,13 @@ void UGASExtAnimInstance::InitializeWithAbilitySystem( UAbilitySystemComponent *
 }
 
 #if WITH_EDITOR
-EDataValidationResult UGASExtAnimInstance::IsDataValid( TArray< FText > & ValidationErrors )
+EDataValidationResult UGASExtAnimInstance::IsDataValid( FDataValidationContext & context ) const
 {
-    Super::IsDataValid( ValidationErrors );
+    Super::IsDataValid( context );
 
-    GameplayTagPropertyMap.IsDataValid( this, ValidationErrors );
+    GameplayTagPropertyMap.IsDataValid( this, context );
 
-    return ( ( ValidationErrors.Num() > 0 ) ? EDataValidationResult::Invalid : EDataValidationResult::Valid );
+    return ( ( context.GetNumErrors() > 0 ) ? EDataValidationResult::Invalid : EDataValidationResult::Valid );
 }
 #endif // WITH_EDITOR
 
