@@ -187,7 +187,7 @@ void UGASExtGameplayAbility::SetCanBeCanceled( const bool can_be_canceled )
 
 void UGASExtGameplayAbility::TryActivateAbilityOnSpawn( const FGameplayAbilityActorInfo * actor_info, const FGameplayAbilitySpec & spec ) const
 {
-    const auto is_predicting = ( spec.ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting );
+    const auto is_predicting = ( spec.Ability->GetCurrentActivationInfo().ActivationMode == EGameplayAbilityActivationMode::Predicting );
 
     // Try to activate if activation policy is on spawn.
     if ( actor_info && !spec.IsActive() && !is_predicting && ( ActivationPolicy == EGASExtAbilityActivationPolicy::OnSpawn ) )
@@ -227,7 +227,7 @@ bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySy
     const auto & missing_tag = ability_system_globals.ActivateFailTagsMissingTag;
 
     // Check if any of this ability's tags are currently blocked
-    if ( ability_system_component.AreAbilityTagsBlocked( AbilityTags ) )
+    if ( ability_system_component.AreAbilityTagsBlocked( GetAssetTags() ) )
     {
         blocked = true;
     }
@@ -241,7 +241,7 @@ bool UGASExtGameplayAbility::DoesAbilitySatisfyTagRequirements( const UAbilitySy
     // Expand our ability tags to add additional required/blocked tags
     if ( const auto * gas_ext_asc = Cast< UGASExtAbilitySystemComponent >( &ability_system_component ) )
     {
-        gas_ext_asc->GetAdditionalActivationTagRequirements( AbilityTags, AllRequiredTags, AllBlockedTags );
+        gas_ext_asc->GetAdditionalActivationTagRequirements( GetAssetTags(), AllRequiredTags, AllBlockedTags );
     }
 
     // Check to see the required/blocked tags for this ability
@@ -429,7 +429,7 @@ void UGASExtGameplayAbility::MontageJumpToSectionForMesh( USkeletalMeshComponent
 {
     check( CurrentActorInfo != nullptr );
 
-    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Checked() ) )
+    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Ensured() ) )
     {
         if ( ability_system_component->IsAnimatingAbilityForAnyMesh( this ) )
         {
@@ -442,7 +442,7 @@ void UGASExtGameplayAbility::MontageSetNextSectionNameForMesh( USkeletalMeshComp
 {
     check( CurrentActorInfo != nullptr );
 
-    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Checked() ) )
+    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Ensured() ) )
     {
         if ( ability_system_component->IsAnimatingAbilityForAnyMesh( this ) )
         {
@@ -455,7 +455,7 @@ void UGASExtGameplayAbility::MontageStopForMesh( USkeletalMeshComponent * mesh, 
 {
     check( CurrentActorInfo != nullptr );
 
-    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Checked() ) )
+    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Ensured() ) )
     {
         // We should only stop the current montage if we are the animating ability
         if ( ability_system_component->IsAnimatingAbilityForAnyMesh( this ) )
@@ -469,7 +469,7 @@ void UGASExtGameplayAbility::MontageStopForAllMeshes( const float override_blend
 {
     check( CurrentActorInfo != nullptr );
 
-    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Checked() ) )
+    if ( auto * ability_system_component = Cast< UGASExtAbilitySystemComponent >( GetAbilitySystemComponentFromActorInfo_Ensured() ) )
     {
         if ( ability_system_component->IsAnimatingAbilityForAnyMesh( this ) )
         {
