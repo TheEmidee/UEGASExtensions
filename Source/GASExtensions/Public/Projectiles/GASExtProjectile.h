@@ -131,6 +131,9 @@ private:
     UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
     uint8 bUseHitResultAsLocationForGameplayEffects : 1;
 
+    UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
+    float HitLocationOffset;
+
     UPROPERTY()
     UGASExtAbilitySystemComponent * AbilitySystemComponent;
 

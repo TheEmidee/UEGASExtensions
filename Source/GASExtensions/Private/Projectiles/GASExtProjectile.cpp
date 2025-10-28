@@ -34,6 +34,7 @@ AGASExtProjectile::AGASExtProjectile()
     IsInOverlap = false;
     ApplyGameplayEffectsPhase = EGASExtProjectileApplyGameplayEffectsPhase::OnHit;
     bUseHitResultAsLocationForGameplayEffects = true;
+    HitLocationOffset = 1.0f;
 }
 
 void AGASExtProjectile::PostInitializeComponents()
@@ -148,7 +149,7 @@ void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
         return;
     }
 
-    SetActorLocation( hit_result.ImpactPoint + hit_result.ImpactNormal );
+    SetActorLocation( hit_result.Location + hit_result.Normal * HitLocationOffset );
 
     if ( ImpactSpawnActorClass != nullptr )
     {
