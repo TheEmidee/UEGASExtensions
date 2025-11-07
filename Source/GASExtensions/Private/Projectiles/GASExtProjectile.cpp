@@ -35,6 +35,7 @@ AGASExtProjectile::AGASExtProjectile()
     ApplyGameplayEffectsPhase = EGASExtProjectileApplyGameplayEffectsPhase::OnHit;
     bUseHitResultAsLocationForGameplayEffects = true;
     HitLocationOffset = 1.0f;
+    bAttachOnHit = false;
 }
 
 void AGASExtProjectile::PostInitializeComponents()
@@ -137,8 +138,14 @@ void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
     }
 
     LastHitResult = hit_result;
+    LastHitResult.Location += hit_result.Normal * HitLocationOffset;
 
-    ReceiveOnHit( hit_result );
+    if ( bAttachOnHit )
+    {
+        AttachToHitResult( LastHitResult );
+    }
+
+    ReceiveOnHit( LastHitResult );
 
     ExecuteGameplayCue( ImpactGameplayCue, [ projectile = this ]( FGameplayCueParameters & gameplay_cue_parameters ) {
         projectile->UpdateImpactGameplayCueParameters( gameplay_cue_parameters );
@@ -149,11 +156,9 @@ void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
         return;
     }
 
-    SetActorLocation( hit_result.Location + hit_result.Normal * HitLocationOffset );
-
     if ( ImpactSpawnActorClass != nullptr )
     {
-        const FTransform transform( FQuat::Identity, hit_result.Location );
+        const FTransform transform( FQuat::Identity, LastHitResult.Location );
         if ( auto * spawned_actor = GetWorld()->SpawnActorDeferred< AActor >(
                  ImpactSpawnActorClass,
                  transform,
@@ -166,7 +171,7 @@ void AGASExtProjectile::ProcessHit( const FHitResult & hit_result )
         }
     }
 
-    PostProcessHit( hit_result );
+    PostProcessHit( LastHitResult );
 }
 
 void AGASExtProjectile::PostProcessHit( const FHitResult & /*hit_result*/ )
@@ -224,6 +229,33 @@ void AGASExtProjectile::OnSphereComponentBeginOverlap( UPrimitiveComponent * /* 
     }
 
     ProcessHit( hit_result );
+}
+
+void AGASExtProjectile::OnAttachActorDestroyed( AActor * /*destroyed_actor*/ )
+{
+    Destroy();
+}
+
+void AGASExtProjectile::AttachToHitResult( const FHitResult & hit_result )
+{
+    auto * hit_actor = hit_result.GetActor();
+    auto * hit_component = hit_result.GetComponent();
+
+    if ( hit_actor == nullptr ||
+         hit_component == nullptr )
+    {
+        return;
+    }
+
+    AttachToComponent( hit_component, FAttachmentTransformRules::KeepWorldTransform, hit_result.BoneName );
+    SetActorEnableCollision( false );
+
+    if ( !HasAuthority() )
+    {
+        return;
+    }
+
+    hit_actor->OnDestroyed.AddDynamic( this, &ThisClass::OnAttachActorDestroyed );
 }
 
 void AGASExtProjectile::ExecuteGameplayCue( const FGameplayTag gameplay_tag, const TFunctionRef< void( FGameplayCueParameters & gameplay_cue_parameters ) > & bp_function ) const

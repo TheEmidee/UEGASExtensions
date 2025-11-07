@@ -103,6 +103,11 @@ private:
     UFUNCTION()
     void OnSphereComponentBeginOverlap( UPrimitiveComponent * overlapped_component, AActor * other_actor, UPrimitiveComponent * other_component, int32 other_body_index, bool from_sweep, const FHitResult & sweep_hit_result );
 
+    UFUNCTION()
+    void OnAttachActorDestroyed( AActor * destroyed_actor );
+
+    void AttachToHitResult( const FHitResult & hit_result );
+
     UPROPERTY( BlueprintReadOnly, VisibleAnywhere, Category = "Projectile", meta = ( AllowPrivateAccess = true ) )
     USphereComponent * SphereComponent;
 
@@ -133,6 +138,9 @@ private:
 
     UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
     float HitLocationOffset;
+
+    UPROPERTY( EditDefaultsOnly, Category = "Projectile" )
+    uint8 bAttachOnHit : 1;
 
     UPROPERTY()
     UGASExtAbilitySystemComponent * AbilitySystemComponent;
