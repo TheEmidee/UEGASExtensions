@@ -9,15 +9,15 @@
 FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
     bAimFromPlayerViewPoint( true ),
     TargetTraceType( EGASExtTargetTraceType::Line ),
+    TraceLocationOffset( FVector::ZeroVector ),
+    TraceRotationOffset( FRotator::ZeroRotator ),
     MaxHitResultsPerTrace( 1 ),
     bSpreadTraces( true ),
     bTraceAffectsAimPitch( true ),
     TraceSphereRadius( 10.0f ),
     TraceBoxHalfExtent( 10.0f ),
     bShowDebugTraces( false ),
-    DebugDrawDuration( 2.0f ),
-    TraceLocationOffset( FVector::ZeroVector ),
-    TraceRotationOffset( FRotator::ZeroRotator )
+    DebugDrawDuration( 2.0f )
 {
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
