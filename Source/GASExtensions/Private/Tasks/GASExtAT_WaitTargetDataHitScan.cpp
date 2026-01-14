@@ -15,7 +15,9 @@ FGASExtWaitTargetDataHitScanOptions::FGASExtWaitTargetDataHitScanOptions() :
     TraceSphereRadius( 10.0f ),
     TraceBoxHalfExtent( 10.0f ),
     bShowDebugTraces( false ),
-    DebugDrawDuration( 2.0f )
+    DebugDrawDuration( 2.0f ),
+    TraceLocationOffset( FVector::ZeroVector ),
+    TraceRotationOffset( FRotator::ZeroRotator )
 {
     MaxRange.Value = 999999.0f;
     NumberOfTraces.Value = 1;
